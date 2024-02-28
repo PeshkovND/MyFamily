@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "9D212314-1330-45CB-B484-087AD3259D1E"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "55EF6497-92BC-48FE-8999-BD85A4CA2340"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Packages/AppModulesPackage/Sources/SignInFlow/Sources/EnterPhoneScreen/EnterPhoneViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "111"
+            endingLineNumber = "111"
+            landmarkName = "normalizePhoneNumber(text:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "55EF6497-92BC-48FE-8999-BD85A4CA2340 - 3204a9a5ad17558a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SignInFlow.EnterPhoneViewModel.normalizePhoneNumber(text: Swift.String) -&gt; Swift.String"
+                  moduleName = "App"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andreyarzhannikov/Workspace/Effective/iOS/AppTemplate/TemplateProject/XcodeProject/Packages/AppModulesPackage/Sources/SignInFlow/Sources/EnterPhoneScreen/EnterPhoneViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "111"
+                  endingLineNumber = "111"
+                  offsetFromSymbolStart = "84">
+               </Location>
+               <Location
+                  uuid = "55EF6497-92BC-48FE-8999-BD85A4CA2340 - fecca455eeebb0e9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "implicit closure #2 (Swift.Character) -&gt; Swift.Bool in implicit closure #1 (Swift.String) -&gt; (Swift.Character) -&gt; Swift.Bool in SignInFlow.EnterPhoneViewModel.normalizePhoneNumber(text: Swift.String) -&gt; Swift.String"
+                  moduleName = "App"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andreyarzhannikov/Workspace/Effective/iOS/AppTemplate/TemplateProject/XcodeProject/Packages/AppModulesPackage/Sources/SignInFlow/Sources/EnterPhoneScreen/EnterPhoneViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "111"
+                  endingLineNumber = "111"
+                  offsetFromSymbolStart = "108">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D4ACC95F-86FF-41DC-B060-AE6015971A8F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Packages/AppModulesPackage/Sources/SignInFlow/Sources/EnterPhoneScreen/EnterPhoneViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "onViewEvent(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

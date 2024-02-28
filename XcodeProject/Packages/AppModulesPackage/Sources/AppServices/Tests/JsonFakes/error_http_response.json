@@ -1,0 +1,24 @@
+{
+    "error": {
+        "code": "1001",
+        "message": "Validation Error",
+        "fieldErrors": {
+            "body": [
+                {
+                    "message": "\"uuid\" length must be at least 6 characters long",
+                    "path": [
+                        "uuid"
+                    ],
+                    "type": "string.min",
+                    "context": {
+                        "limit": 6,
+                        "value": 123,
+                        "label": "uuid",
+                        "key": "uuid"
+                    }
+                }
+            ]
+        }
+    },
+    "meta": {}
+}

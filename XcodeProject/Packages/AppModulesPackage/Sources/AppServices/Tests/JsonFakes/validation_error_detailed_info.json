@@ -1,0 +1,13 @@
+{
+    "message": "\"uuid\" length must be at least 6 characters long",
+    "path": [
+        "uuid"
+    ],
+    "type": "string.min",
+    "context": {
+        "limit": 6,
+        "value": 123,
+        "label": "uuid",
+        "key": "key"
+    }
+}
