@@ -42,3 +42,7 @@
 "sign_in_error_sms_code_is_invalid" = "You've entered the wrong code. Please try again";
 "sign_in_error_sms_code_expired" = "Your session has expired. Please tap resend code";
 "sign_in_error_exceed_limit_sms_code" = "You can receive a new code in %@ seconds";
+"sign_in_vk" = "Sign in with VK";
+"sign_in_title" = "Welcome to MyFamily";
+"sign_in_subtitle" = "Please log in to stay in touch with your family";
+

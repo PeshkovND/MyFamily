@@ -10,7 +10,6 @@ extension WelcomeViewController {
     final class ContentView: BaseView {
 
         private var designSystem = appDesignSystem
-        private lazy var strings = appDesignSystem.strings
         private lazy var styles = appDesignSystem.styles
 
         private(set) lazy var singInButton: UIButton = {

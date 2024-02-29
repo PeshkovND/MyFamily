@@ -39,13 +39,13 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
         logoutNotifier.onLogoutCompleted = { [weak self] in
             guard let self = self else { return }
             self.removeAll()
-            self.startWelcomeFlow()
+            self.startSignInFlow()
         }
 
         logoutNotifier.onAuthErrorOccured = { [weak self] in
             guard let self = self else { return }
             self.removeAll()
-            self.startWelcomeFlow()
+            self.startSignInFlow()
             self.showAuthErrorAlert()
         }
 
@@ -57,7 +57,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
         if authService.hasAuthorizedUser {
             startAuthorizedFlow()
         } else {
-            startWelcomeFlow()
+            startSignInFlow()
         }
     }
 
@@ -215,7 +215,7 @@ private extension AppCoordinator {
                     guard let self = self else { return }
 
                     // TODO: Implement logout and clean
-                    self.startWelcomeFlow()
+                    self.startSignInFlow()
                     self.showInfoAlertAboutSwitchEnv()
                 }
         case .production, .unknown: break

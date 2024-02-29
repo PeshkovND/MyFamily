@@ -84,4 +84,8 @@ extension StringsLibrary {
             arg: seconds
         )
     }
+    
+    public var signInWithVk: String { localized("sign_in_vk") }
+    public var signInTitle: String { localized("sign_in_title") }
+    public var signInSubtitle: String { localized("sign_in_subtitle") }
 }

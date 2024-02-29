@@ -4,88 +4,104 @@ import UIKit
 import SnapKit
 import TweeTextField
 import AppBaseFlow
+import AppDesignSystem
+import Utilities
 
 extension SignInViewController {
 
     final class ContentView: BaseView {
-
-        private(set) lazy var headlineLabel: UILabel = {
+    
+        private(set) lazy var backgroundImageView: UIImageView = {
+            let view = UIImageView(image: icons.signInBackground)
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.contentMode = .scaleAspectFill
+            view.clipsToBounds = true
+            return view
+        }()
+        
+        private(set) lazy var signInContainer: UIView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.backgroundColor = colors.backgroundPrimary
+            view.clipsToBounds = true
+            view.layer.cornerRadius = 28
+            view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            return view
+        }()
+        
+        private(set) lazy var signInButton: ActionButton = {
+            
+            var filled = UIButton.Configuration.filled()
+            filled.title = strings.signInWithVk
+            filled.imagePlacement = .leading
+            filled.imagePadding = 4
+            
+            let button = ActionButton(configuration: filled, primaryAction: nil)
+            let icon = icons.vkLogo.scaleImageToFitSize(size: CGSize(width: 40, height: 40))
+            button.setImage(icon, for: .normal)
+            
+            return button
+        }()
+        
+        private(set) lazy var title: UILabel = {
             let label = UILabel()
+            label.text = strings.signInTitle
             label.font = typography.headline
-            label.textColor = colors.labelPrimary
-            label.numberOfLines = 0
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textAlignment = .center
+            
             return label
         }()
-
-        private(set) lazy var inputTextField: TweeAttributedTextField = {
-            let textField = components.inputTextField
-            textField.keyboardType = .phonePad
-            return textField
-        }()
-
-        private(set) lazy var captionLabel: UILabel = {
+        
+        private(set) lazy var subtitle: UILabel = {
             let label = UILabel()
-            label.font = typography.caption1
-            label.textColor = colors.labelSecondary
+            label.text = strings.signInSubtitle
+            label.font = typography.subheadline
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textAlignment = .center
+            
             return label
         }()
-
-        private(set) lazy var actionButton = components.primaryActionButton
 
         // swiftlint:disable function_body_length
         override func setLayout() {
-            backgroundColor = colors.backgroundPrimary
 
-            let spaceView = UIView()
-            addSubview(spaceView)
-            addSubview(headlineLabel)
-            addSubview(inputTextField)
-            addSubview(captionLabel)
-            addSubview(actionButton)
+            addSubview(backgroundImageView)
+            addSubview(signInContainer)
+            signInContainer.addSubview(signInButton)
+            signInContainer.addSubview(title)
+            signInContainer.addSubview(subtitle)
 
-            spaceView.snp.makeConstraints {
-                $0.top.equalTo(safeAreaLayoutGuide.snp.top)
+            backgroundImageView.snp.makeConstraints {
+                $0.top.equalTo(0)
                 $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
                 $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing)
-                $0.height.equalTo(safeAreaLayoutGuide.snp.height).multipliedBy(0.15)
+                $0.height.equalToSuperview().multipliedBy(0.39)
             }
-
-            headlineLabel.snp.makeConstraints {
-                $0.top.equalTo(spaceView.snp.bottom)
+            
+            signInContainer.snp.makeConstraints {
+                $0.top.equalTo(backgroundImageView.snp.bottom).inset(28)
                 $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
-                    .inset(spacing.hPadding)
-                $0.width.equalTo(snp.width).multipliedBy(0.45)
-            }
-
-            inputTextField.snp.makeConstraints {
-                $0.top.equalTo(headlineLabel.snp.bottom).offset(56)
-                $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
-                    .inset(spacing.hPadding)
                 $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing)
-                    .inset(spacing.hPadding)
-                $0.height.equalTo(56)
-            }
-
-            captionLabel.snp.makeConstraints {
-                $0.bottom.equalTo(actionButton.snp.top)
-                    .offset(-24)
-                $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
-                    .inset(spacing.hPadding)
-                $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing)
-                    .inset(spacing.hPadding)
-            }
-
-            actionButton.snp.makeConstraints {
                 $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
-                    .inset(spacing.vPadding)
-
-                $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
-                    .offset(spacing.hPadding)
-
-                $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing)
-                    .inset(spacing.hPadding)
-
-                $0.height.equalTo(spacing.primaryActionButtonHeight)
+            }
+            
+            signInButton.snp.makeConstraints {
+                $0.centerY.equalTo(signInContainer.snp.centerY)
+                $0.centerX.equalTo(signInContainer.snp.centerX)
+                $0.height.equalTo(48)
+            }
+            
+            title.snp.makeConstraints {
+                $0.top.equalTo(signInContainer.snp.top).inset(32)
+                $0.width.equalTo(signInContainer.snp.width).multipliedBy(0.8)
+                $0.centerX.equalTo(signInContainer.snp.centerX)
+            }
+            
+            subtitle.snp.makeConstraints {
+                $0.top.equalTo(title.snp.bottom).inset(-16)
+                $0.width.equalTo(signInContainer.snp.width).multipliedBy(0.8)
+                $0.centerX.equalTo(signInContainer.snp.centerX)
             }
         }
         // swiftlint:enable function_body_length

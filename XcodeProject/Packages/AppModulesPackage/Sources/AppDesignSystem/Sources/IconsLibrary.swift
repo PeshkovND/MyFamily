@@ -19,6 +19,9 @@ extension IconsLibrary {
     public var homeTabbarExplore: UIImage { valueOrStub("home_tabbar_explore") }
     public var homeTabbarStore: UIImage { valueOrStub("home_tabbar_store") }
     public var homeTabbarProfile: UIImage { valueOrStub("home_tabbar_profile") }
+    
+    public var signInBackground: UIImage { valueOrStub("SignInBackground") }
+    public var vkLogo: UIImage { valueOrStub("vk_logo") }
 }
 
 // SFSymbols Example
