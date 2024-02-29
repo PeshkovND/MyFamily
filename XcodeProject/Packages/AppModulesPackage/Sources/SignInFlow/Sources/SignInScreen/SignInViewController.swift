@@ -18,12 +18,30 @@ final class SignInViewController: BaseViewController<SignInViewModel,
     deinit {
         viewModel.onViewEvent(.deinit)
     }
-
+    
+    private var signInButton: ActionButton { contentView.signInButton }
     // MARK: - View Controller Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        configureView()
         navigationController?.isNavigationBarHidden = true
         viewModel.onViewEvent(.viewDidLoad)
     }
+    
+    private func configureView() {
+            disableKeyboardAutoManaging = false
+
+            signInButton.touchUpInsidePublisher
+                .sink { [weak self] _ in
+                    guard let self = self else { return }
+                    self.viewModel.onViewEvent(
+                        .signInTapped
+                    )
+                }
+                .store(in: &cancelableSet)
+
+            // TODO: - Add handling text input
+        }
 }

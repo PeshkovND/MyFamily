@@ -46,3 +46,7 @@
 "sign_in_title" = "Welcome to MyFamily";
 "sign_in_subtitle" = "Please log in to stay in touch with your family";
 
+"tabbar_map_title" = "Map";
+"tabbar_news_title" = "News";
+"tabbar_family_title" = "Family";
+"tabbar_profile_title" = "Profile";

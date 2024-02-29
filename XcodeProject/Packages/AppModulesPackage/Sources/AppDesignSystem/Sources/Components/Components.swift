@@ -29,27 +29,35 @@ public struct Components {
 // MARK: - Tabbar
 
 extension Components {
-
-    public var exploreTabBarItem: UITabBarItem {
+    
+    public var mapTabBarItem: UITabBarItem {
         .init(
-            title: nil,
-            image: icons.homeTabbarExplore,
+            title: strings.tabBarMapTitle,
+            image: UIImage(systemName: "map"),
             tag: 0
         )
     }
 
-    public var storeTabBarItem: UITabBarItem {
+    public var newsTabBarItem: UITabBarItem {
         .init(
-            title: nil,
-            image: icons.homeTabbarStore,
-            tag: 1
+            title: strings.tabBarNewsTitle,
+            image: UIImage(systemName: "house"),
+            tag: 0
+        )
+    }
+    
+    public var familyTabBarItem: UITabBarItem {
+        .init(
+            title: strings.tabBarFamilyTitle,
+            image: UIImage(systemName: "figure.2.and.child.holdinghands"),
+            tag: 0
         )
     }
 
     public var profileTabBarItem: UITabBarItem {
         .init(
-            title: nil,
-            image: icons.homeTabbarProfile,
+            title: strings.tabBarProfileTitle,
+            image: UIImage(systemName: "person.crop.circle"),
             tag: 2
         )
     }
@@ -58,6 +66,8 @@ extension Components {
         let appearance = UITabBarAppearance()
         appearance.stackedLayoutAppearance.normal.iconColor = colors.labelPrimary
         appearance.stackedLayoutAppearance.selected.iconColor = colors.backgroundSecondaryVariant
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: colors.backgroundSecondaryVariant]
+        appearance.selectionIndicatorTintColor = colors.backgroundSecondaryVariant
         return appearance
     }
 }

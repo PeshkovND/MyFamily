@@ -49,16 +49,16 @@ private extension HomeCoordinator {
     
     private func startHomeScreen() {
         let tabBarController = UITabBarController()
-
         tabBarController.tabBar.standardAppearance = appDesignSystem.components.tabbarStandardAppearance
 
         tabBarController.viewControllers = [
-            makeHomeViewController(),
-            makeStoreViewController(),
+            makeNewsViewController(),
+            makeFamilyViewController(),
+            makeMapViewController(),
             makeProfileViewController()
         ]
 
-        navigationController?.setViewControllers([tabBarController], animated: false)
+        navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         if debugTogglesHolder.toggleValue(for: .isUserProfileFeatureEnabled) {
@@ -66,23 +66,27 @@ private extension HomeCoordinator {
         }
     }
     
-    func makeHomeViewController() -> UIViewController {
+    func makeNewsViewController() -> UIViewController {
         let viewController = TitleStubViewController()
         viewController.stubTitle = "Home Screen"
-        viewController.tabBarItem = appDesignSystem.components.exploreTabBarItem
+        viewController.tabBarItem = appDesignSystem.components.newsTabBarItem
         return viewController
     }
-
-    func makeStoreViewController() -> UIViewController {
+    
+    func makeFamilyViewController() -> UIViewController {
         let viewController = TitleStubViewController()
-
-        // Stub data
-        viewController.stubTitle = "Store Screen"
-
-        viewController.tabBarItem = appDesignSystem.components.storeTabBarItem
+        viewController.stubTitle = "Family Screen"
+        viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
         return viewController
     }
-
+    
+    func makeMapViewController() -> UIViewController {
+        let viewController = TitleStubViewController()
+        viewController.stubTitle = "Map Screen"
+        viewController.tabBarItem = appDesignSystem.components.mapTabBarItem
+        return viewController
+    }
+    
     func makeProfileViewController() -> UIViewController {
         let viewController = TitleStubViewController()
         viewController.stubTitle = "My Profile Screen"

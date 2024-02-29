@@ -83,7 +83,7 @@ extension SignInViewController {
                 $0.top.equalTo(backgroundImageView.snp.bottom).inset(28)
                 $0.leading.equalTo(safeAreaLayoutGuide.snp.leading)
                 $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing)
-                $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+                $0.bottom.equalToSuperview()
             }
             
             signInButton.snp.makeConstraints {

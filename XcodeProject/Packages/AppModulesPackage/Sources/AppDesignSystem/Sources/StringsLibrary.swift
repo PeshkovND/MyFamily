@@ -88,4 +88,9 @@ extension StringsLibrary {
     public var signInWithVk: String { localized("sign_in_vk") }
     public var signInTitle: String { localized("sign_in_title") }
     public var signInSubtitle: String { localized("sign_in_subtitle") }
+    
+    public var tabBarMapTitle: String { localized("tabbar_map_title") }
+    public var tabBarNewsTitle: String { localized("tabbar_news_title") }
+    public var tabBarFamilyTitle: String { localized("tabbar_family_title") }
+    public var tabBarProfileTitle: String { localized("tabbar_profile_title") }
 }

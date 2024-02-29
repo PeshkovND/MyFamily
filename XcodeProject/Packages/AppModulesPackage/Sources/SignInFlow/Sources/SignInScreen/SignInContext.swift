@@ -39,7 +39,7 @@ enum SignInViewState: Stubable {
 // MARK: - Output Event
 
 enum SignInOutputEvent {
-    case `continue`
+    case signedIn
     case back
 }
 
@@ -47,7 +47,6 @@ enum SignInOutputEvent {
 
 enum SignInViewEvent {
     case viewDidLoad
-    case phoneEdited(rawText: String)
-    case actionNext(phoneText: String)
+    case signInTapped
     case `deinit`
 }
