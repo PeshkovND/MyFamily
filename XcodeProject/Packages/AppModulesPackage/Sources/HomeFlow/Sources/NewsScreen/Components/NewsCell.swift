@@ -9,6 +9,7 @@ final class NewsCell: UITableViewCell {
     struct Model {
         let userImageURL: URL?
         let name: String
+        let contentLabel: String?
         let contentImageURL: URL?
         let contentVideoURL: URL?
         let contentAudioURL: URL?
@@ -18,12 +19,6 @@ final class NewsCell: UITableViewCell {
         static let cardLabelConstraintValue = CGFloat(16)
         static let containerWidthMultiplier = CGFloat(0.8)
     }
-    
-    private let container: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
 
     private let userImageView: UIImageView = {
         let userImageView = UIImageView()
@@ -47,8 +42,16 @@ final class NewsCell: UITableViewCell {
         let userImageView = UIImageView()
         userImageView.translatesAutoresizingMaskIntoConstraints = false
         userImageView.contentMode = .scaleAspectFill
-        userImageView.clipsToBounds = true
         return userImageView
+    }()
+    
+    private let contentLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = appDesignSystem.colors.labelPrimary
+        label.font = appDesignSystem.typography.body
+        label.numberOfLines = 0
+        return label
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -61,21 +64,14 @@ final class NewsCell: UITableViewCell {
     }
     
     private func setupLayout() {
-        contentView.addSubview(container)
-        container.addSubview(userImageView)
-        container.addSubview(usernameLabel)
-        container.addSubview(contentImageView)
-        
-        container.snp.makeConstraints {
-            $0.top.equalTo(contentView.snp.top)
-            $0.bottom.equalTo(contentView.snp.bottom)
-            $0.left.equalTo(contentView.snp.left)
-            $0.right.equalTo(contentView.snp.right)
-        }
+        contentView.addSubview(userImageView)
+        contentView.addSubview(usernameLabel)
+        contentView.addSubview(contentImageView)
+        contentView.addSubview(contentLabel)
         
         userImageView.snp.makeConstraints {
-            $0.leading.equalTo(container.snp.leading).inset(16)
-            $0.top.equalTo(container.snp.top).inset(16)
+            $0.leading.equalTo(contentView.snp.leading).inset(16)
+            $0.top.equalTo(contentView.snp.top).inset(16)
             $0.width.equalTo(48)
             $0.height.equalTo(48)
         }
@@ -83,20 +79,41 @@ final class NewsCell: UITableViewCell {
         usernameLabel.snp.makeConstraints {
             $0.leading.equalTo(userImageView.snp.trailing).inset(-8)
             $0.centerY.equalTo(userImageView.snp.centerY).inset(16)
-            $0.trailing.equalTo(container.snp.trailing).inset(8)
-        }
-
-        contentImageView.snp.makeConstraints {
-            $0.top.equalTo(userImageView.snp.bottom).inset(-8)
-            $0.width.equalTo(container.snp.width).inset(16)
-            $0.centerX.equalTo(container.snp.centerX)
-            $0.bottom.equalTo(container.snp.bottom)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(8)
         }
     }
-    
-    func setup(_ model: Model) {
-        self.contentImageView.setImageUrl(url: model.contentImageURL)
+
+    func setup(_ model: Model, complition: @escaping()->Void) {
+        if let contentURL = model.contentImageURL {
+            
+            contentImageView.snp.makeConstraints {
+                $0.top.equalTo(model.contentLabel != nil
+                               ? contentLabel.snp.bottom
+                               : userImageView.snp.bottom
+                ).inset(-8)
+                $0.leading.equalTo(contentView.snp.leading)
+                $0.trailing.equalTo(contentView.snp.trailing)
+                $0.bottom.equalTo(contentView.snp.bottom)
+                $0.height.equalTo(contentImageView.snp.width)
+            }
+            
+            self.contentImageView.setImageUrl(url: contentURL)
+        }
+        
+        if let contentText = model.contentLabel {
+            contentLabel.text = contentText
+            contentLabel.snp.makeConstraints {
+                $0.top.equalTo(userImageView.snp.bottom).inset(-8)
+                $0.leading.equalTo(contentView.snp.leading)
+                $0.trailing.equalTo(contentView.snp.trailing)
+                if model.contentImageURL == nil {
+                    $0.bottom.equalTo(contentView.snp.bottom)
+                }
+            }
+        }
+        
         self.usernameLabel.text = model.name
         self.userImageView.setImageUrl(url: model.userImageURL)
+        complition()
     }
 }

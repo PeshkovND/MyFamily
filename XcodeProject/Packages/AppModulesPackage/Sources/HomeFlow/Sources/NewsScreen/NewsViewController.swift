@@ -13,6 +13,7 @@ import TweeTextField
 struct NewsViewPost: Hashable {
     let userImageURL: URL?
     let name: String
+    let contentLabel: String?
     let contentImageURL: URL?
     let contentVideoURL: URL?
     let contentAudioURL: URL?
@@ -42,7 +43,8 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
-        case .loaded: tableView.reloadData()
+        case .loaded: 
+            tableView.reloadData()
         default: break
         }
     }
@@ -50,7 +52,6 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     private func configureView() {
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.reloadData()
     }
 }
 
@@ -63,20 +64,25 @@ extension NewsViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: String(describing: NewsCell.self), for: indexPath)
                         guard let cell = cell as? NewsCell else { return cell }
-        let post = viewModel.posts[indexPath.row]
+                        let post = viewModel.posts[indexPath.row]
                         let model = NewsCell.Model(
                             userImageURL: post.userImageURL,
                             name: post.name,
+                            contentLabel: post.contentLabel,
                             contentImageURL: post.contentImageURL,
                             contentVideoURL: post.contentVideoURL,
                             contentAudioURL: post.contentAudioURL
                         )
-                        cell.setup(model)
-                        return cell
+        cell.setup(model) { tableView.reloadRows(at: [indexPath], with: .automatic) }
+            return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         tableView.estimatedRowHeight
+    }
+    
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        false
     }
 }
 
