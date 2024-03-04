@@ -129,6 +129,13 @@ enum ExternalModules {
             from: "5.6.1"
         )
     )
+    static let kingfisher = ExternalPackage(
+        productName: "Kingfisher",
+        dependency: .package(
+            url: "https://github.com/onevcat/Kingfisher.git",
+            from: "7.0.0"
+        )
+    )
     static let sdWebImage = ExternalPackage(
         productName: "SDWebImage",
         dependency: .package(
@@ -168,7 +175,7 @@ enum InternalModules {
 
     static let utilitiesModule: AppModule = .makeModule(
         name: "Utilities",
-        dependencies: [ExternalModules.iqKeyboardManager]
+        dependencies: [ExternalModules.iqKeyboardManager, ExternalModules.kingfisher]
     )
 
     // MARK: - App Common Modules
@@ -285,6 +292,7 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.iqKeyboardManager,
     ExternalModules.tweeTextField,
     ExternalModules.alamofire,
+    ExternalModules.kingfisher,
     ExternalModules.sdWebImage,
     ExternalModules.sdWebImageWebPCoder,
     ExternalModules.snapKit,

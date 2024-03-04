@@ -60,15 +60,21 @@ private extension HomeCoordinator {
 
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
-        
-        if debugTogglesHolder.toggleValue(for: .isUserProfileFeatureEnabled) {
-            tabBarController.selectedIndex = 2
-        }
     }
     
     func makeNewsViewController() -> UIViewController {
-        let viewController = TitleStubViewController()
-        viewController.stubTitle = "Home Screen"
+        let viewModel = NewsViewModel()
+        let viewController = NewsViewController(viewModel: viewModel)
+        viewController.title = appDesignSystem.strings.tabBarNewsTitle
+
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+
+                switch event { }
+            }
+            .store(in: &setCancelable)
+
         viewController.tabBarItem = appDesignSystem.components.newsTabBarItem
         return viewController
     }
