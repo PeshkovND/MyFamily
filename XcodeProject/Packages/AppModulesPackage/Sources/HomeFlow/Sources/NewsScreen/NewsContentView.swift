@@ -16,6 +16,7 @@ extension NewsViewController {
             tableView.showsVerticalScrollIndicator = false
             tableView.register(NewsCell.self, forCellReuseIdentifier: String(describing: NewsCell.self))
             tableView.backgroundColor = colors.backgroundPrimary
+            tableView.separatorStyle = .none
             return tableView
         }()
         

@@ -13,7 +13,15 @@ final class NewsCell: UITableViewCell {
         let contentImageURL: URL?
         let contentVideoURL: URL?
         let contentAudioURL: URL?
+        let likesCount: Int
+        let commentsCount: Int
+        let isLiked: Bool
+        
+        let likeButtonTapped: () -> Void
+        let commentButtonTapped: () -> Void
     }
+    
+    var model: Model?
     
     private enum Layout {
         static let cardLabelConstraintValue = CGFloat(16)
@@ -38,11 +46,50 @@ final class NewsCell: UITableViewCell {
         return usernameLabel
     }()
     
+    private let likeButton: ActionButton = {
+        var filled = UIButton.Configuration.borderless()
+        filled.imagePlacement = .leading
+        filled.imagePadding = 4
+        filled.baseForegroundColor = .black
+        
+        let button = ActionButton(configuration: filled, primaryAction: nil)
+        let icon = UIImage(systemName: "heart")
+        button.setImage(icon, for: .normal)
+        return button
+    }()
+    
+    private let commentButton: ActionButton = {
+        var filled = UIButton.Configuration.borderless()
+        filled.imagePlacement = .leading
+        filled.imagePadding = 4
+        filled.baseForegroundColor = .black
+        
+        let button = ActionButton(configuration: filled, primaryAction: nil)
+        let icon = UIImage(systemName: "message")
+        button.setImage(icon, for: .normal)
+        
+        return button
+    }()
+    
+    private let shareButton: ActionButton = {
+        var filled = UIButton.Configuration.borderless()
+        filled.imagePlacement = .leading
+        filled.imagePadding = 4
+        filled.baseForegroundColor = .black
+        
+        let button = ActionButton(configuration: filled, primaryAction: nil)
+        let icon = UIImage(systemName: "paperplane")
+        button.setImage(icon, for: .normal)
+        
+        return button
+    }()
+    
     private let contentImageView: UIImageView = {
-        let userImageView = UIImageView()
-        userImageView.translatesAutoresizingMaskIntoConstraints = false
-        userImageView.contentMode = .scaleAspectFill
-        return userImageView
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        return imageView
     }()
     
     private let contentLabel: UILabel = {
@@ -56,64 +103,108 @@ final class NewsCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupLayout()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
+    // swiftlint:disable function_body_length
     private func setupLayout() {
         contentView.addSubview(userImageView)
         contentView.addSubview(usernameLabel)
         contentView.addSubview(contentImageView)
         contentView.addSubview(contentLabel)
+        contentView.addSubview(likeButton)
+        contentView.addSubview(commentButton)
+        contentView.addSubview(shareButton)
         
+        setupUserInfoConstraints()
+        setupContentConstraints()
+        setupControlButtonConstraints()
+        
+        setupData()
+    }
+    
+    private func setupUserInfoConstraints() {
         userImageView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).inset(16)
-            $0.top.equalTo(contentView.snp.top).inset(16)
+            $0.leading.equalTo(contentView.snp.leading).inset(8)
+            $0.top.equalTo(contentView.snp.top).inset(8)
             $0.width.equalTo(48)
             $0.height.equalTo(48)
         }
         
         usernameLabel.snp.makeConstraints {
             $0.leading.equalTo(userImageView.snp.trailing).inset(-8)
-            $0.centerY.equalTo(userImageView.snp.centerY).inset(16)
+            $0.centerY.equalTo(userImageView.snp.centerY).inset(8)
             $0.trailing.equalTo(contentView.snp.trailing).inset(8)
         }
     }
-
-    func setup(_ model: Model, complition: @escaping()->Void) {
-        if let contentURL = model.contentImageURL {
+    
+    private func setupContentConstraints() {
+        if let contentURL = model?.contentImageURL {
             
             contentImageView.snp.makeConstraints {
-                $0.top.equalTo(model.contentLabel != nil
+                $0.top.equalTo(model?.contentLabel != nil
                                ? contentLabel.snp.bottom
                                : userImageView.snp.bottom
                 ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading)
-                $0.trailing.equalTo(contentView.snp.trailing)
-                $0.bottom.equalTo(contentView.snp.bottom)
+                $0.leading.equalTo(contentView.snp.leading).inset(8)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 $0.height.equalTo(contentImageView.snp.width)
             }
             
             self.contentImageView.setImageUrl(url: contentURL)
         }
         
-        if let contentText = model.contentLabel {
+        if let contentText = model?.contentLabel {
             contentLabel.text = contentText
             contentLabel.snp.makeConstraints {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading)
-                $0.trailing.equalTo(contentView.snp.trailing)
-                if model.contentImageURL == nil {
-                    $0.bottom.equalTo(contentView.snp.bottom)
+                $0.leading.equalTo(contentView.snp.leading).inset(8)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                if model?.contentImageURL == nil {
+                    $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 }
             }
         }
+    }
+    
+    private func setupControlButtonConstraints() {
+        shareButton.snp.makeConstraints {
+            $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+            $0.bottom.equalTo(contentView.snp.bottom).inset(8)
+        }
         
-        self.usernameLabel.text = model.name
-        self.userImageView.setImageUrl(url: model.userImageURL)
+        commentButton.snp.makeConstraints {
+            $0.trailing.equalTo(shareButton.snp.leading).inset(8)
+            $0.centerY.equalTo(shareButton.snp.centerY)
+        }
+        
+        likeButton.snp.makeConstraints {
+            $0.trailing.equalTo(commentButton.snp.leading).inset(8)
+            $0.centerY.equalTo(shareButton.snp.centerY)
+        }
+    }
+    
+    private func setupData() {
+        let likesCount = String(model?.likesCount ?? 0)
+        self.likeButton.setTitle(likesCount, for: .normal)
+        let commentsCount = String(model?.commentsCount ?? 0)
+        self.commentButton.setTitle(commentsCount, for: .normal)
+        
+        if let isLiked = model?.isLiked, isLiked {
+            likeButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal), for: .normal)
+        }
+        
+        self.usernameLabel.text = model?.name ?? ""
+        self.userImageView.setImageUrl(url: model?.userImageURL)
+    }
+
+    func setup(_ model: Model, complition: @escaping () -> Void) {
+        self.model = model
+        setupLayout()
         complition()
     }
 }

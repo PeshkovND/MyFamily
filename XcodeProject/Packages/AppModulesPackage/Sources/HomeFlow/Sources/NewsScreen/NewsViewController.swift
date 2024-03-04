@@ -17,6 +17,9 @@ struct NewsViewPost: Hashable {
     let contentImageURL: URL?
     let contentVideoURL: URL?
     let contentAudioURL: URL?
+    let likesCount: Int
+    let commentsCount: Int
+    let isLiked: Bool
 }
 
 final class NewsViewController: BaseViewController<NewsViewModel,
@@ -71,7 +74,12 @@ extension NewsViewController: UITableViewDataSource {
                             contentLabel: post.contentLabel,
                             contentImageURL: post.contentImageURL,
                             contentVideoURL: post.contentVideoURL,
-                            contentAudioURL: post.contentAudioURL
+                            contentAudioURL: post.contentAudioURL,
+                            likesCount: post.likesCount,
+                            commentsCount: post.commentsCount,
+                            isLiked: post.isLiked,
+                            likeButtonTapped: { },
+                            commentButtonTapped: { }
                         )
         cell.setup(model) { tableView.reloadRows(at: [indexPath], with: .automatic) }
             return cell
