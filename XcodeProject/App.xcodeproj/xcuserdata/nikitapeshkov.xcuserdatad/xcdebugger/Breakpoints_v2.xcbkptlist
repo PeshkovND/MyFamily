@@ -158,8 +158,8 @@
             filePath = "Packages/AppModulesPackage/Sources/HomeFlow/Sources/NewsScreen/Components/NewsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "161"
-            endingLineNumber = "161"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
             landmarkName = "setupContentConstraints(model:)"
             landmarkType = "7">
             <Locations>
@@ -206,8 +206,8 @@
             filePath = "Packages/AppModulesPackage/Sources/HomeFlow/Sources/NewsScreen/Components/NewsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "158"
-            endingLineNumber = "158"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
             landmarkName = "setupContentConstraints(model:)"
             landmarkType = "7">
          </BreakpointContent>

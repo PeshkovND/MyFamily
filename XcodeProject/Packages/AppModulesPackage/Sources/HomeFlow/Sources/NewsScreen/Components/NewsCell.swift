@@ -154,6 +154,9 @@ final class NewsCell: UITableViewCell {
                 }
             }
         }
+        else {
+            self.contentLabel.removeFromSuperview()
+        }
         
         if let contentURL = model.contentImageURL {
             contentView.addSubview(contentImageView)
@@ -169,6 +172,8 @@ final class NewsCell: UITableViewCell {
                 $0.height.equalTo(contentImageView.snp.width)
             }
             
+        } else {
+            self.contentImageView.removeFromSuperview()
         }
     }
     
