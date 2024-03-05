@@ -8,6 +8,7 @@ open class BaseView: UIView {
     private var designSystem = appDesignSystem
     private(set) public lazy var colors = designSystem.colors
     private(set) public lazy var icons = designSystem.icons
+    private(set) public lazy var strings = designSystem.strings
     private(set) public lazy var spacing = designSystem.spacing
     private(set) public lazy var typography = designSystem.typography
     private(set) public lazy var components = designSystem.components

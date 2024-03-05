@@ -30,6 +30,8 @@ extension Colors {
     public var backgroundSecondaryVariant: UIColor { valueOrStub("background_secondary_variant") }
     public var backgroundTertiary: UIColor { valueOrStub("background_tertiary") }
     public var backgorundBorderDisabled: UIColor { valueOrStub("backgorund_border_disabled") }
+    
+    public var blueVk: UIColor { valueOrStub("blue_vk") }
 
     // MARK: - Fill
 
