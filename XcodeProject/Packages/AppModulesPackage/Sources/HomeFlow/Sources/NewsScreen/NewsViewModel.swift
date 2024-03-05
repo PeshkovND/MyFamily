@@ -12,6 +12,17 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
     var posts: [NewsViewPost] = []
+    
+    func likeButtonDidTappedOn(post: NewsViewPost, at index: Int) {
+        var postItem = post
+        if postItem.isLiked {
+            postItem.likesCount -= 1
+        } else {
+            postItem.likesCount += 1
+        }
+        postItem.isLiked.toggle()
+        posts[index] = postItem
+    }
 
     // swiftlint:disable function_body_length
     override func onViewEvent(_ event: NewsViewEvent) {

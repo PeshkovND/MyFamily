@@ -13,16 +13,18 @@ final class NewsCell: UITableViewCell {
         let contentImageURL: URL?
         let contentVideoURL: URL?
         let contentAudioURL: URL?
-        let likesCount: Int
-        let commentsCount: Int
-        let isLiked: Bool
-        
+        var commentsCount: Int
         let likeButtonTapped: () -> Void
         let commentButtonTapped: () -> Void
+        
+        let likesModel: LikesModel
     }
     
-    var model: Model?
-    
+    struct LikesModel {
+        var likesCount: Int
+        var isLiked: Bool
+    }
+
     private enum Layout {
         static let cardLabelConstraintValue = CGFloat(16)
         static let containerWidthMultiplier = CGFloat(0.8)
@@ -110,7 +112,7 @@ final class NewsCell: UITableViewCell {
     }
     
     // swiftlint:disable function_body_length
-    private func setupLayout() {
+    private func setupLayout(model: Model) {
         contentView.addSubview(userImageView)
         contentView.addSubview(usernameLabel)
         contentView.addSubview(contentImageView)
@@ -120,10 +122,10 @@ final class NewsCell: UITableViewCell {
         contentView.addSubview(shareButton)
         
         setupUserInfoConstraints()
-        setupContentConstraints()
+        setupContentConstraints(model: model)
         setupControlButtonConstraints()
         
-        setupData()
+        setupData(model: model)
     }
     
     private func setupUserInfoConstraints() {
@@ -141,11 +143,11 @@ final class NewsCell: UITableViewCell {
         }
     }
     
-    private func setupContentConstraints() {
-        if let contentURL = model?.contentImageURL {
+    private func setupContentConstraints(model: Model) {
+        if let contentURL = model.contentImageURL {
             
             contentImageView.snp.makeConstraints {
-                $0.top.equalTo(model?.contentLabel != nil
+                $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
                                : userImageView.snp.bottom
                 ).inset(-8)
@@ -158,13 +160,13 @@ final class NewsCell: UITableViewCell {
             self.contentImageView.setImageUrl(url: contentURL)
         }
         
-        if let contentText = model?.contentLabel {
+        if let contentText = model.contentLabel {
             contentLabel.text = contentText
             contentLabel.snp.makeConstraints {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
                 $0.leading.equalTo(contentView.snp.leading).inset(8)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-                if model?.contentImageURL == nil {
+                if model.contentImageURL == nil {
                     $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 }
             }
@@ -188,23 +190,33 @@ final class NewsCell: UITableViewCell {
         }
     }
     
-    private func setupData() {
-        let likesCount = String(model?.likesCount ?? 0)
-        self.likeButton.setTitle(likesCount, for: .normal)
-        let commentsCount = String(model?.commentsCount ?? 0)
-        self.commentButton.setTitle(commentsCount, for: .normal)
+    private func setupData(model: Model) {
         
-        if let isLiked = model?.isLiked, isLiked {
-            likeButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal), for: .normal)
+        likeButton.onTap = {
+            model.likeButtonTapped()
         }
         
-        self.usernameLabel.text = model?.name ?? ""
-        self.userImageView.setImageUrl(url: model?.userImageURL)
+        setupLikes(model.likesModel)
+        
+        let commentsCount = String(model.commentsCount)
+        self.commentButton.setTitle(commentsCount, for: .normal)
+        
+        self.usernameLabel.text = model.name
+        self.userImageView.setImageUrl(url: model.userImageURL)
     }
 
-    func setup(_ model: Model, complition: @escaping () -> Void) {
-        self.model = model
-        setupLayout()
-        complition()
+    func setup(_ model: Model) {
+        setupLayout(model: model)
+    }
+    
+    func setupLikes(_ model: LikesModel) {
+        let likesCount = String(model.likesCount)
+        self.likeButton.setTitle(likesCount, for: .normal)
+        
+        if model.isLiked {
+            likeButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal), for: .normal)
+        } else {
+            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
     }
 }

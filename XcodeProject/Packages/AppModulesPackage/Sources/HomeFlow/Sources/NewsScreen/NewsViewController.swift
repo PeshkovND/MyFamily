@@ -17,18 +17,18 @@ struct NewsViewPost: Hashable {
     let contentImageURL: URL?
     let contentVideoURL: URL?
     let contentAudioURL: URL?
-    let likesCount: Int
+    var likesCount: Int
     let commentsCount: Int
-    let isLiked: Bool
+    var isLiked: Bool
 }
 
 final class NewsViewController: BaseViewController<NewsViewModel,
-                                                               NewsViewEvent,
-                                                               NewsViewState,
-                                                               NewsViewController.ContentView> {
-
+                                NewsViewEvent,
+                                NewsViewState,
+                                NewsViewController.ContentView> {
+    
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
-
+    
     deinit {
         viewModel.onViewEvent(.deinit)
     }
@@ -36,7 +36,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     private var tableView: UITableView { contentView.tableView }
     
     // MARK: - View Controller Lifecycle
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -62,27 +62,34 @@ extension NewsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.posts.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: String(describing: NewsCell.self), for: indexPath)
-                        guard let cell = cell as? NewsCell else { return cell }
-                        let post = viewModel.posts[indexPath.row]
-                        let model = NewsCell.Model(
-                            userImageURL: post.userImageURL,
-                            name: post.name,
-                            contentLabel: post.contentLabel,
-                            contentImageURL: post.contentImageURL,
-                            contentVideoURL: post.contentVideoURL,
-                            contentAudioURL: post.contentAudioURL,
-                            likesCount: post.likesCount,
-                            commentsCount: post.commentsCount,
-                            isLiked: post.isLiked,
-                            likeButtonTapped: { },
-                            commentButtonTapped: { }
-                        )
-        cell.setup(model) { tableView.reloadRows(at: [indexPath], with: .automatic) }
-            return cell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: String(describing: NewsCell.self), for: indexPath)
+        guard let cell = cell as? NewsCell else { return cell }
+        let post = viewModel.posts[indexPath.row]
+        let model = NewsCell.Model(
+            userImageURL: post.userImageURL,
+            name: post.name,
+            contentLabel: post.contentLabel,
+            contentImageURL: post.contentImageURL,
+            contentVideoURL: post.contentVideoURL,
+            contentAudioURL: post.contentAudioURL,
+            commentsCount: post.commentsCount,
+            likeButtonTapped: {
+                self.viewModel.likeButtonDidTappedOn(post: self.viewModel.posts[indexPath.row], at: indexPath.row)
+                let postModel = self.viewModel.posts[indexPath.row]
+                let model = NewsCell.LikesModel(likesCount: postModel.likesCount, isLiked: postModel.isLiked)
+                cell.setupLikes(model)
+            },
+            commentButtonTapped: { },
+            likesModel: NewsCell.LikesModel(
+                likesCount: post.likesCount,
+                isLiked: post.isLiked
+            )
+        )
+        cell.setup(model)
+        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
