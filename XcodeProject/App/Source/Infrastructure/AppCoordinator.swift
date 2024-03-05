@@ -76,11 +76,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
 private extension AppCoordinator {
 
     private func startAuthorizedFlow() {
-        if accountHolder.hasFilledProfile {
-            startOnboardingIfNeededOrHomeFlow()
-        } else {
-            startCreateProfileFlow()
-        }
+        startHomeFlow()
     }
 
     private func startWelcomeFlow() {
@@ -151,21 +147,13 @@ private extension AppCoordinator {
             switch event {
             case .finish:
                 self.removeAll()
-                self.startOnboardingIfNeededOrHomeFlow()
+                self.startHomeFlow()
             }
         }
         addDependency(coordinator, token: token)
         coordinator.start()
     }
     
-    private func startOnboardingIfNeededOrHomeFlow() {
-        if hasOnboardingCompleted() {
-            startHomeFlow()
-        } else {
-            startOnboardingFlow()
-        }
-    }
-
     private func startOnboardingFlow() {
         let coordinator = StubFlowCoordinator(
             navigationController: navigationController

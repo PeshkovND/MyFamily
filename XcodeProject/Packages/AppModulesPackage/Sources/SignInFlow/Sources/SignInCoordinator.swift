@@ -46,7 +46,7 @@ public final class SignInCoordinator: EventCoordinator {
 private extension SignInCoordinator {
 
     private func startSignInScreen() {
-        let viewModel = SignInViewModel(signInInteractor: signInInteractor)
+        let viewModel = SignInViewModel()
         let viewController = SignInViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.commonSignIn
 
@@ -55,7 +55,7 @@ private extension SignInCoordinator {
                 guard let self = self else { return }
 
                 switch event {
-                case .continue: print("succes")
+                case .signedIn: self.eventSubject.send(.finish(authState: .signIn))
                 case .back: self.eventSubject.send(.exit)
                 }
             }
