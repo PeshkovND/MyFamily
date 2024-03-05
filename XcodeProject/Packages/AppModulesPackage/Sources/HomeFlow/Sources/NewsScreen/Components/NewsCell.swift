@@ -94,6 +94,12 @@ final class NewsCell: UITableViewCell {
         return imageView
     }()
     
+    private let videoContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -149,13 +155,37 @@ final class NewsCell: UITableViewCell {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
                 $0.leading.equalTo(contentView.snp.leading).inset(8)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-                if model.contentImageURL == nil {
+                if model.contentImageURL == nil && model.contentVideoURL == nil {
                     $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 }
             }
-        }
-        else {
+        } else {
             self.contentLabel.removeFromSuperview()
+        }
+        
+        if let contentURL = model.contentVideoURL {
+            contentView.addSubview(videoContainer)
+            videoContainer.snp.makeConstraints {
+                $0.top.equalTo(model.contentLabel != nil
+                               ? contentLabel.snp.bottom
+                               : userImageView.snp.bottom
+                ).inset(-8)
+                $0.leading.equalTo(contentView.snp.leading).inset(8)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+                $0.height.equalTo(videoContainer.snp.width).multipliedBy(0.7)
+            }
+            
+            let videoView = VideoPlayerView(videoURL: contentURL)
+            videoView.translatesAutoresizingMaskIntoConstraints = false
+            videoContainer.addSubview(videoView)
+            
+            videoView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+            
+        } else {
+            self.videoContainer.removeFromSuperview()
         }
         
         if let contentURL = model.contentImageURL {
