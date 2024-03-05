@@ -36,6 +36,7 @@ enum NewsViewState: Stubable {
 // MARK: - Output Event
 
 enum NewsOutputEvent {
+    case addPost
 }
 
 // MARK: - View Event
@@ -43,4 +44,5 @@ enum NewsOutputEvent {
 enum NewsViewEvent {
     case viewDidLoad
     case `deinit`
+    case addPostTapped
 }

@@ -86,6 +86,8 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
                 self.viewState = .loaded(content: self.posts)
             }
             viewState = .initial
+        case .addPostTapped:
+            outputEventSubject.send(.addPost)
         }
     }
 

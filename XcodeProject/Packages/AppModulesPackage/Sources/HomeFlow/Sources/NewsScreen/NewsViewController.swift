@@ -27,6 +27,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
                                 NewsViewState,
                                 NewsViewController.ContentView> {
     
+    private let colors = appDesignSystem.colors
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
     
     deinit {
@@ -39,14 +40,19 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "plus")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal),
+            style: .done,
+            target: self,
+            action: #selector(addPostButtonDidTapped)
+        )
         configureView()
         viewModel.onViewEvent(.viewDidLoad)
     }
     
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
-        case .loaded: 
+        case .loaded:
             tableView.reloadData()
         default: break
         }
@@ -55,6 +61,11 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     private func configureView() {
         tableView.dataSource = self
         tableView.delegate = self
+    }
+    
+    @objc
+    private func addPostButtonDidTapped() {
+        viewModel.onViewEvent(.addPostTapped)
     }
 }
 
