@@ -15,16 +15,31 @@ extension NewsViewController {
             tableView.backgroundColor = .none
             tableView.showsVerticalScrollIndicator = false
             tableView.register(NewsCell.self, forCellReuseIdentifier: String(describing: NewsCell.self))
-            tableView.backgroundColor = colors.backgroundPrimary
             tableView.separatorStyle = .none
             return tableView
+        }()
+        
+        private(set) lazy var activityIndicator: UIActivityIndicatorView = {
+            let activityIndicator = UIActivityIndicatorView(style: .medium)
+            activityIndicator.color = .black
+            activityIndicator.startAnimating()
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            return activityIndicator
         }()
         
         // swiftlint:disable function_body_length
         override func setLayout() {
             addSubview(tableView)
+            addSubview(activityIndicator)
             
             tableView.snp.makeConstraints {
+                $0.top.equalToSuperview()
+                $0.bottom.equalToSuperview()
+                $0.leading.equalToSuperview()
+                $0.trailing.equalToSuperview()
+            }
+            
+            activityIndicator.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalToSuperview()
                 $0.leading.equalToSuperview()

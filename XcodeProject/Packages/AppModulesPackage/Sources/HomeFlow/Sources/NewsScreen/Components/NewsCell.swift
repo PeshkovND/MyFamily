@@ -115,8 +115,6 @@ final class NewsCell: UITableViewCell {
     private func setupLayout(model: Model) {
         contentView.addSubview(userImageView)
         contentView.addSubview(usernameLabel)
-        contentView.addSubview(contentImageView)
-        contentView.addSubview(contentLabel)
         contentView.addSubview(likeButton)
         contentView.addSubview(commentButton)
         contentView.addSubview(shareButton)
@@ -144,8 +142,22 @@ final class NewsCell: UITableViewCell {
     }
     
     private func setupContentConstraints(model: Model) {
+        if let contentText = model.contentLabel {
+            contentView.addSubview(contentLabel)
+            contentLabel.text = contentText
+            contentLabel.snp.makeConstraints {
+                $0.top.equalTo(userImageView.snp.bottom).inset(-8)
+                $0.leading.equalTo(contentView.snp.leading).inset(8)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                if model.contentImageURL == nil {
+                    $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+                }
+            }
+        }
+        
         if let contentURL = model.contentImageURL {
-            
+            contentView.addSubview(contentImageView)
+            self.contentImageView.setImageUrl(url: contentURL)
             contentImageView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -157,19 +169,6 @@ final class NewsCell: UITableViewCell {
                 $0.height.equalTo(contentImageView.snp.width)
             }
             
-            self.contentImageView.setImageUrl(url: contentURL)
-        }
-        
-        if let contentText = model.contentLabel {
-            contentLabel.text = contentText
-            contentLabel.snp.makeConstraints {
-                $0.top.equalTo(userImageView.snp.bottom).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(8)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-                if model.contentImageURL == nil {
-                    $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                }
-            }
         }
     }
     

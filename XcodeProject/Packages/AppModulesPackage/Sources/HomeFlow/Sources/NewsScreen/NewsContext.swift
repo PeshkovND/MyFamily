@@ -45,4 +45,5 @@ enum NewsViewEvent {
     case viewDidLoad
     case `deinit`
     case addPostTapped
+    case pullToRefresh
 }

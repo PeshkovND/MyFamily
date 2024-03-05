@@ -88,6 +88,10 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             viewState = .initial
         case .addPostTapped:
             outputEventSubject.send(.addPost)
+        case .pullToRefresh:
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.viewState = .loaded(content: self.posts)
+            }
         }
     }
 

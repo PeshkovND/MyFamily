@@ -35,6 +35,14 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     }
     
     private var tableView: UITableView { contentView.tableView }
+    private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    
+    private lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
+        refreshControl.tintColor = colors.labelPrimary
+        return refreshControl
+    }()
     
     // MARK: - View Controller Lifecycle
     
@@ -53,19 +61,30 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
         case .loaded:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
             tableView.reloadData()
+            tableView.layoutIfNeeded()
         default: break
         }
     }
     
     private func configureView() {
+        self.contentView.backgroundColor = colors.backgroundPrimary
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.refreshControl = refreshControl
     }
     
     @objc
     private func addPostButtonDidTapped() {
         viewModel.onViewEvent(.addPostTapped)
+    }
+    
+    @objc
+    private func onPullToRefresh() {
+        refreshControl.beginRefreshing()
+        viewModel.onViewEvent(.pullToRefresh)
     }
 }
 
