@@ -3,6 +3,7 @@ import UIKit
 import Foundation
 import Utilities
 import AppDesignSystem
+import AVKit
 
 final class NewsCell: UITableViewCell {
     
@@ -18,6 +19,7 @@ final class NewsCell: UITableViewCell {
         let commentButtonTapped: () -> Void
         
         let likesModel: LikesModel
+        let audioPlayer: AVQueuePlayer
     }
     
     struct LikesModel {
@@ -109,8 +111,8 @@ final class NewsCell: UITableViewCell {
         return label
     }()
     
-    private let audioView: AudioPlayer = {
-        let view = AudioPlayer()
+    private let audioView: AudioPlayerView = {
+        let view = AudioPlayerView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -216,7 +218,9 @@ final class NewsCell: UITableViewCell {
         
         if let contentURL = model.contentAudioURL {
             contentView.addSubview(audioView)
-            audioView.addAudioToPlayer(videoUrl: contentURL)
+            audioView.player = model.audioPlayer
+            audioView.audioURL = contentURL
+            audioView.setupPlayerData()
             audioView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom

@@ -97,7 +97,8 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             contentLabel: nil,
             contentImageURL: nil,
             contentVideoURL: nil,
-            contentAudioURL: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3"),
+            // swiftlint:disable line_length
+            contentAudioURL: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3"),
             likesCount: 10,
             commentsCount: 10,
             isLiked: false

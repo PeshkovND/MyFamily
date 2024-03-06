@@ -1,7 +1,3 @@
-import Foundation
-
-//  Copyright © 2021 Krasavchik OOO. All rights reserved.
-
 import UIKit
 import Combine
 import AppEntities
@@ -9,6 +5,7 @@ import AppServices
 import AppDesignSystem
 import AppBaseFlow
 import TweeTextField
+import AVKit
 
 struct NewsViewPost: Hashable {
     let userImageURL: URL?
@@ -28,6 +25,9 @@ final class NewsViewController: BaseViewController<NewsViewModel,
                                 NewsViewController.ContentView> {
     
     private let colors = appDesignSystem.colors
+    
+    private let audioPlayer = AVQueuePlayer()
+    
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
     
     deinit {
@@ -116,7 +116,8 @@ extension NewsViewController: UITableViewDataSource {
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
-            )
+            ),
+            audioPlayer: self.audioPlayer
         )
         cell.setup(model)
         return cell
