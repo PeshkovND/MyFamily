@@ -94,13 +94,11 @@ final class NewsCell: UITableViewCell {
         return imageView
     }()
     
-    private let videoContainer: UIView = {
-        let view = UIView()
+    private var videoContainer: VideoPlayerView = {
+        let view = VideoPlayerView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.isUserInteractionEnabled = true
         return view
     }()
-    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -112,10 +110,17 @@ final class NewsCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        contentView.addSubview(userImageView)
+        contentView.addSubview(usernameLabel)
+        contentView.addSubview(likeButton)
+        contentView.addSubview(commentButton)
+        contentView.addSubview(shareButton)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        
     }
     
     // swiftlint:disable function_body_length
@@ -166,6 +171,7 @@ final class NewsCell: UITableViewCell {
         
         if let contentURL = model.contentVideoURL {
             contentView.addSubview(videoContainer)
+            videoContainer.addVideoToPlayer(videoUrl: contentURL)
             videoContainer.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -174,15 +180,7 @@ final class NewsCell: UITableViewCell {
                 $0.leading.equalTo(contentView.snp.leading).inset(8)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(8)
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(videoContainer.snp.width).multipliedBy(0.7)
-            }
-            
-            let videoView = VideoPlayerView(videoURL: contentURL)
-            videoView.translatesAutoresizingMaskIntoConstraints = false
-            videoContainer.addSubview(videoView)
-            
-            videoView.snp.makeConstraints {
-                $0.edges.equalToSuperview()
+                $0.height.equalTo(contentView.snp.width).multipliedBy(0.7)
             }
             
         } else {
@@ -253,5 +251,13 @@ final class NewsCell: UITableViewCell {
         } else {
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
+    }
+    
+    public func startVideo() {
+        self.videoContainer.play()
+    }
+    
+    public func stopVideo() {
+        self.videoContainer.pause()
     }
 }

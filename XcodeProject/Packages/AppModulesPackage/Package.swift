@@ -164,6 +164,14 @@ enum ExternalModules {
             from: "2.2.0"
         )
     )
+    
+    static let cachingPlayerItem = ExternalPackage(
+        productName: "CachingPlayerItem",
+        dependency: .package(
+            url: "https://github.com/sukov/CachingPlayerItem.git",
+            from: "1.0.5"
+        )
+    )
 }
 
 // MARK: - Internal Module Declarations
@@ -278,7 +286,8 @@ enum InternalModules {
             appEntitiesModule,
             appBaseFlowModule,
             appServicesModule,
-            devToolsModule
+            devToolsModule,
+            ExternalModules.cachingPlayerItem
         ]
     )
 }
@@ -296,7 +305,8 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.sdWebImage,
     ExternalModules.sdWebImageWebPCoder,
     ExternalModules.snapKit,
-    ExternalModules.progressHUD
+    ExternalModules.progressHUD,
+    ExternalModules.cachingPlayerItem
 ]
 
 /// Defines use of product modules to build tha app

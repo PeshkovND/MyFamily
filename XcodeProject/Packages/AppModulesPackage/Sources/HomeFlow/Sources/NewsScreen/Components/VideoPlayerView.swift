@@ -5,7 +5,6 @@ import AVFoundation
 
 final class VideoPlayerView: UIView {
     let videoPlayerView = VideoPlayer()
-    let videoUrl: URL
     
     var playerLooper: AVPlayerLooper?
     
@@ -19,16 +18,31 @@ final class VideoPlayerView: UIView {
         return activityIndicator
     }()
     
+    private(set) lazy var errorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Video loading error"
+        label.textColor = .black
+        label.alpha = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
     private var token: NSKeyValueObservation?
     
-    init(videoURL: URL) {
-        self.videoUrl = videoURL
+    init() {
         super.init(frame: .zero)
-        
+        self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
         activityIndicator.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.bottom.equalToSuperview()
+            $0.leading.equalToSuperview()
+            $0.trailing.equalToSuperview()
+        }
+        
+        errorLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview()
             $0.trailing.equalToSuperview()
         }
@@ -41,16 +55,27 @@ final class VideoPlayerView: UIView {
     }
     
     private func initPlayer() {
+        player.removeAllItems()
+        errorLabel.alpha = 0
+        videoPlayerView.alpha = 0
         videoPlayerView.player = player
-        addVideoToPlayer()
         addGestureRecognizers()
         
         player.volume = 0.0
-        player.play()
         
         token = player.observe(\.status) { (player, _) in
-            if player.status == .readyToPlay {
+            if player.currentItem?.asset.isPlayable == true {
+                self.errorLabel.alpha = 0
                 self.activityIndicator.stopAnimating()
+                self.videoPlayerView.alpha = 1
+            }
+            
+            if player.currentItem?.asset.isPlayable == false {
+                self.activityIndicator.stopAnimating()
+                self.videoPlayerView.alpha = 0
+                self.player.removeAllItems()
+                self.errorLabel.alpha = 1
+                player.removeAllItems()
             }
         }
     }
@@ -63,7 +88,7 @@ final class VideoPlayerView: UIView {
         player.play()
     }
     
-    private func addVideoToPlayer() {
+    public func addVideoToPlayer(videoUrl: URL) {
         let asset = AVURLAsset(url: videoUrl)
         let item = AVPlayerItem(asset: asset)
         player.insert(item, after: player.items().last)
