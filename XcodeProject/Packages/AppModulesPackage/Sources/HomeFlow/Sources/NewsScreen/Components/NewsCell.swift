@@ -112,7 +112,6 @@ final class NewsCell: UITableViewCell {
     private let audioView: AudioPlayer = {
         let view = AudioPlayer()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .red
         return view
     }()
     
@@ -223,12 +222,11 @@ final class NewsCell: UITableViewCell {
                                ? contentLabel.snp.bottom
                                : userImageView.snp.bottom
                 ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(8)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.leading.equalTo(contentView.snp.leading).inset(16)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(16)
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(60)
+                $0.height.equalTo(56)
             }
-            
         } else {
             self.audioView.removeFromSuperview()
         }

@@ -94,6 +94,17 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
             name: "Иванов Иван",
+            contentLabel: nil,
+            contentImageURL: nil,
+            contentVideoURL: nil,
+            contentAudioURL: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3"),
+            likesCount: 10,
+            commentsCount: 10,
+            isLiked: false
+        ),
+        NewsViewPost(
+            userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
+            name: "Иванов Иван",
             contentLabel: "Мой топ персонажей дота 2",
             contentImageURL: URL(string: "https://hawk.live/storage/post-images/petushara-dota-2-best-heroes-3570.jpg"),
             contentVideoURL: nil,

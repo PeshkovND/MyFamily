@@ -4,9 +4,9 @@ import UIKit
 import AVFoundation
 
 final class VideoPlayerView: UIView {
-    let videoPlayerView = VideoPlayer()
-    
-    var playerLooper: AVPlayerLooper?
+    private let videoPlayerView = VideoPlayer()
+    private var playerLooper: AVPlayerLooper?
+    private var token: NSKeyValueObservation?
     
     @objc private var player = AVQueuePlayer()
     
@@ -27,9 +27,7 @@ final class VideoPlayerView: UIView {
         label.textAlignment = .center
         return label
     }()
-    
-    private var token: NSKeyValueObservation?
-    
+
     init() {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
