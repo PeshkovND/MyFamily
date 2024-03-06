@@ -99,6 +99,7 @@ final class NewsCell: UITableViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -106,6 +107,13 @@ final class NewsCell: UITableViewCell {
         label.font = appDesignSystem.typography.body
         label.numberOfLines = 0
         return label
+    }()
+    
+    private let audioView: AudioPlayer = {
+        let view = AudioPlayer()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .red
+        return view
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -161,7 +169,9 @@ final class NewsCell: UITableViewCell {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
                 $0.leading.equalTo(contentView.snp.leading).inset(8)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-                if model.contentImageURL == nil && model.contentVideoURL == nil {
+                if model.contentImageURL == nil 
+                    && model.contentVideoURL == nil
+                    && model.contentAudioURL == nil {
                     $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 }
             }
@@ -203,6 +213,24 @@ final class NewsCell: UITableViewCell {
             
         } else {
             self.contentImageView.removeFromSuperview()
+        }
+        
+        if let contentURL = model.contentAudioURL {
+            contentView.addSubview(audioView)
+            audioView.addAudioToPlayer(videoUrl: contentURL)
+            audioView.snp.makeConstraints {
+                $0.top.equalTo(model.contentLabel != nil
+                               ? contentLabel.snp.bottom
+                               : userImageView.snp.bottom
+                ).inset(-8)
+                $0.leading.equalTo(contentView.snp.leading).inset(8)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+                $0.height.equalTo(60)
+            }
+            
+        } else {
+            self.audioView.removeFromSuperview()
         }
     }
     
