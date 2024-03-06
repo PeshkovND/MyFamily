@@ -71,7 +71,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     private let mockData: [NewsViewPost] = [
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             contentLabel: nil,
             contentImageURL: URL(string: "https://hawk.live/storage/post-images/petushara-dota-2-best-heroes-3570.jpg"),
             contentVideoURL: nil,
@@ -82,7 +82,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         ),
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             contentLabel: "Мой топ персонажей дота 2",
             contentImageURL: URL(string: "https://hawk.live/storage/post-images/petushara-dota-2-best-heroes-3570.jpg"),
             contentVideoURL: nil,
@@ -93,7 +93,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         ),
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             // swiftlint:disable line_length
             contentLabel: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
             contentImageURL: nil,
@@ -105,7 +105,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         ),
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             // swiftlint:disable line_length
             contentLabel: nil,
             contentImageURL: nil,
@@ -117,7 +117,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         ),
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             // swiftlint:disable line_length
             contentLabel: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
             contentImageURL: URL(
@@ -132,7 +132,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         ),
         NewsViewPost(
             userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
-            name: "Виталий Цаль",
+            name: "Иванов Иван",
             // swiftlint:disable line_length
             contentLabel: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
             contentImageURL: nil,

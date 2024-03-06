@@ -1,10 +1,13 @@
 import Foundation
+import AVKit
 import UIKit
 import AVFoundation
 
 final class VideoPlayerView: UIView {
     let videoPlayerView = VideoPlayer()
     let videoUrl: URL
+    
+    var playerLooper: AVPlayerLooper?
     
     @objc private var player = AVQueuePlayer()
     
@@ -40,20 +43,16 @@ final class VideoPlayerView: UIView {
     private func initPlayer() {
         videoPlayerView.player = player
         addVideoToPlayer()
+        addGestureRecognizers()
         
         player.volume = 0.0
         player.play()
-        token = player.observe(\.currentItem, changeHandler: { (player, _) in
-            if player.items().count == 1 {
-                self.addVideoToPlayer()
-            }
-        })
         
-        token = player.observe(\.status, changeHandler: { (player, _) in
+        token = player.observe(\.status) { (player, _) in
             if player.status == .readyToPlay {
                 self.activityIndicator.stopAnimating()
             }
-        })
+        }
     }
     
     func pause() {
@@ -68,10 +67,44 @@ final class VideoPlayerView: UIView {
         let asset = AVURLAsset(url: videoUrl)
         let item = AVPlayerItem(asset: asset)
         player.insert(item, after: player.items().last)
+        playerLooper = AVPlayerLooper(player: player, templateItem: item)
+    }
+    
+    private func addGestureRecognizers() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(openBigPlayer))
+        addGestureRecognizer(tap)
+    }
+    
+    @objc
+    private func openBigPlayer() {
+        
+        let player = self.player
+        
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        player.volume = 1.0
+        playerViewController.transitioningDelegate = self
+        
+        let allScenes = UIApplication.shared.connectedScenes
+        let scene = allScenes.first { $0.activationState == .foregroundActive }
+        if let windowScene = scene as? UIWindowScene {
+            windowScene.keyWindow?.rootViewController?.present(playerViewController, animated: true) {
+                player.play()
+            }
+        }
     }
     
     override func layoutSubviews() {
         addSubview(videoPlayerView)
         videoPlayerView.frame = bounds
+    }
+}
+
+extension VideoPlayerView: UIViewControllerTransitioningDelegate {
+    func animationController(forDismissed dismissed: UIViewController)
+    -> UIViewControllerAnimatedTransitioning? {
+        self.player.play()
+        self.player.volume = 0.0
+        return nil
     }
 }

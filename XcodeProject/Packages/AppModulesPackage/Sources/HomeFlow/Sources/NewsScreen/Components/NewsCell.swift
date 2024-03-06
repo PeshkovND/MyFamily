@@ -97,6 +97,7 @@ final class NewsCell: UITableViewCell {
     private let videoContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
         return view
     }()
     
