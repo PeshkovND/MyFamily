@@ -27,7 +27,7 @@ final class VideoPlayerView: UIView {
         label.textAlignment = .center
         return label
     }()
-
+    
     init() {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
@@ -61,7 +61,7 @@ final class VideoPlayerView: UIView {
         
         player.volume = 0.0
         
-        token = player.observe(\.status) { (player, _) in
+        token = player.observe(\.currentItem) { (player, _) in
             if player.currentItem?.asset.isPlayable == true {
                 self.errorLabel.alpha = 0
                 self.activityIndicator.stopAnimating()
@@ -87,10 +87,31 @@ final class VideoPlayerView: UIView {
     }
     
     public func addVideoToPlayer(videoUrl: URL) {
+        self.player.removeAllItems()
         let asset = AVURLAsset(url: videoUrl)
-        let item = AVPlayerItem(asset: asset)
-        player.insert(item, after: player.items().last)
-        playerLooper = AVPlayerLooper(player: player, templateItem: item)
+        let keys: [String] = ["playable"]
+        
+        // swiftlint:disable closure_body_length
+        asset.loadValuesAsynchronously(forKeys: keys, completionHandler: {
+            var error: NSError? = nil
+            let status = asset.statusOfValue(forKey: "playable", error: &error)
+            switch status {
+            case .loaded:
+                DispatchQueue.main.async {
+                    let item = AVPlayerItem(asset: asset)
+                    self.player.insert(item, after: nil)
+                    self.playerLooper = AVPlayerLooper(player: self.player, templateItem: item)
+                }
+            case .failed:
+                self.activityIndicator.stopAnimating()
+                self.videoPlayerView.alpha = 0
+                self.player.removeAllItems()
+                self.errorLabel.alpha = 1
+                self.player.removeAllItems()
+            default:
+                break
+            }
+        })
     }
     
     private func addGestureRecognizers() {
