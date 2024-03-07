@@ -34,7 +34,7 @@ final class NewsCell: UITableViewCell {
 
     private let userImageView: UIImageView = {
         let userImageView = UIImageView()
-        userImageView.layer.cornerRadius = 48/2
+        userImageView.layer.cornerRadius = 40/2
         userImageView.clipsToBounds = true
         userImageView.translatesAutoresizingMaskIntoConstraints = false
         userImageView.contentMode = .scaleAspectFill
@@ -45,7 +45,7 @@ final class NewsCell: UITableViewCell {
         let usernameLabel = UILabel()
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         usernameLabel.textColor = appDesignSystem.colors.labelPrimary
-        usernameLabel.font = appDesignSystem.typography.subheadline
+        usernameLabel.font = appDesignSystem.typography.body.withSize(16)
         usernameLabel.numberOfLines = 0
         return usernameLabel
     }()
@@ -106,7 +106,7 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = appDesignSystem.colors.labelPrimary
-        label.font = appDesignSystem.typography.body
+        label.font = appDesignSystem.typography.body.withSize(16)
         label.numberOfLines = 0
         return label
     }()
@@ -149,16 +149,16 @@ final class NewsCell: UITableViewCell {
     
     private func setupUserInfoConstraints() {
         userImageView.snp.makeConstraints {
-            $0.leading.equalTo(contentView.snp.leading).inset(8)
+            $0.leading.equalTo(contentView.snp.leading).inset(16)
             $0.top.equalTo(contentView.snp.top).inset(8)
-            $0.width.equalTo(48)
-            $0.height.equalTo(48)
+            $0.width.equalTo(40)
+            $0.height.equalTo(40)
         }
         
         usernameLabel.snp.makeConstraints {
             $0.leading.equalTo(userImageView.snp.trailing).inset(-8)
             $0.centerY.equalTo(userImageView.snp.centerY).inset(8)
-            $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
         }
     }
     
@@ -168,9 +168,9 @@ final class NewsCell: UITableViewCell {
             contentLabel.text = contentText
             contentLabel.snp.makeConstraints {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(8)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-                if model.contentImageURL == nil 
+                $0.leading.equalTo(contentView.snp.leading).inset(16)
+                $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+                if model.contentImageURL == nil
                     && model.contentVideoURL == nil
                     && model.contentAudioURL == nil {
                     $0.bottom.equalTo(commentButton.snp.top).inset(-8)
@@ -194,10 +194,10 @@ final class NewsCell: UITableViewCell {
                                ? contentLabel.snp.bottom
                                : userImageView.snp.bottom
                 ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(8)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.leading.equalTo(contentView.snp.leading)
+                $0.trailing.equalTo(contentView.snp.trailing)
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(contentView.snp.width).multipliedBy(0.7)
+                $0.height.equalTo(contentView.snp.width).multipliedBy(0.6)
             }
             
         } else {
@@ -212,8 +212,8 @@ final class NewsCell: UITableViewCell {
                                ? contentLabel.snp.bottom
                                : userImageView.snp.bottom
                 ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(8)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+                $0.leading.equalTo(contentView.snp.leading)
+                $0.trailing.equalTo(contentView.snp.trailing)
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 $0.height.equalTo(contentImageView.snp.width)
             }
@@ -235,7 +235,7 @@ final class NewsCell: UITableViewCell {
                 $0.leading.equalTo(contentView.snp.leading).inset(16)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(16)
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(56)
+                $0.height.equalTo(40)
             }
         } else {
             self.audioView.removeFromSuperview()
@@ -245,16 +245,16 @@ final class NewsCell: UITableViewCell {
     private func setupControlButtonConstraints() {
         shareButton.snp.makeConstraints {
             $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-            $0.bottom.equalTo(contentView.snp.bottom).inset(8)
+            $0.bottom.equalTo(contentView.snp.bottom)
         }
         
         commentButton.snp.makeConstraints {
-            $0.trailing.equalTo(shareButton.snp.leading).inset(8)
+            $0.trailing.equalTo(shareButton.snp.leading)
             $0.centerY.equalTo(shareButton.snp.centerY)
         }
         
         likeButton.snp.makeConstraints {
-            $0.trailing.equalTo(commentButton.snp.leading).inset(8)
+            $0.trailing.equalTo(commentButton.snp.leading)
             $0.centerY.equalTo(shareButton.snp.centerY)
         }
     }

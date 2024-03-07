@@ -27,7 +27,6 @@ extension NewsViewController {
             return activityIndicator
         }()
         
-        // swiftlint:disable function_body_length
         override func setLayout() {
             addSubview(tableView)
             addSubview(activityIndicator)
@@ -46,6 +45,5 @@ extension NewsViewController {
                 $0.trailing.equalToSuperview()
             }
         }
-        // swiftlint:enable function_body_length
     }
 }
