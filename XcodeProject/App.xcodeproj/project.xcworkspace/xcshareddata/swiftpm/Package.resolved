@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "cachingplayeritem",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sukov/CachingPlayerItem.git",
+      "state" : {
+        "revision" : "613ee44cac1e4fd97a58d1b98c8a79ddd17e27cb",
+        "version" : "1.0.8"
+      }
+    },
+    {
       "identity" : "iqkeyboardmanager",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hackiftekhar/IQKeyboardManager.git",
@@ -25,6 +34,15 @@
       "state" : {
         "revision" : "78d7cd35f1d90ff74fd82e486f2cbe4b24be8cf9",
         "version" : "2.2.0"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "5b92f029fab2cce44386d28588098b5be0824ef5",
+        "version" : "7.11.0"
       }
     },
     {

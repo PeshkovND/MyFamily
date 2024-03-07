@@ -24,6 +24,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private let env: Env = AppContainer.provideEnv()
     private let debugStorage = AppContainer.provideDebugDefaultsStorage()
     private let defaultsStorage = AppContainer.provideDefaultsStorage()
+    private let audioPlayer = AppContainer.provideAudioPlayer()
     private var authService = AppContainer.provideAuthService()
     private lazy var logoutNotifier: LogoutNotifier = authService
     private var accountHolder: AccountHolder { authService }
@@ -128,7 +129,8 @@ private extension AppCoordinator {
         let coordinator = HomeCoordinator(
             navigationController: navigationController,
             authService: authService,
-            debugTogglesHolder: debugTogglesHolder
+            debugTogglesHolder: debugTogglesHolder,
+            audioPlayer: audioPlayer
         )
         let token = coordinator.events.sink { _ in
             // IMPLEMENT: Event handling

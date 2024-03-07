@@ -10,9 +10,9 @@ open class BaseViewController<
     ViewState,
     View: BaseView
 >: UIViewController where
-    ViewEvent == SpecificViewModel.ViewEvent,
-    ViewState == SpecificViewModel.ViewState {
-
+ViewEvent == SpecificViewModel.ViewEvent,
+ViewState == SpecificViewModel.ViewState {
+    
     public var contentView: View {
         guard let contentView = view as? View else {
             assertionFailure("Current view must be \(View.self)")
@@ -20,47 +20,49 @@ open class BaseViewController<
         }
         return contentView
     }
-
+    
     public let viewModel: SpecificViewModel
-
+    
     public var cancelableSet = Set<AnyCancellable>()
-
+    
     public var disableKeyboardAutoManaging = true
-
+    
     /// It's used to enable Navigation bar on
     /// It should be used only for the first view controller in flow with navigation bar
     ///
     /// Default value: false
     public var shouldManageShowingNavigationBar = false
-
+    
+    
+    
     public init(viewModel: SpecificViewModel) {
         self.viewModel = viewModel
-
+        
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     public override func loadView() {
         view = View()
     }
-
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         bindView()
     }
-
+    
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        
         if shouldManageShowingNavigationBar {
             navigationController?.setNavigationBarHidden(false, animated: animated)
         }
     }
-
+    
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         /*
@@ -71,7 +73,7 @@ open class BaseViewController<
             disableKeyboardHander()
         }
     }
-
+    
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         /*
@@ -81,13 +83,13 @@ open class BaseViewController<
         if disableKeyboardAutoManaging {
             enableKeyboardHander()
         }
-
+        
         // Workaround to detect push method and avoid pop.
         var hasAddedToHierarchy: Bool {
             guard let navigationController = navigationController else { return false }
             return navigationController.viewControllers.contains(self)
         }
-
+        
         if shouldManageShowingNavigationBar && !hasAddedToHierarchy {
             navigationController?.setNavigationBarHidden(true, animated: animated)
         }
@@ -101,7 +103,7 @@ open class BaseViewController<
             }
             .store(in: &cancelableSet)
     }
-
+    
     open func onViewState(_ viewState: ViewState) {}
 }
 
