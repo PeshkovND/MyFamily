@@ -1,4 +1,5 @@
 import UIKit
+import AVFoundation
 import Combine
 import AppEntities
 import AppServices
@@ -11,7 +12,13 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
+    var audioPlayer: AVQueuePlayer
     var posts: [NewsViewPost] = []
+    
+    init(audioPlayer: AVQueuePlayer) {
+        self.audioPlayer = audioPlayer
+        super.init()
+    }
     
     func likeButtonDidTappedOn(post: NewsViewPost, at index: Int) {
         var postItem = post

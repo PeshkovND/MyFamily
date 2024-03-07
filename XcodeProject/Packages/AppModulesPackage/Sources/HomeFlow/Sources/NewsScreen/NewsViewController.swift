@@ -26,8 +26,6 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     private let colors = appDesignSystem.colors
     
-    private let audioPlayer = AVQueuePlayer()
-    
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
     
     deinit {
@@ -117,7 +115,7 @@ extension NewsViewController: UITableViewDataSource {
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
             ),
-            audioPlayer: self.audioPlayer
+            audioPlayer: viewModel.audioPlayer
         )
         cell.setup(model)
         return cell

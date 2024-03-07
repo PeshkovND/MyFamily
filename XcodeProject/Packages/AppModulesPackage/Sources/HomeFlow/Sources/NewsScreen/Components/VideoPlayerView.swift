@@ -8,6 +8,9 @@ final class VideoPlayerView: UIView {
     private var playerLooper: AVPlayerLooper?
     private var token: NSKeyValueObservation?
     
+    var onOpenBigPlayer: (() -> Void)?
+    var onCloseBigPlayer: (() -> Void)?
+    
     @objc private var player = AVQueuePlayer()
     
     private(set) lazy var activityIndicator: UIActivityIndicatorView = {
@@ -28,7 +31,7 @@ final class VideoPlayerView: UIView {
         return label
     }()
     
-    init() {
+    init(audioPlayer: AVQueuePlayer? = nil) {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
@@ -123,7 +126,6 @@ final class VideoPlayerView: UIView {
     private func openBigPlayer() {
         
         let player = self.player
-        
         let playerViewController = AVPlayerViewController()
         playerViewController.player = player
         player.volume = 1.0
@@ -132,6 +134,7 @@ final class VideoPlayerView: UIView {
         let allScenes = UIApplication.shared.connectedScenes
         let scene = allScenes.first { $0.activationState == .foregroundActive }
         if let windowScene = scene as? UIWindowScene {
+            self.onOpenBigPlayer?()
             windowScene.keyWindow?.rootViewController?.present(playerViewController, animated: true) {
                 player.play()
             }
@@ -149,6 +152,7 @@ extension VideoPlayerView: UIViewControllerTransitioningDelegate {
     -> UIViewControllerAnimatedTransitioning? {
         self.player.play()
         self.player.volume = 0.0
+        self.onCloseBigPlayer?()
         return nil
     }
 }

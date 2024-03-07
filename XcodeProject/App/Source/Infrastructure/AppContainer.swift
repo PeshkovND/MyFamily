@@ -8,8 +8,11 @@ import AppBaseFlow
 
 import Alamofire
 import AppDevTools
+import AVFoundation
 
 struct AppContainer {
+    
+    private static let audioPlayer = AVQueuePlayer()
     
     private static let debugTogglesHolder = DebugTogglesHolder(
         debugStorage: debugStorage
@@ -105,6 +108,8 @@ extension AppContainer {
 
     static func provideAppCoordinator() -> Coordinator { AppCoordinator() }
 
+    static func provideAudioPlayer() -> AVQueuePlayer { audioPlayer }
+    
     static func provideEnv() -> Env { env }
 
     static func provideDebugDefaultsStorage() -> DefaultsStorage { debugStorage }

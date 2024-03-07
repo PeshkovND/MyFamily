@@ -6,6 +6,7 @@ import AppDesignSystem
 import AppBaseFlow
 import AppDevTools
 import AppServices
+import AVFoundation
 
 public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
@@ -27,15 +28,18 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private weak var navigationController: UINavigationController?
     private let debugTogglesHolder: DebugTogglesHolder
     private let authService: AuthService
+    private let audioPlayer: AVQueuePlayer
     
     public init(
         navigationController: UINavigationController,
         authService: AuthService,
-        debugTogglesHolder: DebugTogglesHolder
+        debugTogglesHolder: DebugTogglesHolder,
+        audioPlayer: AVQueuePlayer
     ) {
         self.navigationController = navigationController
         self.authService = authService
         self.debugTogglesHolder = debugTogglesHolder
+        self.audioPlayer = audioPlayer
     }
     
     public func start() {
@@ -64,7 +68,7 @@ private extension HomeCoordinator {
     
     func makeNewsViewController() -> UIViewController {
         
-        let viewModel = NewsViewModel()
+        let viewModel = NewsViewModel(audioPlayer: audioPlayer)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
         

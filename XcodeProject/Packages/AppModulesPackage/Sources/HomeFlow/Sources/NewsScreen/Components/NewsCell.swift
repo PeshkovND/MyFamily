@@ -183,6 +183,12 @@ final class NewsCell: UITableViewCell {
         if let contentURL = model.contentVideoURL {
             contentView.addSubview(videoContainer)
             videoContainer.addVideoToPlayer(videoUrl: contentURL)
+            videoContainer.onOpenBigPlayer = {
+                model.audioPlayer.pause()
+            }
+            videoContainer.onCloseBigPlayer = {
+                model.audioPlayer.play()
+            }
             videoContainer.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
