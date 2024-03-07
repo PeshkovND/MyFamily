@@ -66,22 +66,26 @@ final class AudioPlayerView: UIView {
     
     @objc
     private func sliderDidMoved() {
-        let time = CMTime(
-            seconds: Double(slider.value),
-            preferredTimescale: 1000
-        )
         
-        player?.seek(to: time) { [weak self] _ in
-            self?.setupObserver()
+        if let asset = player?.currentItem?.asset as? AVURLAsset,
+           asset.url == self.audioURL {
+            let time = CMTime(
+                seconds: Double(slider.value),
+                preferredTimescale: 1000
+            )
+            
+            player?.seek(to: time) { [weak self] _ in
+                self?.setupSliderObserver()
+            }
         }
     }
     
     @objc
     private func sliderStartMoving() {
-        removeObserver()
+        removeSliderObserver()
     }
     
-    private func setupObserver() {
+    private func setupSliderObserver() {
         timeObserver = player?.addPeriodicTimeObserver(
             forInterval: CMTime(
                 seconds: 1,
@@ -93,11 +97,24 @@ final class AudioPlayerView: UIView {
         }
     }
     
-    private func removeObserver() {
+    private func setupTrackEndedObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(audioDidEnded),
+            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+            object: player?.currentItem
+        )
+    }
+    
+    private func removeSliderObserver() {
         if let observer = timeObserver {
             player?.removeTimeObserver(observer)
             timeObserver = nil
         }
+    }
+    
+    private func removeTrackEndedObserver() {
+        NotificationCenter.default.removeObserver(self)
     }
     
     required init?(coder: NSCoder) {
@@ -107,18 +124,19 @@ final class AudioPlayerView: UIView {
     func setupPlayerData() {
         if let asset = player?.currentItem?.asset as? AVURLAsset {
             if asset.url == self.audioURL {
-                removeObserver()
+                removeSliderObserver()
                 slider.value = Float(player?.currentItem?.currentTime().seconds ?? 0)
-                setupObserver()
+                setupSliderObserver()
                 setupSliderMaximumValue()
-                playButton.setImage(
-                    player?.timeControlStatus == .playing
-                    ? pauseImage
-                    : playImage,
-                    for: .normal
-                )
+                if player?.timeControlStatus == .playing {
+                    playButton.setImage(pauseImage, for: .normal)
+                    removeTrackEndedObserver()
+                    setupTrackEndedObserver()
+                } else {
+                    playButton.setImage(playImage, for: .normal)
+                }
             } else {
-                removeObserver()
+                removeSliderObserver()
                 slider.value = 0
                 self.playButton.setImage(playImage, for: .normal)
             }
@@ -142,7 +160,7 @@ final class AudioPlayerView: UIView {
     }
     
     private func changeTrack() {
-        removeObserver()
+        removeSliderObserver()
         self.slider.value = 0
         self.playButton.setImage(playImage, for: .normal)
     }
@@ -169,11 +187,15 @@ final class AudioPlayerView: UIView {
         player?.seek(to: time)
         player?.play()
         playButton.setImage(pauseImage, for: .normal)
+        
+        setupTrackEndedObserver()
     }
     
     private func pause() {
         player?.pause()
         playButton.setImage(playImage, for: .normal)
+        
+        removeTrackEndedObserver()
     }
     
     private func addAudioToPlayer(url: URL?) {
@@ -182,12 +204,18 @@ final class AudioPlayerView: UIView {
         let asset = AVURLAsset(url: url)
         let item = AVPlayerItem(asset: asset)
         player?.insert(item, after: player?.items().last)
-        player?.actionAtItemEnd = .pause
-        setupObserver()
+        setupSliderObserver()
     }
     
     private func addGestureRecognizers() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(playButtonTapped))
         playButton.addGestureRecognizer(tap)
+    }
+    
+    @objc private func audioDidEnded() {
+        removeSliderObserver()
+        self.slider.value = 0
+        self.playButton.setImage(playImage, for: .normal)
+        removeTrackEndedObserver()
     }
 }
