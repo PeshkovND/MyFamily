@@ -1,19 +1,20 @@
 import UIKit
-import Combine
 import AppEntities
-import AppServices
 import AppDesignSystem
 import AppBaseFlow
-import TweeTextField
 import AVKit
 
-struct NewsViewPost: Hashable {
+enum MediaContent {
+    case Image(url: URL?)
+    case Audio(url: URL?)
+    case Video(url: URL?)
+}
+
+struct NewsViewPost {
     let userImageURL: URL?
     let name: String
     let contentLabel: String?
-    let contentImageURL: URL?
-    let contentVideoURL: URL?
-    let contentAudioURL: URL?
+    let mediaContent: MediaContent?
     var likesCount: Int
     let commentsCount: Int
     var isLiked: Bool
@@ -100,9 +101,7 @@ extension NewsViewController: UITableViewDataSource {
             userImageURL: post.userImageURL,
             name: post.name,
             contentLabel: post.contentLabel,
-            contentImageURL: post.contentImageURL,
-            contentVideoURL: post.contentVideoURL,
-            contentAudioURL: post.contentAudioURL,
+            mediaContent: post.mediaContent,
             commentsCount: post.commentsCount,
             likeButtonTapped: {
                 self.viewModel.likeButtonDidTappedOn(post: self.viewModel.posts[indexPath.row], at: indexPath.row)

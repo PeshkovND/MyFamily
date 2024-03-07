@@ -11,9 +11,7 @@ final class NewsCell: UITableViewCell {
         let userImageURL: URL?
         let name: String
         let contentLabel: String?
-        let contentImageURL: URL?
-        let contentVideoURL: URL?
-        let contentAudioURL: URL?
+        let mediaContent: MediaContent?
         var commentsCount: Int
         let likeButtonTapped: () -> Void
         let commentButtonTapped: () -> Void
@@ -163,6 +161,7 @@ final class NewsCell: UITableViewCell {
     }
     
     private func setupContentConstraints(model: Model) {
+        
         if let contentText = model.contentLabel {
             contentView.addSubview(contentLabel)
             contentLabel.text = contentText
@@ -170,9 +169,7 @@ final class NewsCell: UITableViewCell {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
                 $0.leading.equalTo(contentView.snp.leading).inset(16)
                 $0.trailing.equalTo(contentView.snp.trailing).inset(16)
-                if model.contentImageURL == nil
-                    && model.contentVideoURL == nil
-                    && model.contentAudioURL == nil {
+                if model.mediaContent == nil {
                     $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 }
             }
@@ -180,9 +177,11 @@ final class NewsCell: UITableViewCell {
             self.contentLabel.removeFromSuperview()
         }
         
-        if let contentURL = model.contentVideoURL {
+        switch model.mediaContent {
+        case .Video(let url):
+            guard let url = url else { return }
             contentView.addSubview(videoContainer)
-            videoContainer.addVideoToPlayer(videoUrl: contentURL)
+            videoContainer.addVideoToPlayer(videoUrl: url)
             videoContainer.onOpenBigPlayer = {
                 model.audioPlayer.pause()
             }
@@ -199,14 +198,12 @@ final class NewsCell: UITableViewCell {
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 $0.height.equalTo(contentView.snp.width).multipliedBy(0.6)
             }
-            
-        } else {
-            self.videoContainer.removeFromSuperview()
-        }
-        
-        if let contentURL = model.contentImageURL {
+            audioView.removeFromSuperview()
+            contentImageView.removeFromSuperview()
+        case .Image(let url):
+            guard let url = url else { return }
             contentView.addSubview(contentImageView)
-            self.contentImageView.setImageUrl(url: contentURL)
+            self.contentImageView.setImageUrl(url: url)
             contentImageView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -217,15 +214,13 @@ final class NewsCell: UITableViewCell {
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 $0.height.equalTo(contentImageView.snp.width)
             }
-            
-        } else {
-            self.contentImageView.removeFromSuperview()
-        }
-        
-        if let contentURL = model.contentAudioURL {
+            videoContainer.removeFromSuperview()
+            audioView.removeFromSuperview()
+        case .Audio(let url):
+            guard let url = url else { return }
             contentView.addSubview(audioView)
             audioView.player = model.audioPlayer
-            audioView.audioURL = contentURL
+            audioView.audioURL = url
             audioView.setupPlayerData()
             audioView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
@@ -237,8 +232,12 @@ final class NewsCell: UITableViewCell {
                 $0.bottom.equalTo(commentButton.snp.top).inset(-8)
                 $0.height.equalTo(40)
             }
-        } else {
-            self.audioView.removeFromSuperview()
+            contentImageView.removeFromSuperview()
+            videoContainer.removeFromSuperview()
+        case .none:
+            videoContainer.removeFromSuperview()
+            contentImageView.removeFromSuperview()
+            audioView.removeFromSuperview()
         }
     }
     
