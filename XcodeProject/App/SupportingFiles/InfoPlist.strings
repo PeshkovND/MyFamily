@@ -2,3 +2,6 @@
   Copyright © 2021 Krasavchik OOO. All rights reserved.
 */
 "NSContactsUsageDescription" = "App would Like to Access Your Contacts";
+"NSLocationAlwaysUsageDescription" = "The application needs constant access to your geolocation to display on the map";
+"NSLocationWhenInUseUsageDescription" = "The application needs constant access to your geolocation to display on the map";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "The application needs constant access to your geolocation to display on the map";
