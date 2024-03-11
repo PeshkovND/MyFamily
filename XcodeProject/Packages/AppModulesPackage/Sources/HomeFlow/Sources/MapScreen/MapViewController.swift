@@ -34,6 +34,7 @@ final class MapViewController: BaseViewController<MapViewModel,
         super.viewDidLoad()
         configureView()
         viewModel.onViewEvent(.viewDidLoad)
+        mapView.delegate = self
         navigationController?.navigationBar.backgroundColor = colors.backgroundPrimary
         tabBarController?.tabBar.backgroundColor = colors.backgroundPrimary
     }
@@ -47,7 +48,10 @@ final class MapViewController: BaseViewController<MapViewModel,
     override func onViewState(_ viewState:MapViewState) {
         switch viewState {
         case .loaded:
-            break
+            let annotation = MapQuickEventUserAnnotation(
+                coordinate: CLLocationCoordinate2D(latitude: 37.78, longitude: -122.40),
+                photo: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png")
+            mapView.addAnnotation(annotation)
         default: break
         }
     }
@@ -122,5 +126,23 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkAuthorization()
+    }
+}
+
+extension MapViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard let annotation = annotation as? MapQuickEventUserAnnotation else {
+            return nil
+        }
+        
+        let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MapUserAnnotationView.reuseId)
+        
+        guard let annotationView = annotationView as? MapUserAnnotationView else { return nil }
+        
+        annotationView.annotation = annotation
+        
+        annotationView.photo = annotation.photo
+        annotationView.prepareForDisplay()
+        return annotationView
     }
 }
