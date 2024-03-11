@@ -93,4 +93,8 @@ extension StringsLibrary {
     public var tabBarNewsTitle: String { localized("tabbar_news_title") }
     public var tabBarFamilyTitle: String { localized("tabbar_family_title") }
     public var tabBarProfileTitle: String { localized("tabbar_profile_title") }
+    
+    public var statusOnlineTitle: String { localized("status_online_title") }
+    public var statusOfflineTitle: String { localized("status_offline_title") }
+    public var statusAtHomeTitle: String { localized("status_athome_title") }
 }

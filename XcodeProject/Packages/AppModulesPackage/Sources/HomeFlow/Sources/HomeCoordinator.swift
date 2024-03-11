@@ -89,10 +89,24 @@ private extension HomeCoordinator {
     }
     
     func makeFamilyViewController() -> UIViewController {
-        let viewController = TitleStubViewController()
-        viewController.stubTitle = "Family Screen"
+                
+        let viewModel = FamilyViewModel()
+        let viewController = FamilyViewController(viewModel: viewModel)
+        viewController.title = appDesignSystem.strings.tabBarFamilyTitle
+        
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard self != nil else { return }
+                switch event {
+                case .personCardTapped(let id):
+                    break
+                }
+            }
+            .store(in: &setCancelable)
+        
+        let nvc = UINavigationController(rootViewController: viewController)
         viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
-        return viewController
+        return nvc
     }
     
     func makeMapViewController() -> UIViewController {

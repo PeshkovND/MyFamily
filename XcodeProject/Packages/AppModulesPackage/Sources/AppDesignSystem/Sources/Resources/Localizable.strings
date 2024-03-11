@@ -50,3 +50,7 @@
 "tabbar_news_title" = "News";
 "tabbar_family_title" = "Family";
 "tabbar_profile_title" = "Profile";
+
+"status_online_title" = "online";
+"status_offline_title" = "was online";
+"status_athome_title" = "at home";
