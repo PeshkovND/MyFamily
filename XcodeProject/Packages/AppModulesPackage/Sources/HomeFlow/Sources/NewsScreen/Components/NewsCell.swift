@@ -132,12 +132,6 @@ final class NewsCell: UITableViewCell {
     
     // swiftlint:disable function_body_length
     private func setupLayout(model: Model) {
-        contentView.addSubview(userImageView)
-        contentView.addSubview(usernameLabel)
-        contentView.addSubview(likeButton)
-        contentView.addSubview(commentButton)
-        contentView.addSubview(shareButton)
-        
         setupUserInfoConstraints()
         setupContentConstraints(model: model)
         setupControlButtonConstraints()
