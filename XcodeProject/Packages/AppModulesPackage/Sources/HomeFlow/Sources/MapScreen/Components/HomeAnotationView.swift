@@ -1,5 +1,6 @@
 import MapKit
 import AppDesignSystem
+import Utilities
 
 class MapHomeAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
@@ -70,6 +71,7 @@ class MapHomeAnnotationView: MKAnnotationView {
 
     override func prepareForDisplay() {
         super.prepareForDisplay()
+        stackView.removeAllArrangedSubviews()
         if !persons.isEmpty {
             persons.forEach { elem in
                 let label = UILabel()
