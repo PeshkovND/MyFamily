@@ -64,7 +64,26 @@ class MapHomeAnnotationView: MKAnnotationView {
             persons.forEach { elem in
                 let label = UILabel()
                 label.text = elem.name
-                stackView.addArrangedSubview(label)
+                
+                let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 36, height: 36))
+                imageView.layer.cornerRadius = 18.0
+                imageView.contentMode = .scaleAspectFill
+                imageView.clipsToBounds = true
+                
+                imageView.setImageUrl(url: elem.userImageURL)
+                imageView.snp.makeConstraints {
+                    $0.width.equalTo(36)
+                    $0.height.equalTo(36)
+                }
+                
+                let stack = UIStackView()
+                stack.axis = .horizontal
+                stack.spacing = 8
+                
+                stack.addArrangedSubview(imageView)
+                stack.addArrangedSubview(label)
+                
+                stackView.addArrangedSubview(stack)
             }
             detailCalloutAccessoryView = stackView
             canShowCallout = true

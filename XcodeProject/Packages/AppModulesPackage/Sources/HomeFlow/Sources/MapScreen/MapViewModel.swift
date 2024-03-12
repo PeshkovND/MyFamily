@@ -47,6 +47,16 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
             status: .online,
             coordinate: Coordinate(latitude: 37.783, longitude: -122.403)
         ),
+        MapViewData(
+            id: "2",
+            userImageURL:
+                URL(
+                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                ),
+            name: "Генадий Генадиев",
+            status: .atHome,
+            coordinate: Coordinate(latitude: 37.783, longitude: -122.403)
+        ),
     ]
     
     override func onViewEvent(_ event: MapViewEvent) {
