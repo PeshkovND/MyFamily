@@ -48,6 +48,8 @@ final class PersonCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        selectionStyle = .none
+        
         contentView.addSubview(userImageView)
         contentView.addSubview(container)
         container.addArrangedSubview(usernameLabel)

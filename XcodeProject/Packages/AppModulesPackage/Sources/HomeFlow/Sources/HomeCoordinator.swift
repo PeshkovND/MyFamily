@@ -110,10 +110,23 @@ private extension HomeCoordinator {
     }
     
     func makeMapViewController() -> UIViewController {
-        let viewController = TitleStubViewController()
-        viewController.stubTitle = "Map Screen"
+        let viewModel = MapViewModel()
+        let viewController = MapViewController(viewModel: viewModel)
+        viewController.title = appDesignSystem.strings.tabBarMapTitle
+        
+//        viewModel.outputEventPublisher
+//            .sink { [weak self] event in
+//                guard self != nil else { return }
+//                switch event {
+//                case .personCardTapped(let id):
+//                    break
+//                }
+//            }
+//            .store(in: &setCancelable)
+        
+        let nvc = UINavigationController(rootViewController: viewController)
         viewController.tabBarItem = appDesignSystem.components.mapTabBarItem
-        return viewController
+        return nvc
     }
     
     func makeProfileViewController() -> UIViewController {
