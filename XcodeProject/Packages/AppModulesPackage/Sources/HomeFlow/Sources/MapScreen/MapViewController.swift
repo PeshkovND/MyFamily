@@ -30,6 +30,8 @@ final class MapViewController: BaseViewController<MapViewModel,
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var tableView: UITableView { contentView.tableView }
+    private var meButton: ActionButton { contentView.meButton }
+    private var homeButton: ActionButton { contentView.homeButton }
     
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
     
@@ -68,6 +70,7 @@ final class MapViewController: BaseViewController<MapViewModel,
         switch viewState {
         case .loaded:
             activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
             tableView.reloadData()
             viewModel.personsNotAtHome.forEach { elem in
                 let annotation = MapQuickEventUserAnnotation(
@@ -92,13 +95,46 @@ final class MapViewController: BaseViewController<MapViewModel,
                 ),
                 persons: viewModel.personsAtHome
             )
-            
+            homeButton.alpha = 1
             mapView.addAnnotation(annotation)
-        default: break
+        case .loading:
+            homeButton.alpha = 0
+            meButton.alpha = 0
+        default:
+            break
         }
     }
     
-    private func configureView() {}
+    private func configureView() {
+        meButton.onTap = zoomToCurrentUser
+        homeButton.onTap = zoomToHome
+        tableView.refreshControl = refreshControl
+    }
+    
+    private func zoomToHome() {
+        guard let coordinate = self.viewModel.homeCoordinate else { return }
+        
+        let region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            ),
+            latitudinalMeters: self.mapDefaultZoom,
+            longitudinalMeters: self.mapDefaultZoom
+        )
+        self.mapView.setRegion(region, animated: true)
+    }
+    
+    private func zoomToCurrentUser() {
+        if let location = self.locationManager.location?.coordinate {
+            let region = MKCoordinateRegion(
+                center: location,
+                latitudinalMeters: self.mapDefaultZoom,
+                longitudinalMeters: self.mapDefaultZoom
+            )
+            self.mapView.setRegion(region, animated: true)
+        }
+    }
     
     private func setupLocationManager() {
         locationManager.delegate = self
@@ -163,6 +199,7 @@ extension MapViewController: CLLocationManagerDelegate {
                 longitudinalMeters: mapDefaultZoom
             )
             mapView.setRegion(region, animated: true)
+            meButton.alpha = 1
         }
     }
     
@@ -221,17 +258,7 @@ extension MapViewController: UITableViewDataSource {
         let item = viewModel.persons[indexPath.row]
         
         if item.status == .atHome {
-            guard let coordinate = viewModel.homeCoordinate else { return }
-            
-            let region = MKCoordinateRegion(
-                center: CLLocationCoordinate2D(
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude
-                ),
-                latitudinalMeters: mapDefaultZoom,
-                longitudinalMeters: mapDefaultZoom
-            )
-            mapView.setRegion(region, animated: true)
+            zoomToHome()
             return
         }
         

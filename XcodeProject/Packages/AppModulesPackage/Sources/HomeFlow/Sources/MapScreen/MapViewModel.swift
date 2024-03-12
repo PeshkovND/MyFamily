@@ -64,6 +64,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
+            self.viewState = .loading
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.persons = self.mockData
                 self.homeCoordinate = Coordinate(latitude: 37.78, longitude: -122.40)

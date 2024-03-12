@@ -37,6 +37,38 @@ extension MapViewController {
             return tableView
         }()
         
+        private(set) lazy var homeButton: ActionButton = {
+            let button = ActionButton()
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.layer.borderColor = colors.backgroundSecondaryVariant.cgColor
+            button.layer.borderWidth = 4
+            button.layer.cornerRadius = 20
+            button.backgroundColor = colors.backgroundPrimary
+            button.setImage(
+                UIImage(systemName: "house.fill")?.withTintColor(
+                    colors.backgroundSecondaryVariant,
+                    renderingMode: .alwaysOriginal
+                ),
+                for: .normal)
+            return button
+        }()
+        
+        private(set) lazy var meButton: ActionButton = {
+            let button = ActionButton()
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.layer.borderColor = colors.backgroundSecondaryVariant.cgColor
+            button.layer.borderWidth = 4
+            button.layer.cornerRadius = 20
+            button.backgroundColor = colors.backgroundPrimary
+            button.setImage(
+                UIImage(systemName: "location.fill")?.withTintColor(
+                    colors.backgroundSecondaryVariant,
+                    renderingMode: .alwaysOriginal
+                ),
+                for: .normal)
+            return button
+        }()
+        
         private(set) lazy var mapContainer: UIView = {
             let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -57,8 +89,15 @@ extension MapViewController {
             addSubview(mapContainer)
             addSubview(tableView)
             mapContainer.addSubview(mapView)
+            mapContainer.addSubview(homeButton)
+            mapContainer.addSubview(meButton)
             tableView.addSubview(activityIndicator)
             
+            setupConstraints()
+        }
+            
+        
+        func setupConstraints() {
             mapContainer.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalTo(tableView.snp.top).inset(28)
@@ -83,6 +122,20 @@ extension MapViewController {
             activityIndicator.snp.makeConstraints {
                 $0.centerX.equalToSuperview()
                 $0.centerY.equalToSuperview()
+            }
+            
+            homeButton.snp.makeConstraints {
+                $0.height.equalTo(40)
+                $0.width.equalTo(40)
+                $0.bottom.equalTo(meButton.snp.top).inset(-12)
+                $0.trailing.equalToSuperview().inset(8)
+            }
+            
+            meButton.snp.makeConstraints {
+                $0.height.equalTo(40)
+                $0.width.equalTo(40)
+                $0.bottom.equalToSuperview().inset(40)
+                $0.trailing.equalToSuperview().inset(8)
             }
         }
     }
