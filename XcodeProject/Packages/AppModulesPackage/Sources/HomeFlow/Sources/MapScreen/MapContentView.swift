@@ -17,6 +17,19 @@ extension MapViewController {
             return view
         }()
         
+        private(set) lazy var tableView: UITableView = {
+            let tableView = UITableView()
+            tableView.translatesAutoresizingMaskIntoConstraints = false
+            tableView.backgroundColor = colors.backgroundPrimary
+            tableView.showsVerticalScrollIndicator = false
+            tableView.register(PersonCell.self, forCellReuseIdentifier: String(describing: PersonCell.self))
+            tableView.separatorStyle = .none
+            tableView.layer.cornerRadius = 28
+            tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            tableView.clipsToBounds = true
+            return tableView
+        }()
+        
         private(set) lazy var mapContainer: UIView = {
             let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -35,10 +48,19 @@ extension MapViewController {
         override func setLayout() {
             backgroundColor = colors.backgroundPrimary
             addSubview(mapContainer)
+            addSubview(tableView)
             mapContainer.addSubview(mapView)
+            tableView.addSubview(activityIndicator)
             
-            mapContainer.snp.makeConstraints{
-                $0.top.equalTo(safeAreaLayoutGuide.snp.top)
+            mapContainer.snp.makeConstraints {
+                $0.top.equalToSuperview()
+                $0.bottom.equalTo(tableView.snp.top).inset(28)
+                $0.leading.equalToSuperview()
+                $0.trailing.equalToSuperview()
+            }
+            
+            tableView.snp.makeConstraints {
+                $0.height.equalToSuperview().multipliedBy(0.35)
                 $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
                 $0.leading.equalToSuperview()
                 $0.trailing.equalToSuperview()
@@ -49,6 +71,11 @@ extension MapViewController {
                 $0.bottom.equalToSuperview()
                 $0.leading.equalToSuperview()
                 $0.trailing.equalToSuperview()
+            }
+            
+            activityIndicator.snp.makeConstraints {
+                $0.centerX.equalToSuperview()
+                $0.centerY.equalToSuperview()
             }
         }
     }

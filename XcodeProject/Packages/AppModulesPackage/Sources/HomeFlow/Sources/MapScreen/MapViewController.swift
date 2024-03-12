@@ -14,6 +14,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     
     private let locationManager = CLLocationManager()
     private var mapView: MKMapView { contentView.mapView }
+    private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
     
@@ -32,6 +33,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.isNavigationBarHidden = true
         configureView()
         viewModel.onViewEvent(.viewDidLoad)
         mapView.delegate = self
@@ -44,10 +46,11 @@ final class MapViewController: BaseViewController<MapViewModel,
         checkLocationEnabled()
         checkAuthorization()
     }
-    
+
     override func onViewState(_ viewState:MapViewState) {
         switch viewState {
         case .loaded:
+            activityIndicator.stopAnimating()
             let annotation = MapQuickEventUserAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: 37.78, longitude: -122.40),
                 photo: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png")
@@ -140,9 +143,6 @@ extension MapViewController: MKMapViewDelegate {
         guard let annotationView = annotationView as? MapUserAnnotationView else { return nil }
         
         annotationView.annotation = annotation
-        
-        annotationView.photo = annotation.photo
-        annotationView.prepareForDisplay()
         return annotationView
     }
 }
