@@ -13,7 +13,14 @@ extension MapViewController {
             let view = MKMapView()
             view.translatesAutoresizingMaskIntoConstraints = false
             view.clipsToBounds = true
-            view.register(MapUserAnnotationView.self, forAnnotationViewWithReuseIdentifier: MapUserAnnotationView.reuseId)
+            view.register(
+                MapUserAnnotationView.self,
+                forAnnotationViewWithReuseIdentifier: MapUserAnnotationView.reuseId
+            )
+            view.register(
+                MapHomeAnnotationView.self,
+                forAnnotationViewWithReuseIdentifier: MapHomeAnnotationView.reuseId
+            )
             return view
         }()
         

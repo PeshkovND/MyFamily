@@ -26,7 +26,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     private let colors = appDesignSystem.colors
     
     private let locationManager = CLLocationManager()
-    private let mapDefaultZoom = 2000.0
+    private let mapDefaultZoom = 1000.0
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var tableView: UITableView { contentView.tableView }
@@ -69,16 +69,31 @@ final class MapViewController: BaseViewController<MapViewModel,
         case .loaded:
             activityIndicator.stopAnimating()
             tableView.reloadData()
-            viewModel.persons.forEach { elem in
+            viewModel.personsNotAtHome.forEach { elem in
                 let annotation = MapQuickEventUserAnnotation(
                     coordinate: CLLocationCoordinate2D(
                         latitude: elem.coordinate.latitude,
                         longitude: elem.coordinate.longitude
                     ),
-                    photo: elem.userImageURL
+                    photo: elem.userImageURL,
+                    title: elem.name,
+                    status: elem.status
                 )
+                
                 mapView.addAnnotation(annotation)
             }
+            
+            guard let coordinate = viewModel.homeCoordinate else { return }
+            
+            let annotation = MapHomeAnnotation(
+                coordinate: CLLocationCoordinate2D(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude
+                ),
+                persons: viewModel.personsAtHome
+            )
+            
+            mapView.addAnnotation(annotation)
         default: break
         }
     }
@@ -158,16 +173,23 @@ extension MapViewController: CLLocationManagerDelegate {
 
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard let annotation = annotation as? MapQuickEventUserAnnotation else {
-            return nil
+        if let annotation = annotation as? MapQuickEventUserAnnotation {
+            
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MapUserAnnotationView.reuseId)
+            
+            guard let annotationView = annotationView as? MapUserAnnotationView else { return nil }
+            annotationView.annotation = annotation
+            return annotationView
         }
-        
-        let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MapUserAnnotationView.reuseId)
-        
-        guard let annotationView = annotationView as? MapUserAnnotationView else { return nil }
-        
-        annotationView.annotation = annotation
-        return annotationView
+        if let annotation = annotation as? MapHomeAnnotation {
+            
+            let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MapHomeAnnotationView.reuseId)
+            
+            guard let annotationView = annotationView as? MapHomeAnnotationView else { return nil }
+            annotationView.annotation = annotation
+            return annotationView
+        }
+        return nil
     }
 }
 
@@ -197,6 +219,21 @@ extension MapViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         let item = viewModel.persons[indexPath.row]
+        
+        if item.status == .atHome {
+            guard let coordinate = viewModel.homeCoordinate else { return }
+            
+            let region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude
+                ),
+                latitudinalMeters: mapDefaultZoom,
+                longitudinalMeters: mapDefaultZoom
+            )
+            mapView.setRegion(region, animated: true)
+            return
+        }
         
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(

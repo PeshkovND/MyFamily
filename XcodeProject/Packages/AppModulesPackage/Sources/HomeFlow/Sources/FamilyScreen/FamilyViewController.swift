@@ -4,7 +4,7 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 
-enum PersonStatus {
+enum PersonStatus: Equatable {
     case online
     case atHome
     case offline(lastOnline: String)

@@ -11,6 +11,10 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
                                                MapOutputEvent> {
     
     var persons: [MapViewData] = []
+    var personsAtHome: [MapViewData] { persons.filter { $0.status == .atHome } }
+    var personsNotAtHome: [MapViewData] { persons.filter { $0.status != .atHome } }
+    
+    var homeCoordinate: Coordinate?
     
     private let strings = appDesignSystem.strings
     private let mockData: [MapViewData] = [
@@ -22,7 +26,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
                 ),
             name: "Виталий Громяка",
             status: .atHome,
-            coordinate: Coordinate(latitude: 37.78, longitude: -122.40)
+            coordinate: Coordinate(latitude: 312.78, longitude: -122.40)
         ),
         MapViewData(
             id: "1", userImageURL:
@@ -52,6 +56,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
         case .viewDidLoad:
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.persons = self.mockData
+                self.homeCoordinate = Coordinate(latitude: 37.78, longitude: -122.40)
                 self.viewState = .loaded
             }
             viewState = .initial
