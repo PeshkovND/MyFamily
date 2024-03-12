@@ -38,19 +38,29 @@ class MapHomeAnnotationView: MKAnnotationView {
         return imageView
     }()
     
+    let counterLabel: UILabel = {
+        var letterLabel = UILabel(frame: CGRect(x: 25, y: -3, width: 16, height: 16))
+        letterLabel.layer.cornerRadius = 8
+        letterLabel.textAlignment = .center
+        letterLabel.textColor = .white
+        letterLabel.layer.backgroundColor = UIColor.red.cgColor
+        letterLabel.font = appDesignSystem.typography.body.withSize(10)
+        return letterLabel
+    }()
+    
     let stackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        
+        view.spacing = 8
         return view
     }()
 
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-
+        clipsToBounds = false
         frame = CGRect(x: 0, y: 0, width: 36, height: 36)
         addSubview(imageView)
-       
+        addSubview(counterLabel)
         displayPriority = .required
     }
 
@@ -85,6 +95,9 @@ class MapHomeAnnotationView: MKAnnotationView {
                 
                 stackView.addArrangedSubview(stack)
             }
+            
+            counterLabel.text = String(persons.count)
+            
             detailCalloutAccessoryView = stackView
             canShowCallout = true
         }
