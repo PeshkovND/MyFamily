@@ -3,9 +3,9 @@ import AppDesignSystem
 
 class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
-    let photo: String
+    let photo: URL?
     
-    init(coordinate: CLLocationCoordinate2D, photo: String) {
+    init(coordinate: CLLocationCoordinate2D, photo: URL?) {
         self.coordinate = coordinate
         self.photo = photo
     }
@@ -13,7 +13,7 @@ class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
 
 class MapUserAnnotationView: MKAnnotationView {
     static let reuseId = "quickEventUser"
-    var photo: String?
+    var photo: URL?
     override var annotation: MKAnnotation? {
         didSet {
             if let ann = annotation as? MapQuickEventUserAnnotation {
@@ -46,7 +46,7 @@ class MapUserAnnotationView: MKAnnotationView {
     override func prepareForDisplay() {
         super.prepareForDisplay()
         if let photoURL = photo {
-            let url = URL(string: photoURL)
+            let url = photoURL
             imageView.setImageUrl(url: url)
         } else {
             imageView.image = nil

@@ -41,7 +41,5 @@ final class SignInViewController: BaseViewController<SignInViewModel,
                     )
                 }
                 .store(in: &cancelableSet)
-
-            // TODO: - Add handling text input
         }
 }

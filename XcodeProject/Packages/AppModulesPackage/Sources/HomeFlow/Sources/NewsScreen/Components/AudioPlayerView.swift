@@ -142,7 +142,7 @@ final class AudioPlayerView: UIView {
             }
         }
         
-        token = player?.observe(\.currentItem?.status) { (player, _) in
+        token = player?.observe(\.currentItem?.status) { _, _  in
             self.setupSliderMaximumValue()
         }
         changeTrackToken = player?.observe(\.currentItem) { (player, _) in

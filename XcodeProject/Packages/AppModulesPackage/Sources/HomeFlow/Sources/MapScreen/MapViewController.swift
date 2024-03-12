@@ -6,8 +6,8 @@ import AppBaseFlow
 import MapKit
 
 struct Coordinate {
-    let latitude: Float
-    let longitude: Float
+    let latitude: Double
+    let longitude: Double
 }
 
 struct MapViewData {
@@ -26,6 +26,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     private let colors = appDesignSystem.colors
     
     private let locationManager = CLLocationManager()
+    private let mapDefaultZoom = 2000.0
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var tableView: UITableView { contentView.tableView }
@@ -68,10 +69,16 @@ final class MapViewController: BaseViewController<MapViewModel,
         case .loaded:
             activityIndicator.stopAnimating()
             tableView.reloadData()
-            let annotation = MapQuickEventUserAnnotation(
-                coordinate: CLLocationCoordinate2D(latitude: 37.78, longitude: -122.40),
-                photo: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png")
-            mapView.addAnnotation(annotation)
+            viewModel.persons.forEach { elem in
+                let annotation = MapQuickEventUserAnnotation(
+                    coordinate: CLLocationCoordinate2D(
+                        latitude: elem.coordinate.latitude,
+                        longitude: elem.coordinate.longitude
+                    ),
+                    photo: elem.userImageURL
+                )
+                mapView.addAnnotation(annotation)
+            }
         default: break
         }
     }
@@ -137,8 +144,8 @@ extension MapViewController: CLLocationManagerDelegate {
         if let location = locations.last?.coordinate {
             let region = MKCoordinateRegion(
                 center: location,
-                latitudinalMeters: 5000,
-                longitudinalMeters: 5000
+                latitudinalMeters: mapDefaultZoom,
+                longitudinalMeters: mapDefaultZoom
             )
             mapView.setRegion(region, animated: true)
         }
@@ -171,7 +178,7 @@ extension MapViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
-            withIdentifier: String(describing:PersonCell.self), for: indexPath)
+            withIdentifier: String(describing: PersonCell.self), for: indexPath)
         guard let cell = cell as? PersonCell else { return cell }
         let person = viewModel.persons[indexPath.row]
         let model = PersonCell.Model(
@@ -186,11 +193,21 @@ extension MapViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         68
     }
-    
-    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        false
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+        let item = viewModel.persons[indexPath.row]
+        
+        let region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(
+                latitude: item.coordinate.latitude,
+                longitude: item.coordinate.longitude
+            ),
+            latitudinalMeters: mapDefaultZoom,
+            longitudinalMeters: mapDefaultZoom
+        )
+        mapView.setRegion(region, animated: true)
     }
 }
 
 extension MapViewController: UITableViewDelegate { }
-

@@ -80,7 +80,7 @@ extension FamilyViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
-            withIdentifier: String(describing:PersonCell.self), for: indexPath)
+            withIdentifier: String(describing: PersonCell.self), for: indexPath)
         guard let cell = cell as? PersonCell else { return cell }
         let person = viewModel.persons[indexPath.row]
         let model = PersonCell.Model(
