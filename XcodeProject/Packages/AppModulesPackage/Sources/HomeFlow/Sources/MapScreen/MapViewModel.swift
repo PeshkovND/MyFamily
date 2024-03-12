@@ -10,7 +10,40 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
                                                MapViewState,
                                                MapOutputEvent> {
     
+    var persons: [MapViewData] = []
+    
     private let strings = appDesignSystem.strings
+    private let mockData: [MapViewData] = [
+        MapViewData(
+            id: "0",
+            userImageURL:
+                URL(
+                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                ),
+            name: "Виталий Громяка",
+            status: .atHome,
+            coordinate: Coordinate(latitude: 37.78, longitude: -122.40)
+        ),
+        MapViewData(
+            id: "1", userImageURL:
+                URL(
+                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                ),
+            name: "Иванов Иван",
+            status: .offline(lastOnline: "11 march, 11:37"),
+            coordinate: Coordinate(latitude: 37.781, longitude: -122.401)
+        ),
+        MapViewData(
+            id: "2",
+            userImageURL:
+                URL(
+                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                ),
+            name: "Генадий Генадиев",
+            status: .online,
+            coordinate: Coordinate(latitude: 37.783, longitude: -122.403)
+        ),
+    ]
     
     override func onViewEvent(_ event: MapViewEvent) {
         switch event {
@@ -18,6 +51,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
             break
         case .viewDidLoad:
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.persons = self.mockData
                 self.viewState = .loaded
             }
             viewState = .initial

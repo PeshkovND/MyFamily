@@ -26,7 +26,7 @@ extension MapViewController {
             tableView.separatorStyle = .none
             tableView.layer.cornerRadius = 28
             tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-            tableView.clipsToBounds = true
+            tableView.contentInset = .init(top: 8, left: 0, bottom: 0, right: 0)
             return tableView
         }()
         
