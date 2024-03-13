@@ -89,7 +89,7 @@ final class ProfileCell: UITableViewCell {
         }
         
         userImageView.snp.makeConstraints {
-            $0.centerY.equalTo(downContainer.snp.top)
+            $0.centerY.equalTo(downContainer.snp.top).inset(4)
             $0.centerX.equalTo(backgroundImageView.snp.centerX)
             $0.width.equalTo(72)
             $0.height.equalTo(72)

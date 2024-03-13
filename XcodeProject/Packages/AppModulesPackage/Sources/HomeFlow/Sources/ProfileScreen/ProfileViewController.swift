@@ -132,6 +132,7 @@ extension ProfileViewController: UITableViewDataSource {
                 let model = NewsCell.LikesModel(likesCount: postModel?.likesCount ?? 0, isLiked: postModel?.isLiked ?? false)
                 cell.setupLikes(model)
             },
+            profileButtonTapped: { },
             commentButtonTapped: { },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,

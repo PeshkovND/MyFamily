@@ -71,20 +71,21 @@ private extension HomeCoordinator {
         let viewModel = NewsViewModel(audioPlayer: audioPlayer)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
+        let nvc = UINavigationController(rootViewController: viewController)
+        nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        viewController.navigationItem.backButtonTitle = ""
+        viewController.tabBarItem = appDesignSystem.components.newsTabBarItem
         
         viewModel.outputEventPublisher
             .sink { [weak self] event in
-                guard let self = self else { return }
-                
                 switch event {
                 case .addPost:
                     break
+                case .openUserProfile(id: let id):
+                    self?.openProfileScreen(id: id, nvc: nvc)
                 }
             }
             .store(in: &setCancelable)
-        
-        let nvc = UINavigationController(rootViewController: viewController)
-        viewController.tabBarItem = appDesignSystem.components.newsTabBarItem
         return nvc
     }
     
@@ -96,6 +97,7 @@ private extension HomeCoordinator {
         
         let nvc = UINavigationController(rootViewController: viewController)
         nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        viewController.navigationItem.backButtonTitle = ""
         viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
         
         viewModel.outputEventPublisher
@@ -103,11 +105,7 @@ private extension HomeCoordinator {
                 guard self != nil else { return }
                 switch event {
                 case .personCardTapped(let id):
-                    
-                    let viewModel = ProfileViewModel(userId: id, audioPlayer: self?.audioPlayer ?? AVQueuePlayer())
-                    let viewController = ProfileViewController(viewModel: viewModel)
-                    viewController.title = appDesignSystem.strings.tabBarProfileTitle
-                    nvc.pushViewController(viewController, animated: true)
+                    self?.openProfileScreen(id: id, nvc: nvc)
                 }
             }
             .store(in: &setCancelable)
@@ -135,7 +133,7 @@ private extension HomeCoordinator {
     }
     
     func makeProfileViewController() -> UIViewController {
-        let viewModel = ProfileViewModel(userId: "0", audioPlayer: audioPlayer)
+        let viewModel = ProfileViewModel(userId: "1", audioPlayer: audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         
 //        viewModel.outputEventPublisher
@@ -153,5 +151,12 @@ private extension HomeCoordinator {
         viewController.tabBarItem = appDesignSystem.components.profileTabBarItem
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return nvc
+    }
+    
+    private func openProfileScreen(id: String, nvc: UINavigationController) {
+        let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer)
+        let viewController = ProfileViewController(viewModel: viewModel)
+        viewController.title = appDesignSystem.strings.tabBarProfileTitle
+        nvc.pushViewController(viewController, animated: true)
     }
 }

@@ -14,6 +14,7 @@ final class NewsCell: UITableViewCell {
         let mediaContent: MediaContent?
         var commentsCount: Int
         let likeButtonTapped: () -> Void
+        let profileButtonTapped: () -> Void
         let commentButtonTapped: () -> Void
         
         let likesModel: LikesModel
@@ -46,6 +47,12 @@ final class NewsCell: UITableViewCell {
         usernameLabel.font = appDesignSystem.typography.body.withSize(16)
         usernameLabel.numberOfLines = 0
         return usernameLabel
+    }()
+    
+    private let userInfoContainerButton: ActionButton = {
+        let button = ActionButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let likeButton: ActionButton = {
@@ -118,11 +125,12 @@ final class NewsCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(userImageView)
-        contentView.addSubview(usernameLabel)
         contentView.addSubview(likeButton)
         contentView.addSubview(commentButton)
         contentView.addSubview(shareButton)
+        contentView.addSubview(userInfoContainerButton)
+        userInfoContainerButton.addSubview(userImageView)
+        userInfoContainerButton.addSubview(usernameLabel)
     }
     
     required init?(coder: NSCoder) {
@@ -140,6 +148,13 @@ final class NewsCell: UITableViewCell {
     }
     
     private func setupUserInfoConstraints() {
+        userInfoContainerButton.snp.makeConstraints {
+            $0.leading.equalTo(contentView.snp.leading).inset(16)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            $0.top.equalTo(contentView.snp.top).inset(8)
+            $0.height.equalTo(40)
+        }
+        
         userImageView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).inset(16)
             $0.top.equalTo(contentView.snp.top).inset(8)
@@ -256,6 +271,10 @@ final class NewsCell: UITableViewCell {
         
         likeButton.onTap = {
             model.likeButtonTapped()
+        }
+        
+        userInfoContainerButton.onTap = {
+            model.profileButtonTapped()
         }
         
         setupLikes(model.likesModel)

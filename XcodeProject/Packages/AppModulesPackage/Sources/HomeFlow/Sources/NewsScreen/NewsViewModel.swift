@@ -49,6 +49,8 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.viewState = .loaded(content: self.posts)
             }
+        case .userTapped(id: let id):
+            outputEventSubject.send(.openUserProfile(id: id))
         }
     }
 
@@ -77,6 +79,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     
     private let mockData: [NewsViewPost] = [
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             contentLabel: "Зацените трэк",
@@ -86,6 +89,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             contentLabel: nil,
@@ -95,6 +99,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             contentLabel: nil,
@@ -105,6 +110,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             contentLabel: "Какой я здесь красивый",
@@ -114,6 +120,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             // swiftlint:disable line_length
@@ -124,6 +131,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             // swiftlint:disable line_length
@@ -134,6 +142,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             // swiftlint:disable line_length
@@ -147,6 +156,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
             // swiftlint:disable line_length
