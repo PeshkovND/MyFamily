@@ -73,13 +73,13 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     private let mockData = Profile(
         id: "0",
         userImageURL: URL(
-            string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+            string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
         ),
         name: "Иван Иванов",
         status: .online,
         posts: [
             NewsViewPost(
-                userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
+                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                 name: "Иванов Иван",
                 contentLabel: "Зацените трэк",
                 mediaContent: . Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3")),
@@ -88,16 +88,16 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 isLiked: false
             ),
             NewsViewPost(
-                userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
+                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                 name: "Иванов Иван",
                 contentLabel: nil,
-                mediaContent: .Image(url: URL(string: "https://hawk.live/storage/post-images/petushara-dota-2-best-heroes-3570.jpg")),
+                mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
                 likesCount: 10,
                 commentsCount: 10,
                 isLiked: false
             ),
             NewsViewPost(
-                userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
+                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                 name: "Иванов Иван",
                 contentLabel: nil,
                 // swiftlint:disable line_length
@@ -107,14 +107,14 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 isLiked: false
             ),
             NewsViewPost(
-                userImageURL: URL(string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"),
+                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                 name: "Иванов Иван",
-                contentLabel: "Мой топ персонажей дота 2",
-                mediaContent: .Image(url: URL(string: "https://hawk.live/storage/post-images/petushara-dota-2-best-heroes-3570.jpg")),
+                contentLabel: "Какой я здесь красивый",
+                mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
                 likesCount: 10,
                 commentsCount: 0,
                 isLiked: true
-            ),
+            )
         ]
     )
 }
