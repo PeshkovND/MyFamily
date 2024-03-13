@@ -13,9 +13,10 @@ final class NewsCell: UITableViewCell {
         let contentLabel: String?
         let mediaContent: MediaContent?
         var commentsCount: Int
-        let likeButtonTapped: () -> Void
-        let profileButtonTapped: () -> Void
-        let commentButtonTapped: () -> Void
+        let likeButtonTapAction: () -> Void
+        let profileTapAction: () -> Void
+        let commentButtonTapAction: () -> Void
+        let shareButtonTapAction: () -> Void
         
         let likesModel: LikesModel
         let audioPlayer: AVQueuePlayer
@@ -270,11 +271,11 @@ final class NewsCell: UITableViewCell {
     private func setupData(model: Model) {
         
         likeButton.onTap = {
-            model.likeButtonTapped()
+            model.likeButtonTapAction()
         }
         
         userInfoContainerButton.onTap = {
-            model.profileButtonTapped()
+            model.profileTapAction()
         }
         
         setupLikes(model.likesModel)

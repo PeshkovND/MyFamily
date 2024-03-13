@@ -79,6 +79,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     
     private let mockData: [NewsViewPost] = [
         NewsViewPost(
+            id: "0",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -89,6 +90,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            id: "1",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -99,6 +101,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            id: "2",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -110,6 +113,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: false
         ),
         NewsViewPost(
+            id: "3",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -120,6 +124,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            id: "4",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -131,6 +136,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            id: "5",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -142,6 +148,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            id: "6",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",
@@ -156,6 +163,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             isLiked: true
         ),
         NewsViewPost(
+            id: "7",
             userId: "1",
             userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
             name: "Иванов Иван",

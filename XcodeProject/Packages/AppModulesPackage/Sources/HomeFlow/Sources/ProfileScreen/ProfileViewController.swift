@@ -126,14 +126,15 @@ extension ProfileViewController: UITableViewDataSource {
             contentLabel: post.contentLabel,
             mediaContent: post.mediaContent,
             commentsCount: post.commentsCount,
-            likeButtonTapped: {
+            likeButtonTapAction: {
                 self.viewModel.likeButtonDidTappedOn(post: self.viewModel.profile?.posts[indexPath.row], at: indexPath.row)
                 let postModel = self.viewModel.profile?.posts[indexPath.row]
                 let model = NewsCell.LikesModel(likesCount: postModel?.likesCount ?? 0, isLiked: postModel?.isLiked ?? false)
                 cell.setupLikes(model)
             },
-            profileButtonTapped: { },
-            commentButtonTapped: { },
+            profileTapAction: { },
+            commentButtonTapAction: { },
+            shareButtonTapAction: { },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked

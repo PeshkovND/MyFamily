@@ -11,6 +11,7 @@ enum MediaContent {
 }
 
 struct NewsViewPost {
+    let id: String
     let userId: String
     let userImageURL: URL?
     let name: String
@@ -104,14 +105,15 @@ extension NewsViewController: UITableViewDataSource {
             contentLabel: post.contentLabel,
             mediaContent: post.mediaContent,
             commentsCount: post.commentsCount,
-            likeButtonTapped: {
+            likeButtonTapAction: {
                 self.viewModel.likeButtonDidTappedOn(post: self.viewModel.posts[indexPath.row], at: indexPath.row)
                 let postModel = self.viewModel.posts[indexPath.row]
                 let model = NewsCell.LikesModel(likesCount: postModel.likesCount, isLiked: postModel.isLiked)
                 cell.setupLikes(model)
             }, 
-            profileButtonTapped: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
-            commentButtonTapped: { },
+            profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
+            commentButtonTapAction: { }, 
+            shareButtonTapAction: { },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
