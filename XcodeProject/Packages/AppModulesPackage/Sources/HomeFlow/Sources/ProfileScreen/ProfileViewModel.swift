@@ -11,6 +11,9 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                                                ProfileOutputEvent> {
     
     var profile: Profile?
+    var isCurrentUser: Bool {
+        profile?.id == "0"
+    }
     private let strings = appDesignSystem.strings
     var audioPlayer: AVQueuePlayer
 

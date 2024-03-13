@@ -50,15 +50,31 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
+            setupEditProfileButton()
+            
         default: break
         }
     }
+    
+    @objc
+    private func editProfileTapped() {}
     
     private func configureView() {
         self.contentView.backgroundColor = colors.backgroundPrimary
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
+    }
+    
+    private func setupEditProfileButton() {
+        if viewModel.isCurrentUser {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal),
+                style: .done,
+                target: self,
+                action: #selector(editProfileTapped)
+            )
+        }
     }
 
     @objc
