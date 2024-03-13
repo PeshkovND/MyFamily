@@ -94,18 +94,23 @@ private extension HomeCoordinator {
         let viewController = FamilyViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarFamilyTitle
         
+        let nvc = UINavigationController(rootViewController: viewController)
+        nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
+        
         viewModel.outputEventPublisher
             .sink { [weak self] event in
                 guard self != nil else { return }
                 switch event {
                 case .personCardTapped(let id):
-                    break
+                    
+                    let viewModel = ProfileViewModel(userId: id, audioPlayer: self?.audioPlayer ?? AVQueuePlayer())
+                    let viewController = ProfileViewController(viewModel: viewModel)
+                    viewController.title = appDesignSystem.strings.tabBarProfileTitle
+                    nvc.pushViewController(viewController, animated: true)
                 }
             }
             .store(in: &setCancelable)
-        
-        let nvc = UINavigationController(rootViewController: viewController)
-        viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
         return nvc
     }
     
@@ -130,7 +135,7 @@ private extension HomeCoordinator {
     }
     
     func makeProfileViewController() -> UIViewController {
-        let viewModel = ProfileViewModel(audioPlayer: audioPlayer)
+        let viewModel = ProfileViewModel(userId: "0", audioPlayer: audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         
 //        viewModel.outputEventPublisher

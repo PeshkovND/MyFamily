@@ -27,9 +27,11 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.viewState = .loaded(content: self.persons)
             }
+        case .profileTapped(id: let id):
+            outputEventSubject.send(.personCardTapped(id: id))
         }
     }
-
+    
     private func makeScreenError(from appError: AppError) -> NewsContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):

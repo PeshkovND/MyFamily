@@ -7,18 +7,20 @@ import AppDesignSystem
 import AppBaseFlow
 
 final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
-                                               ProfileViewState,
-                                               ProfileOutputEvent> {
+                              ProfileViewState,
+                              ProfileOutputEvent> {
     
     var profile: Profile?
     var isCurrentUser: Bool {
-        profile?.id == "0"
+        profile?.id == "1"
     }
     private let strings = appDesignSystem.strings
+    private let userId: String
     var audioPlayer: AVQueuePlayer
-
-    init(audioPlayer: AVQueuePlayer) {
+    
+    init(userId: String, audioPlayer: AVQueuePlayer) {
         self.audioPlayer = audioPlayer
+        self.userId = userId
         super.init()
     }
     
@@ -39,7 +41,9 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             break
         case .viewDidLoad:
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.profile = self.mockData
+                self.profile = self.mockData.first { elem in
+                    elem.id == self.userId
+                }
                 self.viewState = .loaded
             }
             viewState = .initial
@@ -49,7 +53,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             }
         }
     }
-
+    
     private func makeScreenError(from appError: AppError) -> ProfileContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):
@@ -73,51 +77,138 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
         }
     }
     
-    private let mockData = Profile(
-        id: "0",
-        userImageURL: URL(
-            string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
+    private let mockData = [
+        Profile(
+            id: "1",
+            userImageURL: URL(
+                string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
+            ),
+            name: "Иван Иванов",
+            status: .online,
+            posts: [
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: "Зацените трэк",
+                    mediaContent: . Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    // swiftlint:disable line_length
+                    mediaContent: .Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: "Какой я здесь красивый",
+                    mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
+                    likesCount: 10,
+                    commentsCount: 0,
+                    isLiked: true
+                )
+            ]
         ),
-        name: "Иван Иванов",
-        status: .online,
-        posts: [
-            NewsViewPost(
-                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
-                name: "Иванов Иван",
-                contentLabel: "Зацените трэк",
-                mediaContent: . Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3")),
-                likesCount: 10,
-                commentsCount: 10,
-                isLiked: false
+        Profile(
+            id: "0",
+            userImageURL: URL(
+                string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
             ),
-            NewsViewPost(
-                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
-                name: "Иванов Иван",
-                contentLabel: nil,
-                mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
-                likesCount: 10,
-                commentsCount: 10,
-                isLiked: false
+            name: "Виталий Виталиев",
+            status: .online,
+            posts: [
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: "Зацените трэк",
+                    mediaContent: . Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    // swiftlint:disable line_length
+                    mediaContent: .Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+            ]
+        ),
+        Profile(
+            id: "2",
+            userImageURL: URL(
+                string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
             ),
-            NewsViewPost(
-                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
-                name: "Иванов Иван",
-                contentLabel: nil,
-                // swiftlint:disable line_length
-                mediaContent: .Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3")),
-                likesCount: 10,
-                commentsCount: 10,
-                isLiked: false
-            ),
-            NewsViewPost(
-                userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
-                name: "Иванов Иван",
-                contentLabel: "Какой я здесь красивый",
-                mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
-                likesCount: 10,
-                commentsCount: 0,
-                isLiked: true
-            )
-        ]
-    )
+            name: "Генадий Генадиев",
+            status: .online,
+            posts: [
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: "Зацените трэк",
+                    mediaContent: . Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: nil,
+                    // swiftlint:disable line_length
+                    mediaContent: .Audio(url: URL(string: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3")),
+                    likesCount: 10,
+                    commentsCount: 10,
+                    isLiked: false
+                ),
+                NewsViewPost(
+                    userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+                    name: "Иванов Иван",
+                    contentLabel: "Какой я здесь красивый",
+                    mediaContent: .Image(url: URL(string: "https://directorsnotes.com/wp-content/uploads/2011/12/drive_02-1440x500-1.jpg")),
+                    likesCount: 10,
+                    commentsCount: 0,
+                    isLiked: true
+                )
+            ]
+        ),
+    ]
 }

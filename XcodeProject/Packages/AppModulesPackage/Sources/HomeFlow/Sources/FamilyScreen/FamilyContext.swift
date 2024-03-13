@@ -46,4 +46,5 @@ enum FamilyViewEvent {
     case viewDidLoad
     case `deinit`
     case pullToRefresh
+    case profileTapped(id: String)
 }
