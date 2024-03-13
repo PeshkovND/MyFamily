@@ -96,8 +96,9 @@ extension FamilyViewController: UITableViewDataSource {
         68
     }
     
-    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        false
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let person = viewModel.persons[indexPath.row]
+        viewModel.onViewEvent(.profileTapped(id: person.id))
     }
 }
 

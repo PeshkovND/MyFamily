@@ -97,4 +97,6 @@ extension StringsLibrary {
     public var statusOnlineTitle: String { localized("status_online_title") }
     public var statusOfflineTitle: String { localized("status_offline_title") }
     public var statusAtHomeTitle: String { localized("status_athome_title") }
+    
+    public var profilePostsTitle: String { localized("profile_posts_title") }
 }

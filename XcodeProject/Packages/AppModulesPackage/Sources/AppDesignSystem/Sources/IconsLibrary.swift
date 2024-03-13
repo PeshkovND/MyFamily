@@ -21,6 +21,7 @@ extension IconsLibrary {
     public var homeTabbarProfile: UIImage { valueOrStub("home_tabbar_profile") }
     
     public var signInBackground: UIImage { valueOrStub("SignInBackground") }
+    public var profileBackground: UIImage { valueOrStub("ProfileBackground") }
     public var vkLogo: UIImage { valueOrStub("vk_logo") }
 }
 

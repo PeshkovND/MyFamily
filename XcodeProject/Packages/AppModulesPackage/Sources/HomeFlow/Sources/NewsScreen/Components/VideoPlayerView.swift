@@ -95,7 +95,7 @@ final class VideoPlayerView: UIView {
         let keys: [String] = ["playable"]
         
         // swiftlint:disable closure_body_length
-        asset.loadValuesAsynchronously(forKeys: keys, completionHandler: {
+        asset.loadValuesAsynchronously(forKeys: keys) {
             var error: NSError? = nil
             let status = asset.statusOfValue(forKey: "playable", error: &error)
             switch status {
@@ -114,7 +114,7 @@ final class VideoPlayerView: UIView {
             default:
                 break
             }
-        })
+        }
     }
     
     private func addGestureRecognizers() {

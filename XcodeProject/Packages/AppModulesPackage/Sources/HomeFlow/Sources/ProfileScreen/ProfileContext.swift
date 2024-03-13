@@ -6,20 +6,20 @@ import AVKit
 
 // MARK: - Context
 
-struct FamilyContext {
+struct ProfileContext {
     private init() {}
 }
 
 // MARK: - Screen Error
 
-extension FamilyContext {
+extension ProfileContext {
 
     typealias ScreenError = BaseUIError<String>
 }
 
 // MARK: - View State
 
-enum FamilyViewState: Stubable {
+enum ProfileViewState: Stubable {
 
     struct ValidatingState {
         let inputError: String?
@@ -28,23 +28,20 @@ enum FamilyViewState: Stubable {
 
     case initial
     case loading
-    case loaded(content: [FamilyViewData])
-    case failed(error: FamilyContext.ScreenError)
+    case loaded
+    case failed(error: ProfileContext.ScreenError)
 
-    static var stub: FamilyViewState { .initial }
+    static var stub: ProfileViewState { .initial }
 }
 
 // MARK: - Output Event
 
-enum FamilyOutputEvent {
-    case personCardTapped(id: String)
-}
+enum ProfileOutputEvent { }
 
 // MARK: - View Event
 
-enum FamilyViewEvent {
+enum ProfileViewEvent {
     case viewDidLoad
     case `deinit`
     case pullToRefresh
-    case profileTapped(id: String)
 }

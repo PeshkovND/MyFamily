@@ -27,9 +27,11 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.viewState = .loaded(content: self.persons)
             }
+        case .profileTapped(id: let id):
+            outputEventSubject.send(.personCardTapped(id: id))
         }
     }
-
+    
     private func makeScreenError(from appError: AppError) -> NewsContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):
@@ -58,15 +60,15 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             id: "0",
             userImageURL:
                 URL(
-                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
                 ),
-            name: "Виталий Громяка",
+            name: "Виталий Виталиев",
             status: .atHome
         ),
         FamilyViewData(
             id: "1", userImageURL:
                 URL(
-                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
                 ),
             name: "Иванов Иван",
             status: .offline(lastOnline: "11 march, 11:37")
@@ -75,7 +77,7 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             id: "2",
             userImageURL:
                 URL(
-                    string: "https://tlgrm.ru/_/stickers/50e/b0c/50eb0c04-bbdf-497e-81c4-1130314a75b3/3.png"
+                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
                 ),
             name: "Генадий Генадиев",
             status: .online

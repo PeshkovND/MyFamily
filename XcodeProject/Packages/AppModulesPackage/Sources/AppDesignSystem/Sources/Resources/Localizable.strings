@@ -54,3 +54,5 @@
 "status_online_title" = "online";
 "status_offline_title" = "was online";
 "status_athome_title" = "at home";
+
+"profile_posts_title" = "Posts";
