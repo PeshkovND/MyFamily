@@ -130,10 +130,23 @@ private extension HomeCoordinator {
     }
     
     func makeProfileViewController() -> UIViewController {
-        let viewController = TitleStubViewController()
-        viewController.stubTitle = "My Profile Screen"
-        viewController.tabBarItem = appDesignSystem.components.profileTabBarItem
+        let viewModel = ProfileViewModel(audioPlayer: audioPlayer)
+        let viewController = ProfileViewController(viewModel: viewModel)
         
-        return viewController
+//        viewModel.outputEventPublisher
+//            .sink { [weak self] event in
+//                guard let self = self else { return }
+//                
+//                switch event {
+//                case .addPost:
+//                    break
+//                }
+//            }
+//            .store(in: &setCancelable)
+        
+        let nvc = UINavigationController(rootViewController: viewController)
+        viewController.tabBarItem = appDesignSystem.components.profileTabBarItem
+        viewController.title = appDesignSystem.strings.tabBarProfileTitle
+        return nvc
     }
 }
