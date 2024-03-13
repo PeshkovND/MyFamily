@@ -15,7 +15,9 @@ extension ProfileViewController {
             tableView.backgroundColor = .none
             tableView.showsVerticalScrollIndicator = false
             tableView.register(NewsCell.self, forCellReuseIdentifier: String(describing: NewsCell.self))
+            tableView.register(ProfileCell.self, forCellReuseIdentifier: String(describing: ProfileCell.self))
             tableView.separatorStyle = .none
+            tableView.bounces = false
             return tableView
         }()
         

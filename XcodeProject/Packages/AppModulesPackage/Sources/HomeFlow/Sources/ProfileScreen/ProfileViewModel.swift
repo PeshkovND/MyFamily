@@ -10,7 +10,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                                                ProfileViewState,
                                                ProfileOutputEvent> {
     
-    var profile: Profile? = nil
+    var profile: Profile?
     private let strings = appDesignSystem.strings
     var audioPlayer: AVQueuePlayer
 
@@ -19,8 +19,8 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
         super.init()
     }
     
-    func likeButtonDidTappedOn(post: NewsViewPost, at index: Int) {
-        var postItem = post
+    func likeButtonDidTappedOn(post: NewsViewPost?, at index: Int) {
+        guard var postItem = post else { return }
         if postItem.isLiked {
             postItem.likesCount -= 1
         } else {

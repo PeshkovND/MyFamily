@@ -70,10 +70,36 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
 
 extension ProfileViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.profile?.posts.count ?? 0
+        if section == 0 {
+            return 1
+        } else {
+            return viewModel.profile?.posts.count ?? 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        indexPath.section == 0
+        ? createProfileCell(tableView, cellForRowAt: indexPath)
+        : createPostCell(tableView, cellForRowAt: indexPath)
+    }
+    
+    private func createProfileCell(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: String(describing: ProfileCell.self),
+            for: indexPath
+        )
+        guard let cell = cell as? ProfileCell else { return cell }
+        guard let profile = viewModel.profile else { return UITableViewCell() }
+        let model = ProfileCell.Model(
+            userImageURL: profile.userImageURL,
+            name: profile.name,
+            status: profile.status
+        )
+        cell.setup(model)
+        return cell
+    }
+    
+    private func createPostCell(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: String(describing: NewsCell.self), for: indexPath)
         guard let cell = cell as? NewsCell else { return cell }
@@ -85,9 +111,9 @@ extension ProfileViewController: UITableViewDataSource {
             mediaContent: post.mediaContent,
             commentsCount: post.commentsCount,
             likeButtonTapped: {
-                self.viewModel.likeButtonDidTappedOn(post: post, at: indexPath.row)
-                guard let postModel = self.viewModel.profile?.posts[indexPath.row] else { return }
-                let model = NewsCell.LikesModel(likesCount: postModel.likesCount, isLiked: postModel.isLiked)
+                self.viewModel.likeButtonDidTappedOn(post: self.viewModel.profile?.posts[indexPath.row], at: indexPath.row)
+                let postModel = self.viewModel.profile?.posts[indexPath.row]
+                let model = NewsCell.LikesModel(likesCount: postModel?.likesCount ?? 0, isLiked: postModel?.isLiked ?? false)
                 cell.setupLikes(model)
             },
             commentButtonTapped: { },
@@ -107,6 +133,10 @@ extension ProfileViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         false
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        2
     }
 }
 
