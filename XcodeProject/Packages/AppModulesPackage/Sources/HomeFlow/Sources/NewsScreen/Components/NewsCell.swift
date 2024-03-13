@@ -278,6 +278,10 @@ final class NewsCell: UITableViewCell {
             model.profileTapAction()
         }
         
+        shareButton.onTap = {
+            model.shareButtonTapAction()
+        }
+        
         setupLikes(model.likesModel)
         
         let commentsCount = String(model.commentsCount)
