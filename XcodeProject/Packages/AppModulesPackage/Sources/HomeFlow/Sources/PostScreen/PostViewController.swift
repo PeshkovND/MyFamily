@@ -4,6 +4,13 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 
+struct Comment {
+    let userId: String
+    let username: String
+    let imageUrl: URL?
+    let text: String
+}
+
 final class PostViewController: BaseViewController<PostViewModel,
                                 PostViewEvent,
                                 PostViewState,
@@ -62,10 +69,20 @@ final class PostViewController: BaseViewController<PostViewModel,
 
 extension PostViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.post == nil ? 0 : 1
+        guard let _ = viewModel.post  else { return 0 }
+        let count = section == 0 ? 1 : viewModel.comments.count
+        return count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            return makePostCell(tableView: tableView, cellForRowAt: indexPath)
+        } else {
+            return makeCommentCell(tableView: tableView, cellForRowAt: indexPath)
+        }
+    }
+    
+    private func makePostCell(tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: String(describing: NewsCell.self), for: indexPath
         )
@@ -98,12 +115,33 @@ extension PostViewController: UITableViewDataSource {
         return cell
     }
     
+    func makeCommentCell(tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: String(describing: CommentCell.self), for: indexPath
+        )
+        guard let cell = cell as? CommentCell else { return cell }
+        let comment = viewModel.comments[indexPath.row]
+        let model = CommentCell.Model(
+            userImageURL: comment.imageUrl,
+            name: comment.username,
+            text: comment.text,
+            userTapAction: { self.viewModel.onViewEvent(.profileTapped(id: comment.userId)) }
+        )
+        cell.setup(model)
+        return cell
+    }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         tableView.estimatedRowHeight
     }
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         false
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        guard let _ = viewModel.post else { return 0 }
+        return 2
     }
 }
 

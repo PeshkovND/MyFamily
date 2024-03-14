@@ -15,6 +15,7 @@ extension PostViewController {
             tableView.backgroundColor = .none
             tableView.showsVerticalScrollIndicator = false
             tableView.register(NewsCell.self, forCellReuseIdentifier: String(describing: NewsCell.self))
+            tableView.register(CommentCell.self, forCellReuseIdentifier: String(describing: CommentCell.self))
             tableView.separatorStyle = .none
             return tableView
         }()
