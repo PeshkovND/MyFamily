@@ -51,6 +51,10 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.viewState = .loaded
             }
+        case .commentTapped(id: let id):
+            outputEventSubject.send(.commentTapped(id: id))
+        case .shareTapped(id: let id):
+            outputEventSubject.send(.shareTapped(id: id))
         }
     }
     

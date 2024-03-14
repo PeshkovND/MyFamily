@@ -113,7 +113,7 @@ extension NewsViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.shareButtonTap(id: post.id) },
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
@@ -123,17 +123,7 @@ extension NewsViewController: UITableViewDataSource {
         cell.setup(model)
         return cell
     }
-    
-    private func shareButtonTap(id: String) {
-        
-        let text = "mf://post/" + id
-        
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.view
-        self.present(activityViewController, animated: true, completion: nil)
-    }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         tableView.estimatedRowHeight
     }

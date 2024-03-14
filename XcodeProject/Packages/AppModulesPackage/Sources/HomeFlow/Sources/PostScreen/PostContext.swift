@@ -38,6 +38,7 @@ enum PostViewState: Stubable {
 
 enum PostOutputEvent {
     case personCardTapped(id: String)
+    case shareTapped(id: String)
 }
 
 // MARK: - View Event
@@ -47,4 +48,5 @@ enum PostViewEvent {
     case `deinit`
     case pullToRefresh
     case profileTapped(id: String)
+    case shareTapped(id: String)
 }

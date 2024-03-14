@@ -30,6 +30,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let debugTogglesHolder: DebugTogglesHolder
     private let authService: AuthService
     private let audioPlayer: AVQueuePlayer
+    private let sharePostDeeplinkBody = "mf://post/"
     
     public init(
         navigationController: UINavigationController,
@@ -92,6 +93,8 @@ private extension HomeCoordinator {
                     self?.openProfileScreen(id: id, nvc: nvc)
                 case .commentTapped(id: let id):
                     self?.openPostScreen(id: id, nvc: nvc, animated: true)
+                case .shareTapped(id: let id):
+                    self?.showSharePostViewController(id: id)
                 }
             }
             .store(in: &setCancelable)
@@ -145,19 +148,24 @@ private extension HomeCoordinator {
         let viewModel = ProfileViewModel(userId: "1", audioPlayer: audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         
-//        viewModel.outputEventPublisher
-//            .sink { [weak self] event in
-//                guard let self = self else { return }
-//                
-//                switch event {
-//                case .addPost:
-//                    break
-//                }
-//            }
-//            .store(in: &setCancelable)
-        
         let nvc = UINavigationController(rootViewController: viewController)
+        
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                
+                switch event {
+                case .commentTapped(id: let id):
+                    openPostScreen(id: id, nvc: nvc, animated: true)
+                case .shareTapped(id: let id):
+                    showSharePostViewController(id: id)
+                }
+            }
+            .store(in: &setCancelable)
+        
         viewController.tabBarItem = appDesignSystem.components.profileTabBarItem
+        nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return nvc
     }
@@ -167,6 +175,21 @@ private extension HomeCoordinator {
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         viewController.navigationItem.backButtonTitle = ""
+        nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                
+                switch event {
+                case .commentTapped(id: let id) :
+                    openPostScreen(id: id, nvc: nvc, animated: true)
+                case .shareTapped(id: let id):
+                    showSharePostViewController(id: id)
+                }
+            }
+            .store(in: &setCancelable)
+        
         nvc.pushViewController(viewController, animated: true)
     }
     
@@ -179,13 +202,26 @@ private extension HomeCoordinator {
                 switch event {
                 case .personCardTapped(id: let id):
                     openProfileScreen(id: id, nvc: nvc)
+                case .shareTapped(id: let id):
+                    showSharePostViewController(id: id)
                 }
             }
             .store(in: &setCancelable)
         
         let viewController = PostViewController(viewModel: viewModel)
         viewController.navigationItem.backButtonTitle = ""
+        nvc.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
         viewController.title = appDesignSystem.strings.postScreenTitle
         nvc.pushViewController(viewController, animated: animated)
+    }
+    
+    private func showSharePostViewController(id: String) {
+        guard let nvc = self.navigationController else { return }
+        let text = sharePostDeeplinkBody + id
+        
+        let textToShare = [ text ]
+        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        activityViewController.popoverPresentationController?.sourceView = nvc.view
+        nvc.present(activityViewController, animated: true, completion: nil)
     }
 }

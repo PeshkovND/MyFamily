@@ -39,6 +39,8 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
             }
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
+        case .shareTapped(id: let id):
+            outputEventSubject.send(.shareTapped(id: id))
         }
     }
     

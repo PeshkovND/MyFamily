@@ -53,6 +53,8 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             outputEventSubject.send(.openUserProfile(id: id))
         case .commentTapped(id: let id):
             outputEventSubject.send(.commentTapped(id: id))
+        case .shareTapped(id: let id):
+            outputEventSubject.send(.shareTapped(id: id))
         }
     }
 
