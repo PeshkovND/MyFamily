@@ -99,4 +99,6 @@ extension StringsLibrary {
     public var statusAtHomeTitle: String { localized("status_athome_title") }
     
     public var profilePostsTitle: String { localized("profile_posts_title") }
+    
+    public var postScreenTitle: String { localized("post_screen_title") }
 }

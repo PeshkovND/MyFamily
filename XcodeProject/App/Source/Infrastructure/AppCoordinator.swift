@@ -136,7 +136,14 @@ private extension AppCoordinator {
             // IMPLEMENT: Event handling
         }
         addDependency(coordinator, token: token)
-        coordinator.start()
+        
+        switch Deeplinker.deeplinkType {
+        case .post(id: let id):
+            coordinator.openPost(id: id)
+            Deeplinker.deeplinkType = nil
+        default:
+            coordinator.start()
+        }
     }
 
     private func startCreateProfileFlow() {

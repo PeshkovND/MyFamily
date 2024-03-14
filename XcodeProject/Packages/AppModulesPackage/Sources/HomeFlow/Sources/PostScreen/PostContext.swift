@@ -6,20 +6,20 @@ import AVKit
 
 // MARK: - Context
 
-struct NewsContext {
+struct PostContext {
     private init() {}
 }
 
 // MARK: - Screen Error
 
-extension NewsContext {
+extension PostContext {
 
     typealias ScreenError = BaseUIError<String>
 }
 
 // MARK: - View State
 
-enum NewsViewState: Stubable {
+enum PostViewState: Stubable {
 
     struct ValidatingState {
         let inputError: String?
@@ -28,29 +28,25 @@ enum NewsViewState: Stubable {
 
     case initial
     case loading
-    case loaded(content: [NewsViewPost])
-    case failed(error: NewsContext.ScreenError)
+    case loaded
+    case failed
 
-    static var stub: NewsViewState { .initial }
+    static var stub: PostViewState { .initial }
 }
 
 // MARK: - Output Event
 
-enum NewsOutputEvent {
-    case addPost
-    case openUserProfile(id: String)
-    case commentTapped(id: String)
+enum PostOutputEvent {
+    case personCardTapped(id: String)
     case shareTapped(id: String)
 }
 
 // MARK: - View Event
 
-enum NewsViewEvent {
+enum PostViewEvent {
     case viewDidLoad
     case `deinit`
-    case addPostTapped
     case pullToRefresh
-    case userTapped(id: String)
-    case commentTapped(id: String)
+    case profileTapped(id: String)
     case shareTapped(id: String)
 }

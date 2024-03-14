@@ -6,78 +6,75 @@ import AppServices
 import AppDesignSystem
 import AppBaseFlow
 
-final class NewsViewModel: BaseViewModel<NewsViewEvent,
-                                               NewsViewState,
-                                               NewsOutputEvent> {
+final class PostViewModel: BaseViewModel<PostViewEvent,
+                                               PostViewState,
+                                               PostOutputEvent> {
     
-    private var strings = appDesignSystem.strings
-    private var validField: String { "number" }
+    private let strings = appDesignSystem.strings
+    var post: NewsViewPost?
+    var postId: String
     var audioPlayer: AVQueuePlayer
-    var posts: [NewsViewPost] = []
     
-    init(audioPlayer: AVQueuePlayer) {
+    init(postId: String, audioPlayer: AVQueuePlayer) {
         self.audioPlayer = audioPlayer
+        self.postId = postId
         super.init()
     }
     
-    func likeButtonDidTappedOn(post: NewsViewPost, at index: Int) {
-        var postItem = post
-        if postItem.isLiked {
-            postItem.likesCount -= 1
-        } else {
-            postItem.likesCount += 1
-        }
-        postItem.isLiked.toggle()
-        posts[index] = postItem
-    }
-
-    // swiftlint:disable function_body_length
-    override func onViewEvent(_ event: NewsViewEvent) {
+    override func onViewEvent(_ event: PostViewEvent) {
         switch event {
         case .deinit:
             break
         case .viewDidLoad:
-            // swiftlint:disable closure_body_length
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.posts = self.mockData
-                self.viewState = .loaded(content: self.posts)
+                self.post = self.mockData.first { elem in
+                    elem.id == self.postId
+                }
+                self.viewState = .loaded
             }
             viewState = .initial
-        case .addPostTapped:
-            outputEventSubject.send(.addPost)
         case .pullToRefresh:
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.viewState = .loaded(content: self.posts)
+                self.viewState = .loaded
             }
-        case .userTapped(id: let id):
-            outputEventSubject.send(.openUserProfile(id: id))
-        case .commentTapped(id: let id):
-            outputEventSubject.send(.commentTapped(id: id))
+        case .profileTapped(id: let id):
+            outputEventSubject.send(.personCardTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
         }
     }
-
-    private func makeScreenError(from appError: AppError) -> NewsContext.ScreenError? {
+    
+    func likeButtonDidTapped() {
+        guard var post = self.post else { return }
+        if post.isLiked {
+            post.likesCount -= 1
+        } else {
+            post.likesCount += 1
+        }
+        post.isLiked.toggle()
+        self.post = post
+    }
+    
+    private func makeScreenError(from appError: AppError) -> PostContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):
             switch generalError.code {
             default:
-                let screenError: NewsContext.ScreenError = .init(
+                let screenError: PostContext.ScreenError = .init(
                     alert: .init(title: strings.commonError, message: generalError.message),
                     fieldsInfo: specificErrors
-                        .first( where: { $0.field == validField })?.message
+                        .first?.message
                 )
                 return screenError
             }
         case .network:
-            let screenError: NewsContext.ScreenError = .init(
+            let screenError: PostContext.ScreenError = .init(
                 alert: .init(title: strings.commonError, message: strings.commonErrorNetwork),
                 fieldsInfo: nil
             )
             return screenError
         default:
-            return NewsContext.ScreenError.defaultUIError(from: appError)
+            return PostContext.ScreenError.defaultUIError(from: appError)
         }
     }
     
