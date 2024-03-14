@@ -11,6 +11,7 @@ import WelcomeFlow
 import SignInFlow
 import AppDevTools
 import HomeFlow
+import AppDesignSystem
 
 final class AppCoordinator: BaseCoordinator, Coordinator {
 
@@ -54,7 +55,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
             startOnboardingFlow()
             return
         }
-
+        
         if authService.hasAuthorizedUser {
             startAuthorizedFlow()
         } else {
@@ -63,6 +64,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     }
 
     private func initWindow() {
+        guard self.window == nil else { return }
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
@@ -77,6 +79,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
 private extension AppCoordinator {
 
     private func startAuthorizedFlow() {
+        registerShortcuts(isAuthorized: true)
         startHomeFlow()
     }
 
@@ -95,6 +98,7 @@ private extension AppCoordinator {
     }
 
     private func startSignInFlow() {
+        registerShortcuts(isAuthorized: false)
         let coordinator = SignInCoordinator(
             navigationController: navigationController,
             authService: authService
@@ -140,10 +144,19 @@ private extension AppCoordinator {
         switch Deeplinker.deeplinkType {
         case .post(id: let id):
             coordinator.openPost(id: id)
-            Deeplinker.deeplinkType = nil
+        case .news:
+            coordinator.openNews()
+        case .family:
+            coordinator.openFamily()
+        case .map:
+            coordinator.openMap()
+        case .profile:
+            coordinator.openProfile()
+            
         default:
             coordinator.start()
         }
+        Deeplinker.deeplinkType = nil
     }
 
     private func startCreateProfileFlow() {
@@ -239,5 +252,56 @@ private extension AppCoordinator {
         Self.logger.info(
             message: "Application change environment: \(AppContainer.provideEnv())"
         )
+    }
+    
+    // swiftlint:disable function_body_length
+    private func registerShortcuts(isAuthorized: Bool) {
+        guard isAuthorized else {
+            UIApplication.shared.shortcutItems = []
+            return
+        }
+        
+        let newsIcon = UIApplicationShortcutIcon(systemImageName: "house")
+        let newsShortcutItem = UIApplicationShortcutItem(
+            type: ShortcutKey.news.rawValue,
+            localizedTitle: appDesignSystem.strings.tabBarNewsTitle,
+            localizedSubtitle: nil,
+            icon: newsIcon,
+            userInfo: nil
+        )
+        
+        let mapIcon = UIApplicationShortcutIcon(systemImageName: "map")
+        let mapShortcutItem = UIApplicationShortcutItem(
+            type: ShortcutKey.map.rawValue,
+            localizedTitle: appDesignSystem.strings.tabBarMapTitle,
+            localizedSubtitle: nil,
+            icon: mapIcon,
+            userInfo: nil
+        )
+        
+        let familyIcon = UIApplicationShortcutIcon(systemImageName: "figure.2.and.child.holdinghands")
+        let familyShortcutItem = UIApplicationShortcutItem(
+            type: ShortcutKey.family.rawValue,
+            localizedTitle: appDesignSystem.strings.tabBarFamilyTitle,
+            localizedSubtitle: nil,
+            icon: familyIcon,
+            userInfo: nil
+        )
+        
+        let profileIcon = UIApplicationShortcutIcon(systemImageName: "person.crop.circle")
+        let profileShortcutItem = UIApplicationShortcutItem(
+            type: ShortcutKey.profile.rawValue,
+            localizedTitle: appDesignSystem.strings.tabBarProfileTitle,
+            localizedSubtitle: nil,
+            icon: profileIcon,
+            userInfo: nil
+        )
+        
+        UIApplication.shared.shortcutItems = [
+            newsShortcutItem,
+            familyShortcutItem,
+            mapShortcutItem,
+            profileShortcutItem
+        ]
     }
 }

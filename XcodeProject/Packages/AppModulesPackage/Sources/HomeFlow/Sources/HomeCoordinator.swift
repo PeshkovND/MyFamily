@@ -53,6 +53,26 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         let nvc = tabBarController.viewControllers?[0] as? UINavigationController
         openPostScreen(id: id, nvc: nvc ?? UINavigationController(), animated: false)
     }
+    
+    public func openNews() {
+        startHomeScreen()
+        tabBarController.selectedIndex = 0
+    }
+    
+    public func openFamily() {
+        startHomeScreen()
+        tabBarController.selectedIndex = 1
+    }
+    
+    public func openMap() {
+        startHomeScreen()
+        tabBarController.selectedIndex = 2
+    }
+    
+    public func openProfile() {
+        startHomeScreen()
+        tabBarController.selectedIndex = 3
+    }
 }
 
 // MARK: - Home Screen
