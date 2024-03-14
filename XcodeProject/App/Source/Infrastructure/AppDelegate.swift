@@ -33,8 +33,16 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         Deeplinker.checkDeepLink()
     }
     
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [: ]) -> Bool {
         return Deeplinker.handleDeeplink(url: url)
+    }
+    
+    func application(
+        _ application: UIApplication,
+        performActionFor shortcutItem: UIApplicationShortcutItem,
+        completionHandler: @escaping (Bool) -> Void
+    ) {
+        completionHandler(Deeplinker.handleShortcut(item: shortcutItem))
     }
 }
 

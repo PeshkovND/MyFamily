@@ -1,7 +1,13 @@
 import Foundation
+import UIKit
+import AppDesignSystem
 
 enum DeeplinkType {
     case post(id: String)
+    case news
+    case family
+    case map
+    case profile
 }
 
 let Deeplinker = DeepLinkManager()
@@ -12,16 +18,21 @@ class DeepLinkManager {
     // check existing deepling and perform action
     func checkDeepLink() {
         guard let deeplinkType = deeplinkType else {
-           return
+            return
         }
-      
+        
         DeeplinkNavigator.shared.proceedToDeeplink(deeplinkType)
     }
     
     @discardableResult
     func handleDeeplink(url: URL) -> Bool {
-       deeplinkType = DeeplinkParser.shared.parseDeepLink(url)
-       return deeplinkType != nil
+        deeplinkType = DeeplinkParser.shared.parseDeepLink(url)
+        return deeplinkType != nil
+    }
+    
+    func handleShortcut(item: UIApplicationShortcutItem) -> Bool {
+        deeplinkType = ShortcutParser.shared.handleShortcut(item)
+        return deeplinkType != nil
     }
 }
 
@@ -32,7 +43,7 @@ class DeeplinkNavigator {
     
     func proceedToDeeplink(_ type: DeeplinkType) {
         switch type {
-        case .post(id: let id):
+        default:
             appCoordinator.start()
         }
     }
@@ -59,4 +70,31 @@ class DeeplinkParser {
         }
         return nil
     }
+}
+
+class ShortcutParser {
+    static let shared = ShortcutParser()
+    private init() { }
+    
+    func handleShortcut(_ shortcut: UIApplicationShortcutItem) -> DeeplinkType? {
+       switch shortcut.type {
+       case ShortcutKey.news.rawValue:
+           return .news
+       case ShortcutKey.family.rawValue:
+           return .family
+       case ShortcutKey.map.rawValue:
+           return .map
+       case ShortcutKey.profile.rawValue:
+          return .profile
+       default:
+          return nil
+       }
+    }
+}
+
+enum ShortcutKey: String {
+    case news = "com.myApp.news"
+    case family = "com.myApp.family"
+    case map = "com.myApp.map"
+    case profile = "com.myApp.profile"
 }
