@@ -26,6 +26,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private var setCancelable = Set<AnyCancellable>()
     
     private weak var navigationController: UINavigationController?
+    private let tabBarController = UITabBarController()
     private let debugTogglesHolder: DebugTogglesHolder
     private let authService: AuthService
     private let audioPlayer: AVQueuePlayer
@@ -47,7 +48,9 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     }
     
     public func openPost(id: String) {
-        startHomeScreen(id: id)
+        startHomeScreen()
+        let nvc = tabBarController.viewControllers?[0] as? UINavigationController
+        openPostScreen(id: id, nvc: nvc ?? UINavigationController(), animated: false)
     }
 }
 
@@ -55,8 +58,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
 
 private extension HomeCoordinator {
     
-    private func startHomeScreen(id: String? = nil) {
-        let tabBarController = UITabBarController()
+    private func startHomeScreen() {
+        
         tabBarController.tabBar.standardAppearance = appDesignSystem.components.tabbarStandardAppearance
         
         tabBarController.viewControllers = [
@@ -68,13 +71,9 @@ private extension HomeCoordinator {
         
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
-        
-        if let id = id {
-            tabBarController.selectedIndex = 3
-        }
     }
     
-    func makeNewsViewController() -> UIViewController {
+    func makeNewsViewController() -> UINavigationController {
         
         let viewModel = NewsViewModel(audioPlayer: audioPlayer)
         let viewController = NewsViewController(viewModel: viewModel)
@@ -166,5 +165,12 @@ private extension HomeCoordinator {
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         nvc.pushViewController(viewController, animated: true)
+    }
+    
+    private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
+        let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer)
+        let viewController = PostViewController(viewModel: viewModel)
+        viewController.title = appDesignSystem.strings.postScreenTitle
+        nvc.pushViewController(viewController, animated: animated)
     }
 }
