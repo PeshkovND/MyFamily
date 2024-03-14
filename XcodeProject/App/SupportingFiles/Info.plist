@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationUsageDescription</key>
-	<string>A</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>A</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>A</string>
 	<key>APP_API_PRODUCTION</key>
 	<string>$(APP_API_PRODUCTION)</string>
 	<key>APP_API_STAGING</key>
@@ -30,6 +24,17 @@
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mf</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -38,6 +43,12 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>App would Like to Access Your Contacts</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>A</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>A</string>
+	<key>NSLocationUsageDescription</key>
+	<string>A</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

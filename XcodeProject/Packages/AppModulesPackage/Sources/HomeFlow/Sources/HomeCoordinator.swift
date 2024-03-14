@@ -45,13 +45,17 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     public func start() {
         startHomeScreen()
     }
+    
+    public func openPost(id: String) {
+        startHomeScreen(id: id)
+    }
 }
 
 // MARK: - Home Screen
 
 private extension HomeCoordinator {
     
-    private func startHomeScreen() {
+    private func startHomeScreen(id: String? = nil) {
         let tabBarController = UITabBarController()
         tabBarController.tabBar.standardAppearance = appDesignSystem.components.tabbarStandardAppearance
         
@@ -64,6 +68,10 @@ private extension HomeCoordinator {
         
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        if let id = id {
+            tabBarController.selectedIndex = 3
+        }
     }
     
     func makeNewsViewController() -> UIViewController {

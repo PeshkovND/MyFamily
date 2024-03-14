@@ -126,7 +126,7 @@ extension NewsViewController: UITableViewDataSource {
     
     private func shareButtonTap(id: String) {
         
-        let text = "mf:post/" + id
+        let text = "mf://post/" + id
         
         let textToShare = [ text ]
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)

@@ -28,6 +28,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         ImageLoadingHelper.enableWebPCoder()
         KeyboardHealper.firstEnableKeyboardManager()
     }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        Deeplinker.checkDeepLink()
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        return Deeplinker.handleDeeplink(url: url)
+    }
 }
 
 private extension AppDelegate {
