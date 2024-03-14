@@ -90,6 +90,8 @@ private extension HomeCoordinator {
                     break
                 case .openUserProfile(id: let id):
                     self?.openProfileScreen(id: id, nvc: nvc)
+                case .commentTapped(id: let id):
+                    self?.openPostScreen(id: id, nvc: nvc, animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -164,12 +166,25 @@ private extension HomeCoordinator {
         let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
+        viewController.navigationItem.backButtonTitle = ""
         nvc.pushViewController(viewController, animated: true)
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
         let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer)
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                
+                switch event {
+                case .personCardTapped(id: let id):
+                    openProfileScreen(id: id, nvc: nvc)
+                }
+            }
+            .store(in: &setCancelable)
+        
         let viewController = PostViewController(viewModel: viewModel)
+        viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.postScreenTitle
         nvc.pushViewController(viewController, animated: animated)
     }

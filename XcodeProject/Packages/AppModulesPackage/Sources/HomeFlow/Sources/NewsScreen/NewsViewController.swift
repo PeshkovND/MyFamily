@@ -112,7 +112,7 @@ extension NewsViewController: UITableViewDataSource {
                 cell.setupLikes(model)
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
-            commentButtonTapAction: { },
+            commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
             shareButtonTapAction: { self.shareButtonTap(id: post.id) },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,

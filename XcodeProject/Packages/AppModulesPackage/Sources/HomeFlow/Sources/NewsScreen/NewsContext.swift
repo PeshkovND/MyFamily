@@ -39,6 +39,7 @@ enum NewsViewState: Stubable {
 enum NewsOutputEvent {
     case addPost
     case openUserProfile(id: String)
+    case commentTapped(id: String)
 }
 
 // MARK: - View Event
@@ -49,4 +50,5 @@ enum NewsViewEvent {
     case addPostTapped
     case pullToRefresh
     case userTapped(id: String)
+    case commentTapped(id: String)
 }

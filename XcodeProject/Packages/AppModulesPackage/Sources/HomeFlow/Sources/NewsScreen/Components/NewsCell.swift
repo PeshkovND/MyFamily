@@ -274,6 +274,10 @@ final class NewsCell: UITableViewCell {
             model.likeButtonTapAction()
         }
         
+        commentButton.onTap = {
+            model.commentButtonTapAction()
+        }
+        
         userInfoContainerButton.onTap = {
             model.profileTapAction()
         }
