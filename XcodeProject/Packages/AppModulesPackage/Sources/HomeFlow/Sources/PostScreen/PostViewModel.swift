@@ -27,6 +27,7 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
+            self.viewState = .loading
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.post = self.mockData.first { elem in
                     elem.id == self.postId

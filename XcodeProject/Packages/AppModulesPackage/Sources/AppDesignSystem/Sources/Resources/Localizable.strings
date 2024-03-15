@@ -58,3 +58,4 @@
 "profile_posts_title" = "Posts";
 
 "post_screen_title" = "Post";
+"post_screen_comment_placeholder" = "Type a comment...";

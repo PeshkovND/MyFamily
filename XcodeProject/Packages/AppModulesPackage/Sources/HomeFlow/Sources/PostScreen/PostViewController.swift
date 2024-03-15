@@ -26,6 +26,8 @@ final class PostViewController: BaseViewController<PostViewModel,
     
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private var textView: UITextView { contentView.textView }
+    private var textContainer: UIView { contentView.textContainer }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -39,7 +41,50 @@ final class PostViewController: BaseViewController<PostViewModel,
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-        viewModel.onViewEvent(.viewDidLoad)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        closeKeyboard()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            textContainer.snp.removeConstraints()
+            textContainer.snp.updateConstraints {
+                $0.bottom.equalTo(view.snp.bottom).inset(keyboardSize.height - 1)
+                $0.leading.equalToSuperview().inset(-1)
+                $0.trailing.equalToSuperview().inset(-1)
+                $0.height.equalTo(64)
+            }
+        }
+    }
+    
+    @objc func  keyboardWillHide(_ notification: Notification) {
+        textContainer.snp.removeConstraints()
+        textContainer.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(-1)
+            $0.leading.equalToSuperview().inset(-1)
+            $0.trailing.equalToSuperview().inset(-1)
+            $0.height.equalTo(64)
+        }
     }
     
     override func onViewState(_ viewState: PostViewState) {
@@ -49,7 +94,11 @@ final class PostViewController: BaseViewController<PostViewModel,
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
-        default: break
+            textContainer.alpha = 1
+        case .loading:
+            textContainer.alpha = 0
+        default:
+            break
         }
     }
     
@@ -58,6 +107,17 @@ final class PostViewController: BaseViewController<PostViewModel,
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
+        viewModel.onViewEvent(.viewDidLoad)
+        textView.delegate = self
+        tabBarController?.tabBar.backgroundColor = colors.backgroundPrimary
+        
+        let tableGesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
+        tableView.addGestureRecognizer(tableGesture)
+    }
+    
+    @objc
+    private func closeKeyboard() {
+        textView.resignFirstResponder()
     }
     
     @objc
@@ -69,7 +129,7 @@ final class PostViewController: BaseViewController<PostViewModel,
 
 extension PostViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let _ = viewModel.post  else { return 0 }
+        guard viewModel.post != nil  else { return 0 }
         let count = section == 0 ? 1 : viewModel.comments.count
         return count
     }
@@ -154,5 +214,21 @@ extension PostViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? NewsCell else { return }
         cell.stopVideo()
+    }
+}
+
+extension PostViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
+            textView.text = nil
+            textView.textColor = UIColor.black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = appDesignSystem.strings.postScreenCommentPlaceholder
+            textView.textColor = UIColor.lightGray
+        }
     }
 }
