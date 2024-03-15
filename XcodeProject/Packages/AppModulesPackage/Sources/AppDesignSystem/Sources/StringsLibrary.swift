@@ -101,4 +101,5 @@ extension StringsLibrary {
     public var profilePostsTitle: String { localized("profile_posts_title") }
     
     public var postScreenTitle: String { localized("post_screen_title") }
+    public var postScreenCommentPlaceholder: String { localized("post_screen_comment_placeholder") }
 }

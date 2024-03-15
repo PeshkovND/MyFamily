@@ -13,6 +13,7 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
     private let strings = appDesignSystem.strings
     var post: NewsViewPost?
     var postId: String
+    var comments: [Comment] = []
     var audioPlayer: AVQueuePlayer
     
     init(postId: String, audioPlayer: AVQueuePlayer) {
@@ -26,10 +27,12 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
+            self.viewState = .loading
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.post = self.mockData.first { elem in
                     elem.id == self.postId
                 }
+                self.comments = self.mockComments
                 self.viewState = .loaded
             }
             viewState = .initial
@@ -175,5 +178,26 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
             commentsCount: 0,
             isLiked: true
         )
+    ]
+    
+    private let mockComments: [Comment] = [
+        Comment(
+            userId: "0",
+            username: "Виталий Виталиев",
+            imageUrl:  URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+            text: "Очень круто"
+        ),
+        Comment(
+            userId: "0",
+            username: "Виталий Виталиев",
+            imageUrl:  URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+            text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        ),
+        Comment(
+            userId: "0",
+            username: "Виталий Виталиев",
+            imageUrl:  URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
+            text: "Очень круто"
+        ),
     ]
 }
