@@ -18,7 +18,7 @@ public final class VKIDClient {
         }
     }
     
-    public func authorize(onSuccess: @escaping () -> Void, onFailire: @escaping () -> Void) {
+    public func authorize(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
         vkid.authorize(
             using: .newUIWindow
         ) { result in
@@ -30,9 +30,19 @@ public final class VKIDClient {
                 print("Auth cancelled by user")
             } catch {
                 print("Auth failed with error: \(error)")
-                onFailire()
+                onFailure()
             }
         }
     }
     
+    public func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
+        vkid.currentAuthorizedSession?.logout { result in
+            switch result {
+            case .success:
+                onSuccess()
+            case .failure:
+                onFailure()
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     func signInTapped() {
         vkIdSignInClient.authorize {
             self.outputEventSubject.send(.signedIn)
-        } onFailire: {
+        } onFailure: {
             print("error")
         }
 
