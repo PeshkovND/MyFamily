@@ -55,6 +55,8 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             outputEventSubject.send(.commentTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
+        case .signOut:
+            outputEventSubject.send(.signOut)
         }
     }
     

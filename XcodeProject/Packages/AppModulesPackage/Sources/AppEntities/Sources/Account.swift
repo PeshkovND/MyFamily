@@ -88,12 +88,10 @@ extension Account {
 
 public struct Credentials: Codable {
     public let accessToken: String
-    public let refreshToken: String
     public let expirationDate: Date
 
-    public init(accessToken: String, refreshToken: String, expirationDate: Date) {
+    public init(accessToken: String, expirationDate: Date) {
         self.accessToken = accessToken
-        self.refreshToken = refreshToken
         self.expirationDate = expirationDate
     }
 }

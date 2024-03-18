@@ -13,16 +13,28 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
+    fileprivate let authService: AuthService
+    
+    init (authService: AuthService) {
+        self.authService = authService
+    }
 
     override func onViewEvent(_ event: SignInViewEvent) {
         switch event {
         case .signInTapped:
-            outputEventSubject.send(.signedIn)
+            signInTapped()
         case .deinit:
             outputEventSubject.send(.back)
         case .viewDidLoad:
             viewState = .initial
         }
+    }
+    
+    func signInTapped() {
+        authService.signIn(
+            onSucces: { self.outputEventSubject.send(.signedIn) },
+            onFailure: { print("error") }
+        )
     }
 
     /// Remove formatting symbos

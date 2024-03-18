@@ -56,6 +56,8 @@
 "status_athome_title" = "at home";
 
 "profile_posts_title" = "Posts";
+"profile_sign_out" = "Sign out";
+"profile_edit_profile" = "Edit profile";
 
 "post_screen_title" = "Post";
 "post_screen_comment_placeholder" = "Type a comment...";

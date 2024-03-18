@@ -136,8 +136,17 @@ private extension AppCoordinator {
             debugTogglesHolder: debugTogglesHolder,
             audioPlayer: audioPlayer
         )
-        let token = coordinator.events.sink { _ in
-            // IMPLEMENT: Event handling
+        let token = coordinator.events.sink { event in
+            switch event {
+            case .finished:
+                break
+            case .signOut:
+                self.authService.logout(
+                    onSuccess: { self.startSignInFlow() },
+                    onFailure: { }
+                )
+                
+            }
         }
         addDependency(coordinator, token: token)
         

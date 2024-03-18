@@ -176,6 +176,14 @@ enum ExternalModules {
             from: "7.0.0"
         )
     )
+    static let vkIdSdk = ExternalPackage(
+        productName: "VKID",
+        packageName: "vkid-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/VKCOM/vkid-ios-sdk.git",
+            from: "1.0.0"
+        )
+    )
     static let sdWebImage = ExternalPackage(
         productName: "SDWebImage",
         dependency: .package(
@@ -272,7 +280,8 @@ enum InternalModules {
             ExternalModules.firebaseAnalytics,
             ExternalModules.firebaseDatabase,
             ExternalModules.firebaseStorage,
-            ExternalModules.firebaseFirestore
+            ExternalModules.firebaseFirestore,
+            ExternalModules.vkIdSdk
         ]
     )
     static let appServicesTestsModule: AppModule = .makeTestModule(
@@ -351,7 +360,8 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.snapKit,
     ExternalModules.progressHUD,
     ExternalModules.cachingPlayerItem,
-    ExternalModules.firebase
+    ExternalModules.firebase,
+    ExternalModules.vkIdSdk
 ]
 
 /// Defines use of product modules to build tha app

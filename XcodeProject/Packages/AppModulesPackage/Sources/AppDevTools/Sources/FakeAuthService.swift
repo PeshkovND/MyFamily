@@ -12,7 +12,6 @@ public final class StubAuthInterceptor: RequestInterceptor {
 }
 
 public final class FakeAuthService: AuthService {
-
     private static var logger = LoggerFactory.default
     public var hasAuthorizedUser: Bool { false }
     public var hasFilledProfile: Bool { false }
@@ -23,6 +22,10 @@ public final class FakeAuthService: AuthService {
     public var onAuthErrorOccured: () -> Void = {}
 
     public init() {}
+    
+    public func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void) { }
+    
+    public func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) { }
 
     public func requestAuth(phoneNumber: String) -> AnyPublisher<Result<Void, AppError>, Never> {
         Just<Result<Void, AppError>>(
