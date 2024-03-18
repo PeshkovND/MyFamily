@@ -18,17 +18,19 @@ public final class VKIDClient {
         }
     }
     
-    public func authorize() {
+    public func authorize(onSuccess: @escaping () -> Void, onFailire: @escaping () -> Void) {
         vkid.authorize(
             using: .newUIWindow
         ) { result in
             do {
                 let session = try result.get()
                 print("Auth succeeded with token: \(session.accessToken) and user info: \(session.user)")
+                onSuccess()
             } catch AuthError.cancelled {
                 print("Auth cancelled by user")
             } catch {
                 print("Auth failed with error: \(error)")
+                onFailire()
             }
         }
     }
