@@ -26,6 +26,7 @@ struct AppContainer {
     private static let defaultJsonDecoder = JSONDecoder()
 
     private static let memoryStorage: MemoryStorage = .init()
+    private static let vkIdClient = VKIDClient()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -94,7 +95,8 @@ struct AppContainer {
         providingHttpClient: { alamofireHttpClient },
         requestFactory: httpRequestFactory,
         networkMapper: networkMapper,
-        defaultsStorage: defaultsStorage
+        defaultsStorage: defaultsStorage,
+        vkIdClient: vkIdClient
     )
 
     private static let httpRequestFactory: HttpRequestFactory = .init { env.apiBaseUrlString }

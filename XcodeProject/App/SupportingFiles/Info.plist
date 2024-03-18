@@ -29,9 +29,12 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>auth_callback</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>mf</string>
+                <string>vk51879243</string>
 			</array>
 		</dict>
 	</array>
@@ -70,5 +73,9 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>vkauthorize-silent</string>
+    </array>
 </dict>
 </plist>

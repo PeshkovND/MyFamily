@@ -39,6 +39,7 @@ enum ProfileViewState: Stubable {
 enum ProfileOutputEvent {
     case commentTapped(id: String)
     case shareTapped(id: String)
+    case signOut
 }
 
 // MARK: - View Event
@@ -49,4 +50,5 @@ enum ProfileViewEvent {
     case pullToRefresh
     case commentTapped(id: String)
     case shareTapped(id: String)
+    case signOut
 }

@@ -35,6 +35,16 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         return refreshControl
     }()
     
+    private lazy var editProfileAction = UIAction(
+        title: appDesignSystem.strings.profileEditProfile,
+        image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+    ) { _ in }
+    
+    private lazy var signOutAction = UIAction(
+        title: appDesignSystem.strings.profileSignOut,
+        image: UIImage(systemName: "door.left.hand.open")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+    ) { _ in self.viewModel.onViewEvent(.signOut) }
+    
     // MARK: - View Controller Lifecycle
     
     override func viewDidLoad() {
@@ -68,12 +78,15 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     
     private func setupEditProfileButton() {
         if viewModel.isCurrentUser {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(
-                image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal),
-                style: .done,
-                target: self,
-                action: #selector(editProfileTapped)
+            let menu = UIMenu(
+                options: .displayInline,
+                children: [editProfileAction, signOutAction]
             )
+            let barImage = UIImage(systemName: "gearshape")?.withTintColor(
+                colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: barImage, menu: menu)
         }
     }
 

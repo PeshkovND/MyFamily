@@ -37,10 +37,10 @@ public protocol AuthService: CredentialsProvider, AccountHolder, LogoutNotifier 
 
     var hasAuthorizedUser: Bool { get }
 
+    func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void)
     func requestAuth(phoneNumber: String) -> AnyPublisher<Result<Void, AppError>, Never>
     func confirm(phoneNumber: String, smsCode: String) -> AnyPublisher<Result<AuthState, AppError>, Never>
-    func refreshToken() -> AnyPublisher<Result<Credentials, AppError>, Never>
-    func logout() -> AnyPublisher<Result<Void, AppError>, Never>
+    func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void)
 }
 
 // MARK: - AppAuthService
@@ -84,17 +84,32 @@ public final class AppAuthService: AuthService {
     private var credentialsKey: String { "\(Self.self).credentialsKey" }
 
     private var httpClient: AlamofireHttpClient { providingHttpClient() }
+    private let vkIdClient: VKIDClient
 
     public init(
         providingHttpClient: @escaping () -> AlamofireHttpClient,
         requestFactory: HttpRequestFactory,
         networkMapper: NetworkMapper,
-        defaultsStorage: DefaultsStorage
+        defaultsStorage: DefaultsStorage,
+        vkIdClient: VKIDClient
     ) {
         self.providingHttpClient = providingHttpClient
         self.requestFactory = requestFactory
         self.networkMapper = networkMapper
         self.defaultsStorage = defaultsStorage
+        self.vkIdClient = vkIdClient
+    }
+    
+    public func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void) {
+        vkIdClient.authorize(
+            onSuccess: { credentials in
+                self.saveCredentials(credentials)
+                onSucces()
+            },
+            onFailure: {
+                onFailure()
+            }
+        )
     }
 
     public func requestAuth(
@@ -148,70 +163,15 @@ public final class AppAuthService: AuthService {
         return publisher
     }
 
-    // INFO: Ignore trailing_closure due to needs
-    // to handle only receiveOutput in handleEvents operator
-    //
-    // swiftlint:disable trailing_closure
-    public func refreshToken() -> AnyPublisher<Result<Credentials, AppError>, Never> {
-        guard let credentials = credentials else {
-            return Just<Result<Credentials, AppError>>(
-                .failure(AppError.unathorized)
-            )
-            .eraseToAnyPublisher()
-        }
-
-        let publisher = httpClient.sendRequest(
-            requestFactory.refreshToken(uuid: deviceId, refreshToken: credentials.refreshToken),
-            payloadType: AuthorizedUserPayload.self
-        )
-        .flatMap { [weak self] (result: Result<AuthorizedUserPayload, AppError>)
-            -> Just<Result<Credentials, AppError>> in
-
-            guard let self = self else {
-                return Just<Result<Credentials, AppError>>(
-                    .failure(.unexpected)
-                )
-            }
-            return self.handleRefreshResponse(result)
-        }
-        .eraseToAnyPublisher()
-        .handleEvents(receiveOutput: { [weak self] (result: Result<Credentials, AppError>) -> Void in
-
-            guard let self = self else { return }
-            if case .failure = result {
+    public func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
+        
+        vkIdClient.logout(
+            onSuccess: {
                 self.removeAccountWithCredentials()
-                self.notifyThatAuthErrorOccured()
-            }
-        })
-        .eraseToAnyPublisher()
-
-        return publisher
-    }
-    // swiftlint:enable trailing_closure
-
-    public func logout() -> AnyPublisher<Result<Void, AppError>, Never> {
-        let publisher = httpClient.sendRequest(
-            requestFactory.logout(),
-            payloadType: String.self
+                onSuccess()
+            },
+            onFailure: onFailure
         )
-        .flatMap { [weak self] (result: Result<String, AppError>) -> Just<VoidResult> in
-
-            guard let self = self else { return Just<VoidResult>(.failure(.unexpected)) }
-
-            switch result {
-            case .success:
-                self.removeAccountWithCredentials()
-                self.notifyThatLogoutCompleted()
-                return Just<VoidResult>(
-                    .success(())
-                )
-            case .failure(let error):
-                return Just<VoidResult>(.failure(error))
-            }
-        }
-        .eraseToAnyPublisher()
-
-        return publisher
     }
 
     public func updateAccount(_ account: Account) {

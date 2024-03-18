@@ -46,7 +46,7 @@ public final class SignInCoordinator: EventCoordinator {
 private extension SignInCoordinator {
 
     private func startSignInScreen() {
-        let viewModel = SignInViewModel()
+        let viewModel = SignInViewModel(authService: authService)
         let viewController = SignInViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.commonSignIn
 
@@ -61,7 +61,7 @@ private extension SignInCoordinator {
             }
             .store(in: &setCancelable)
 
-        navigationController?.pushViewController(viewController, animated: false)
+        navigationController?.setViewControllers([viewController], animated: true)
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
 }
