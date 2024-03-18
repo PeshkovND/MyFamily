@@ -12,6 +12,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
     public enum HomeEvent {
         case finished
+        case signOut
     }
     
     public var events: AnyPublisher<HomeEvent, Never> {
@@ -179,6 +180,8 @@ private extension HomeCoordinator {
                     openPostScreen(id: id, nvc: nvc, animated: true)
                 case .shareTapped(id: let id):
                     showSharePostViewController(id: id)
+                case .signOut:
+                    eventSubject.send(.signOut)
                 }
             }
             .store(in: &setCancelable)
@@ -206,6 +209,8 @@ private extension HomeCoordinator {
                     openPostScreen(id: id, nvc: nvc, animated: true)
                 case .shareTapped(id: let id):
                     showSharePostViewController(id: id)
+                case .signOut:
+                    eventSubject.send(.signOut)
                 }
             }
             .store(in: &setCancelable)

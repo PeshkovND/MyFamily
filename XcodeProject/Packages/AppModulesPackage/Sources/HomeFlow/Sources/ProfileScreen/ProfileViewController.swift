@@ -43,7 +43,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     private lazy var signOutAction = UIAction(
         title: appDesignSystem.strings.profileSignOut,
         image: UIImage(systemName: "door.left.hand.open")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-    ) { _ in }
+    ) { _ in self.viewModel.onViewEvent(.signOut) }
     
     // MARK: - View Controller Lifecycle
     

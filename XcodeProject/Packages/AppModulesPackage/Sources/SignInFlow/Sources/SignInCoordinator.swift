@@ -63,7 +63,7 @@ private extension SignInCoordinator {
             }
             .store(in: &setCancelable)
 
-        navigationController?.pushViewController(viewController, animated: false)
+        navigationController?.setViewControllers([viewController], animated: true)
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
 }
