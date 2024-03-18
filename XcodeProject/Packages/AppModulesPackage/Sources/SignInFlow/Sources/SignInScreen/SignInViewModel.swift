@@ -13,10 +13,10 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
-    fileprivate let vkIdSignInClient: VKIDClient
+    fileprivate let authService: AuthService
     
-    init (vkIdSignInClient: VKIDClient) {
-        self.vkIdSignInClient = vkIdSignInClient
+    init (authService: AuthService) {
+        self.authService = authService
     }
 
     override func onViewEvent(_ event: SignInViewEvent) {
@@ -31,12 +31,10 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     }
     
     func signInTapped() {
-        vkIdSignInClient.authorize {
-            self.outputEventSubject.send(.signedIn)
-        } onFailure: {
-            print("error")
-        }
-
+        authService.signIn(
+            onSucces: { self.outputEventSubject.send(.signedIn) },
+            onFailure: { print("error") }
+        )
     }
 
     /// Remove formatting symbos

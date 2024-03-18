@@ -65,7 +65,6 @@ extension NetworkMapper {
 
         let credentials = Credentials(
             accessToken: payload.token.accessToken,
-            refreshToken: payload.token.refreshToken,
             expirationDate: convertToDate(payload.token.expiresIn)
         )
 

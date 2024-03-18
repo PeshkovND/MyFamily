@@ -1,4 +1,5 @@
 import VKID
+import AppEntities
 
 public final class VKIDClient {
     public var vkid: VKID
@@ -18,17 +19,18 @@ public final class VKIDClient {
         }
     }
     
-    public func authorize(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
+    public func authorize(onSuccess: @escaping (Credentials) -> Void, onFailure: @escaping () -> Void) {
         vkid.authorize(
             using: .newUIWindow
         ) { result in
             do {
                 let session = try result.get()
                 print("Auth succeeded with token: \(session.accessToken) and user info: \(session.user)")
-                onSuccess()
+                let credentials = Credentials(accessToken: session.accessToken.value, expirationDate: session.accessToken.expirationDate)
+                onSuccess(credentials)
             } catch AuthError.cancelled {
                 print("Auth cancelled by user")
-            } catch {
+            } catch let error {
                 print("Auth failed with error: \(error)")
                 onFailure()
             }

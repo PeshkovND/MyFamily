@@ -321,21 +321,6 @@ public final class DebugView: UIView {
 
     private func addLogoutButton() {
         addSubview(logoutButton)
-        logoutButton.touchUpInsidePublisher
-            .flatMap { [weak self] (_: Void) -> AnyPublisher<Result<Void, AppError>, Never> in
-                Self.logger.debug(message: "Logout tapped")
-                guard let self = self else { return Empty().eraseToAnyPublisher() }
-                return self.authService.logout()
-            }
-            .sink { _ in }
-            .store(in: &cancelableSet)
-        logoutButton.snp.makeConstraints {
-            $0.top.equalTo(scrollView.snp.bottom).offset(20)
-            $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(20)
-            $0.leading.equalTo(safeAreaLayoutGuide.snp.leading).inset(20)
-            $0.trailing.equalTo(safeAreaLayoutGuide.snp.trailing).inset(20)
-            $0.height.equalTo(48)
-        }
     }
 
     private func makeNetworkHistoryInfoButton() -> UIButton {

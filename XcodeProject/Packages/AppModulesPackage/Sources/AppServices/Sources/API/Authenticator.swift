@@ -58,23 +58,7 @@ public final class OAuthAuthenticator: Authenticator {
         _ credential: OAuthCredential,
         for session: Session,
         completion: @escaping (Result<OAuthCredential, Error>) -> Void
-    ) {
-        authService.refreshToken()
-            .sink { (result: Result<Credentials, AppError>) -> Void in
-                switch result {
-                case .success(let credentials):
-                    let oauthCredential: OAuthCredential = .init(
-                        refreshWindowTimeInterval: credential.refreshWindowTimeInterval,
-                        providingCredentials: { credentials }
-                    )
-                    completion(.success(oauthCredential))
-                case .failure(let error):
-                    Self.logger.warning(message: error.localizedDescription)
-                    completion(.failure(AppError.unathorized))
-                }
-            }
-            .store(in: &cancelableSet)
-    }
+    ) { }
 
     public func didRequest(
         _ urlRequest: URLRequest,

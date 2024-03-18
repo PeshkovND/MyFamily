@@ -95,7 +95,8 @@ struct AppContainer {
         providingHttpClient: { alamofireHttpClient },
         requestFactory: httpRequestFactory,
         networkMapper: networkMapper,
-        defaultsStorage: defaultsStorage
+        defaultsStorage: defaultsStorage,
+        vkIdClient: vkIdClient
     )
 
     private static let httpRequestFactory: HttpRequestFactory = .init { env.apiBaseUrlString }
@@ -118,7 +119,6 @@ extension AppContainer {
     static func provideDefaultsStorage() -> DefaultsStorage { defaultsStorage }
 
     static func provideHttpClient() -> AlamofireHttpClient { alamofireHttpClient }
-    static func provideVkIDClient() -> VKIDClient { vkIdClient }
 
     private static let fakeAuthService: FakeAuthService = .init()
     static func provideAuthService() -> AuthService { authService }

@@ -29,7 +29,6 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private var authService = AppContainer.provideAuthService()
     private lazy var logoutNotifier: LogoutNotifier = authService
     private var accountHolder: AccountHolder { authService }
-    private let vkIdClient: VKIDClient = AppContainer.provideVkIDClient()
 
     // Debug panel for testing
     private var inAppDebugger: InAppDebugger?
@@ -102,8 +101,7 @@ private extension AppCoordinator {
         registerShortcuts(isAuthorized: false)
         let coordinator = SignInCoordinator(
             navigationController: navigationController,
-            authService: authService, 
-            vkIdClient: vkIdClient
+            authService: authService
         )
 
         let token = coordinator.events.sink { [weak self, weak coordinator] event in
@@ -143,7 +141,7 @@ private extension AppCoordinator {
             case .finished:
                 break
             case .signOut:
-                self.vkIdClient.logout(
+                self.authService.logout(
                     onSuccess: { self.startSignInFlow() },
                     onFailure: { }
                 )
