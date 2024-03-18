@@ -26,6 +26,7 @@ struct AppContainer {
     private static let defaultJsonDecoder = JSONDecoder()
 
     private static let memoryStorage: MemoryStorage = .init()
+    private static let vkIdClient = VKIDClient()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -117,6 +118,7 @@ extension AppContainer {
     static func provideDefaultsStorage() -> DefaultsStorage { defaultsStorage }
 
     static func provideHttpClient() -> AlamofireHttpClient { alamofireHttpClient }
+    static func provideVkIDClient() -> VKIDClient { vkIdClient }
 
     private static let fakeAuthService: FakeAuthService = .init()
     static func provideAuthService() -> AuthService { authService }

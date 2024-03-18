@@ -26,14 +26,16 @@ public final class SignInCoordinator: EventCoordinator {
 
     private let signInInteractor: SignInInteractor
     private let authService: AuthService
+    private let vkIdSignInClient: VKIDClient
     private var designSystem = appDesignSystem
 
     private weak var navigationController: UINavigationController?
 
-    public init(navigationController: UINavigationController, authService: AuthService) {
+    public init(navigationController: UINavigationController, authService: AuthService, vkIdClient: VKIDClient) {
         self.navigationController = navigationController
         self.authService = authService
         self.signInInteractor = SignInInteractor(authService: authService)
+        self.vkIdSignInClient = vkIdClient
     }
 
     public func start() {
@@ -46,7 +48,7 @@ public final class SignInCoordinator: EventCoordinator {
 private extension SignInCoordinator {
 
     private func startSignInScreen() {
-        let viewModel = SignInViewModel()
+        let viewModel = SignInViewModel(vkIdSignInClient: vkIdSignInClient)
         let viewController = SignInViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.commonSignIn
 

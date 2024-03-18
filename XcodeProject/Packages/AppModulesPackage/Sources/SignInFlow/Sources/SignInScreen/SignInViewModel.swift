@@ -13,16 +13,25 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
+    fileprivate let vkIdSignInClient: VKIDClient
+    
+    init (vkIdSignInClient: VKIDClient) {
+        self.vkIdSignInClient = vkIdSignInClient
+    }
 
     override func onViewEvent(_ event: SignInViewEvent) {
         switch event {
         case .signInTapped:
-            outputEventSubject.send(.signedIn)
+            signInTapped()
         case .deinit:
             outputEventSubject.send(.back)
         case .viewDidLoad:
             viewState = .initial
         }
+    }
+    
+    func signInTapped() {
+        vkIdSignInClient.authorize()
     }
 
     /// Remove formatting symbos

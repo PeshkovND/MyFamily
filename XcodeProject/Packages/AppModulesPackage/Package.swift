@@ -136,6 +136,14 @@ enum ExternalModules {
             from: "7.0.0"
         )
     )
+    static let vkIdSdk = ExternalPackage(
+        productName: "VKID",
+        packageName: "vkid-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/VKCOM/vkid-ios-sdk.git",
+            from: "1.0.0"
+        )
+    )
     static let sdWebImage = ExternalPackage(
         productName: "SDWebImage",
         dependency: .package(
@@ -228,7 +236,8 @@ enum InternalModules {
             appBaseFlowModule,
             ExternalModules.alamofire,
             ExternalModules.sdWebImage,
-            ExternalModules.sdWebImageWebPCoder
+            ExternalModules.sdWebImageWebPCoder,
+            ExternalModules.vkIdSdk
         ]
     )
     static let appServicesTestsModule: AppModule = .makeTestModule(
@@ -306,7 +315,8 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.sdWebImageWebPCoder,
     ExternalModules.snapKit,
     ExternalModules.progressHUD,
-    ExternalModules.cachingPlayerItem
+    ExternalModules.cachingPlayerItem,
+    ExternalModules.vkIdSdk
 ]
 
 /// Defines use of product modules to build tha app
