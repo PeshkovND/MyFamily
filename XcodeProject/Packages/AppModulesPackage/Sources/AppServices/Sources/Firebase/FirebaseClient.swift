@@ -95,6 +95,16 @@ public struct PostPayload: Codable {
     let contentURL: URL?
     let contentType: ContentType?
     let userId: Int
+    
+    func dictionary() -> [String: Any] {
+        return [
+            "id": id.uuidString,
+            "text": text as Any,
+            "contentURL": contentURL?.absoluteString as Any,
+            "contentType": contentType?.rawValue as Any,
+            "userId": userId
+        ]
+    }
 }
 
 public class FirebaseClient {
@@ -102,8 +112,7 @@ public class FirebaseClient {
     lazy var db = Firestore.firestore()
     lazy var ref = Database.database().reference()
     
-    public init() {
-    }
+    public init() {}
     
     public func addUser(_ user: UserInfo) async throws {
         let document = try await db.collection("Users").document(String(user.id)).getDocument()
@@ -160,21 +169,25 @@ public class FirebaseClient {
         return result
     }
     
-    public func addPost(
-        _ post: PostPayload,
-        onSuccess: @escaping () -> Void,
-        onFailure: @escaping () -> Void
-    ) {
-        do {
-            try self.db.collection("Posts").document(post.id.uuidString).setData(from: post) { error in
-                if error == nil {
-                    onSuccess()
-                } else {
-                    onFailure()
-                }
+    public func addPost(_ post: PostPayload) async throws {
+        try await self.db.collection("Posts").document(post.id.uuidString).setData(post.dictionary())
+    }
+    
+    public func getAllPosts() async throws -> [PostPayload] {
+        let snapshot = try await db.collection("Posts").getDocuments()
+        var result: [PostPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let post = try doc.data(as: PostPayload.self)
+                result.append(post)
+            } catch {
+                continue
             }
-        } catch {
-            onFailure()
         }
+        return result
+    }
+    
+    public func getPost(_ id: UUID) async throws -> PostPayload {
+        try await db.collection("Posts").document(id.uuidString).getDocument(as: PostPayload.self)
     }
 }
