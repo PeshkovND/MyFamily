@@ -36,13 +36,15 @@ public struct CommentPayload: Codable {
     let userId: String
     let postId: UUID
     let text: String
+    let date: String
     
     func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
             "userId": userId,
             "postId": postId.uuidString,
-            "text": text
+            "text": text,
+            "date": date
         ]
     }
 }
@@ -95,6 +97,7 @@ public struct PostPayload: Codable {
     let contentURL: URL?
     let contentType: ContentType?
     let userId: Int
+    let date: String
     
     func dictionary() -> [String: Any] {
         return [
@@ -102,7 +105,8 @@ public struct PostPayload: Codable {
             "text": text as Any,
             "contentURL": contentURL?.absoluteString as Any,
             "contentType": contentType?.rawValue as Any,
-            "userId": userId
+            "userId": userId,
+            "date": date
         ]
     }
 }
