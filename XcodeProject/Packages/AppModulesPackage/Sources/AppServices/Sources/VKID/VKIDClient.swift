@@ -1,4 +1,5 @@
 import VKID
+import Foundation
 import AppEntities
 
 public final class VKIDClient {
@@ -29,18 +30,28 @@ public final class VKIDClient {
             do {
                 let session = try result.get()
                 print("Auth succeeded with token: \(session.accessToken) and user info: \(session.user)")
-                let credentials = Credentials(accessToken: session.accessToken.value, expirationDate: session.accessToken.expirationDate)
+                let credentials = Credentials(
+                    accessToken: session.accessToken.value,
+                    expirationDate: session.accessToken.expirationDate
+                )
                 let userInfo = UserInfo(
                     id: session.user.id.value,
                     photoURL: session.user.avatarURL,
                     firstName: session.user.firstName,
                     lastName: session.user.lastName
                 )
-                self.firebaseClient.addUser(
-                    userInfo,
-                    onSuccess: { onSuccess(credentials) },
-                    onFailure: onFailure
-                )
+                Task {
+                    do {
+                        try await self.firebaseClient.addUser(userInfo)
+                        await MainActor.run {
+                            onSuccess(credentials)
+                        }
+                    } catch {
+                        await MainActor.run {
+                            onFailure()
+                        }
+                    }
+                }
             } catch AuthError.cancelled {
                 print("Auth cancelled by user")
             } catch let error {

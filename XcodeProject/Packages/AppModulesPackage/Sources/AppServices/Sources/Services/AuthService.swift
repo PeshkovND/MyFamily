@@ -37,7 +37,7 @@ public protocol AuthService: CredentialsProvider, AccountHolder, LogoutNotifier 
 
     var hasAuthorizedUser: Bool { get }
 
-    func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void)
+    func signIn(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void)
     func requestAuth(phoneNumber: String) -> AnyPublisher<Result<Void, AppError>, Never>
     func confirm(phoneNumber: String, smsCode: String) -> AnyPublisher<Result<AuthState, AppError>, Never>
     func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void)
@@ -100,11 +100,11 @@ public final class AppAuthService: AuthService {
         self.vkIdClient = vkIdClient
     }
     
-    public func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void) {
+    public func signIn(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
         vkIdClient.authorize(
             onSuccess: { credentials in
                 self.saveCredentials(credentials)
-                onSucces()
+                onSuccess()
             },
             onFailure: {
                 onFailure()
