@@ -29,6 +29,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private var authService = AppContainer.provideAuthService()
     private lazy var logoutNotifier: LogoutNotifier = authService
     private var accountHolder: AccountHolder { authService }
+    private let firebaseClient = AppContainer.provideFirebaseClinet()
 
     // Debug panel for testing
     private var inAppDebugger: InAppDebugger?
@@ -37,7 +38,6 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
 
     func start() {
         initWindow()
-
         logoutNotifier.onLogoutCompleted = { [weak self] in
             guard let self = self else { return }
             self.removeAll()

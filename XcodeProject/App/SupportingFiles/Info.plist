@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>APP_API_PRODUCTION</key>
 	<string>$(APP_API_PRODUCTION)</string>
 	<key>APP_API_STAGING</key>
@@ -29,12 +34,12 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string>auth_callback</string>
+			<key>CFBundleURLName</key>
+			<string>auth_callback</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>mf</string>
-                <string>vk51879243</string>
+				<string>vk51879243</string>
 			</array>
 		</dict>
 	</array>
@@ -42,6 +47,10 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>vkauthorize-silent</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSContactsUsageDescription</key>
@@ -73,9 +82,5 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>vkauthorize-silent</string>
-    </array>
 </dict>
 </plist>
