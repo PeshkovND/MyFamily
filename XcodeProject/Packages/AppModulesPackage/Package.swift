@@ -129,6 +129,46 @@ enum ExternalModules {
             from: "5.6.1"
         )
     )
+    static let firebase = ExternalPackage(
+        productName: "Firebase",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+    static let firebaseAnalytics = ExternalPackage(
+        productName: "FirebaseAnalytics",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+    static let firebaseDatabase = ExternalPackage(
+        productName: "FirebaseDatabase",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+    static let firebaseStorage = ExternalPackage(
+        productName: "FirebaseStorage",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+    static let firebaseFirestore = ExternalPackage(
+        productName: "FirebaseFirestore",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
     static let kingfisher = ExternalPackage(
         productName: "Kingfisher",
         dependency: .package(
@@ -237,6 +277,10 @@ enum InternalModules {
             ExternalModules.alamofire,
             ExternalModules.sdWebImage,
             ExternalModules.sdWebImageWebPCoder,
+            ExternalModules.firebaseAnalytics,
+            ExternalModules.firebaseDatabase,
+            ExternalModules.firebaseStorage,
+            ExternalModules.firebaseFirestore,
             ExternalModules.vkIdSdk
         ]
     )
@@ -316,6 +360,7 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.snapKit,
     ExternalModules.progressHUD,
     ExternalModules.cachingPlayerItem,
+    ExternalModules.firebase,
     ExternalModules.vkIdSdk
 ]
 

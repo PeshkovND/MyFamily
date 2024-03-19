@@ -15,5 +15,5 @@ APP_API_PRODUCTION = https:/$()/api.apptemplate.effective.band
 //----------------------------------------------------------------------
 // Override settings
 //----------------------------------------------------------------------
-PRODUCT_BUNDLE_IDENTIFIER = band.effective.apptemplate
+PRODUCT_BUNDLE_IDENTIFIER = my.family
 DEVELOPMENT_TEAM = JVX7U43WRX

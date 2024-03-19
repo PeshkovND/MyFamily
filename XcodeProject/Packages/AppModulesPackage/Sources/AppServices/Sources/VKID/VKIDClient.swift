@@ -1,10 +1,13 @@
 import VKID
+import Foundation
 import AppEntities
 
 public final class VKIDClient {
     public var vkid: VKID
+    private let firebaseClient: FirebaseClient
     
-    public init() {
+    public init(firebaseClient: FirebaseClient) {
+        self.firebaseClient = firebaseClient
         do {
             vkid = try VKID(
                 config: Configuration(
@@ -22,12 +25,33 @@ public final class VKIDClient {
     public func authorize(onSuccess: @escaping (Credentials) -> Void, onFailure: @escaping () -> Void) {
         vkid.authorize(
             using: .newUIWindow
+            // swiftlint:disable closure_body_length
         ) { result in
             do {
                 let session = try result.get()
                 print("Auth succeeded with token: \(session.accessToken) and user info: \(session.user)")
-                let credentials = Credentials(accessToken: session.accessToken.value, expirationDate: session.accessToken.expirationDate)
-                onSuccess(credentials)
+                let credentials = Credentials(
+                    accessToken: session.accessToken.value,
+                    expirationDate: session.accessToken.expirationDate
+                )
+                let userInfo = UserInfo(
+                    id: session.user.id.value,
+                    photoURL: session.user.avatarURL,
+                    firstName: session.user.firstName,
+                    lastName: session.user.lastName
+                )
+                Task {
+                    do {
+                        try await self.firebaseClient.addUser(userInfo)
+                        await MainActor.run {
+                            onSuccess(credentials)
+                        }
+                    } catch {
+                        await MainActor.run {
+                            onFailure()
+                        }
+                    }
+                }
             } catch AuthError.cancelled {
                 print("Auth cancelled by user")
             } catch let error {

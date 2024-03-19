@@ -26,7 +26,8 @@ struct AppContainer {
     private static let defaultJsonDecoder = JSONDecoder()
 
     private static let memoryStorage: MemoryStorage = .init()
-    private static let vkIdClient = VKIDClient()
+    private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient)
+    private static let firebaseClient = FirebaseClient()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -122,6 +123,7 @@ extension AppContainer {
 
     private static let fakeAuthService: FakeAuthService = .init()
     static func provideAuthService() -> AuthService { authService }
+    static func provideFirebaseClinet() -> FirebaseClient { firebaseClient }
 }
 
 // MARK: - Providing Loggers

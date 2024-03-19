@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5D9470F625DC348000DE488C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D9470F525DC348000DE488C /* InfoPlist.strings */; };
+		7E25F8F12BA961CE00EF37FC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7E25F8F02BA961CE00EF37FC /* GoogleService-Info.plist */; };
 		7E6A77912BA2AF420097BA1A /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6A77902BA2AF420097BA1A /* DeeplinkManager.swift */; };
 		85D59EC32A2BC02900C2D91D /* UmbrellaPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 85D59EC22A2BC02900C2D91D /* UmbrellaPackage */; };
 		88BB91D725B05F3400D1B443 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BB91D625B05F3400D1B443 /* AppContainer.swift */; };
@@ -32,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		5D9470F525DC348000DE488C /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
+		7E25F8F02BA961CE00EF37FC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7E6A77902BA2AF420097BA1A /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
 		85D59EC02A2BB9FA00C2D91D /* UmbrellaPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UmbrellaPackage; path = Packages/UmbrellaPackage; sourceTree = "<group>"; };
 		85D59EC12A2BBCA000C2D91D /* AppModulesPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AppModulesPackage; path = Packages/AppModulesPackage; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 		88D12C1C25AEC6C30001D30F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				7E25F8F02BA961CE00EF37FC /* GoogleService-Info.plist */,
 				88D12C6725AECEDF0001D30F /* Source */,
 				88D12C6925AECEE70001D30F /* Resources */,
 				88D12C6625AECED60001D30F /* SupportingFiles */,
@@ -219,6 +222,7 @@
 			files = (
 				88D12C2A25AEC6C70001D30F /* LaunchScreen.storyboard in Resources */,
 				5D9470F625DC348000DE488C /* InfoPlist.strings in Resources */,
+				7E25F8F12BA961CE00EF37FC /* GoogleService-Info.plist in Resources */,
 				88D12C2725AEC6C70001D30F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -363,7 +367,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = my.family;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -444,7 +447,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = my.family;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -531,7 +533,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = my.family;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -618,7 +619,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = my.family;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";

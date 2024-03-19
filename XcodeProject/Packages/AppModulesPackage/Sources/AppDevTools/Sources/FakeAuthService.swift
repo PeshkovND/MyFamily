@@ -23,7 +23,7 @@ public final class FakeAuthService: AuthService {
 
     public init() {}
     
-    public func signIn(onSucces: @escaping () -> Void, onFailure: @escaping () -> Void) { }
+    public func signIn(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) { }
     
     public func logout(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) { }
 
