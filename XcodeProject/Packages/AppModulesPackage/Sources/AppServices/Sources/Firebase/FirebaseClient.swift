@@ -98,6 +98,7 @@ public struct PostPayload: Codable {
     let contentType: ContentType?
     let userId: Int
     let date: String
+    let likes: [Int]
     
     func dictionary() -> [String: Any] {
         return [
@@ -106,7 +107,8 @@ public struct PostPayload: Codable {
             "contentURL": contentURL?.absoluteString as Any,
             "contentType": contentType?.rawValue as Any,
             "userId": userId,
-            "date": date
+            "date": date,
+            "likes": likes
         ]
     }
 }
