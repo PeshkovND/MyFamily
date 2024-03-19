@@ -9,6 +9,12 @@ enum Role: String, Codable {
     case regular
 }
 
+enum ContentType: String, Codable {
+    case video
+    case image
+    case audio
+}
+
 public struct UserInfo: Codable {
     let id: Int
     let photoURL: URL?
@@ -23,6 +29,15 @@ public struct UserPayload: Codable {
     let lastName: String
     let role: Role
     var pro: Bool
+
+}
+
+public struct PostPayload: Codable {
+    let id: UUID
+    let text: String?
+    let contentURL: URL?
+    let contentType: ContentType?
+    let userId: Int
 }
 
 public class FirebaseClient {
@@ -38,7 +53,7 @@ public class FirebaseClient {
         onFailure: @escaping () -> Void
     ) {
         // swiftlint:disable closure_body_length
-        db.collection("users").document(String(user.id)).getDocument { (document, error) in
+        db.collection("Users").document(String(user.id)).getDocument { (document, error) in
             guard error == nil, let document = document else { onFailure(); return }
             guard !document.exists else { onSuccess(); return }
             do {
@@ -50,7 +65,7 @@ public class FirebaseClient {
                     role: .regular,
                     pro: false
                 )
-                try self.db.collection("users").document(String(user.id)).setData(from: user) { error in
+                try self.db.collection("Users").document(String(user.id)).setData(from: user) { error in
                     if error == nil {
                         onSuccess()
                     } else {
@@ -60,6 +75,24 @@ public class FirebaseClient {
             } catch {
                 onFailure()
             }
+        }
+    }
+    
+    public func addPost(
+        _ post: PostPayload,
+        onSuccess: @escaping () -> Void,
+        onFailure: @escaping () -> Void
+    ) {
+        do {
+            try self.db.collection("Posts").document(post.id.uuidString).setData(from: post) { error in
+                if error == nil {
+                    onSuccess()
+                } else {
+                    onFailure()
+                }
+            }
+        } catch {
+            onFailure()
         }
     }
 }
