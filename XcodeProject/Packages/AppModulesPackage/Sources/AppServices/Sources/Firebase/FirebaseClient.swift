@@ -31,6 +31,22 @@ public struct Position: Codable {
     }
 }
 
+public struct CommentPayload: Codable {
+    let id: UUID
+    let userId: String
+    let postId: UUID
+    let text: String
+    
+    func dictionary() -> [String: Any] {
+        return [
+            "id": id.uuidString,
+            "userId": userId,
+            "postId": postId.uuidString,
+            "text": text
+        ]
+    }
+}
+
 public struct UserStatus: Codable {
     let userId: Int
     let lastOnline: String
@@ -90,25 +106,42 @@ public class FirebaseClient {
     }
     
     public func addUser(_ user: UserInfo) async throws {
-        do {
-            let document = try await db.collection("Users").document(String(user.id)).getDocument()
-            guard !document.exists else { return }
-            let user = UserPayload(
-                id: user.id,
-                photoURL: user.photoURL,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                role: .regular,
-                pro: false
-            )
-            try await self.db.collection("Users").document(String(user.id)).setData(user.dictionary())
-        }
+        let document = try await db.collection("Users").document(String(user.id)).getDocument()
+        guard !document.exists else { return }
+        let user = UserPayload(
+            id: user.id,
+            photoURL: user.photoURL,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: .regular,
+            pro: false
+        )
+        try await self.db.collection("Users").document(String(user.id)).setData(user.dictionary())
         
     }
     
     public func getUser(_ id: Int) async throws -> UserPayload {
-        // swiftlint:disable closure_body_length
         try await db.collection("Users").document(String(id)).getDocument(as: UserPayload.self)
+    }
+    
+    public func addComment(_ comment: CommentPayload) async throws {
+        try await self.db.collection("Comments").document(comment.id.uuidString).setData(comment.dictionary())
+    }
+    
+    public func getCommentsOnPost(_ id: UUID) async throws -> [CommentPayload] {
+        let collection = db.collection("Comments")
+        let query = collection.whereField("postId", isEqualTo: id.uuidString)
+        let snapshot = try await query.getDocuments()
+        var result: [CommentPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let comment = try doc.data(as: CommentPayload.self)
+                result.append(comment)
+            } catch {
+                continue
+            }
+        }
+        return result
     }
     
     public func setUserStatus(_ userStatus: UserStatus) async throws {
