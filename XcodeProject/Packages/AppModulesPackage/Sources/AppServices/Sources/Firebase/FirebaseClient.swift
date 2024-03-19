@@ -184,6 +184,19 @@ public class FirebaseClient {
         return result
     }
     
+    public func getAllUsersStatuses() async throws -> [UserStatus] {
+        let snapshot = try await self.ref.child("Statuses").getData()
+        guard let value = snapshot.value,
+              let dict = value as? NSDictionary
+        else {
+            print("aasas")
+            throw ParsingError.error
+        }
+        let jsonData = try JSONSerialization.data(withJSONObject: dict.allValues, options: [])
+        let result = try JSONDecoder().decode([UserStatus].self, from: jsonData)
+        return result
+    }
+    
     public func addPost(_ post: PostPayload) async throws {
         try await self.db.collection("Posts").document(post.id.uuidString).setData(post.dictionary())
     }
