@@ -133,6 +133,21 @@ public class FirebaseClient {
         try await db.collection("Users").document(String(id)).getDocument(as: UserPayload.self)
     }
     
+    public func getAllUsers(instead id: Int) async throws -> [UserPayload] {
+        let snapshot = try await db.collection("Users").getDocuments()
+        var result: [UserPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let user = try doc.data(as: UserPayload.self)
+                guard user.id != id else { continue }
+                result.append(user)
+            } catch {
+                continue
+            }
+        }
+        return result
+    }
+    
     public func addComment(_ comment: CommentPayload) async throws {
         try await self.db.collection("Comments").document(comment.id.uuidString).setData(comment.dictionary())
     }
