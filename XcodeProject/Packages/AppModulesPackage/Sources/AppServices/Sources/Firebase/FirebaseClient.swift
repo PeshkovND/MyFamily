@@ -224,4 +224,20 @@ public class FirebaseClient {
     public func getPost(_ id: UUID) async throws -> PostPayload {
         try await db.collection("Posts").document(id.uuidString).getDocument(as: PostPayload.self)
     }
+    
+    public func getUsersPosts(userId: Int) async throws -> [PostPayload] {
+        let collection = db.collection("Posts")
+        let query = collection.whereField("userId", isEqualTo: userId)
+        let snapshot = try await query.getDocuments()
+        var result: [PostPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let post = try doc.data(as: PostPayload.self)
+                result.append(post)
+            } catch {
+                continue
+            }
+        }
+        return result
+    }
 }
