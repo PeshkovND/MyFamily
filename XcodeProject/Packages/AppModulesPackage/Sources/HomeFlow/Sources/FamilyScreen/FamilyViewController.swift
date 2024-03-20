@@ -11,7 +11,7 @@ enum PersonStatus: Equatable {
 }
 
 struct FamilyViewData {
-    let id: String
+    let id: Int
     let userImageURL: URL?
     let name: String
     let status: PersonStatus
