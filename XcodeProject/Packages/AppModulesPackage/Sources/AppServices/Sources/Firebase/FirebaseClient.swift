@@ -27,8 +27,13 @@ public enum ContentType: String, Codable {
 }
 
 public struct Position: Codable {
-    let lat: Double
-    let lng: Double
+    public let lat: Double
+    public let lng: Double
+    
+    public init(lat: Double, lng: Double) {
+        self.lat = lat
+        self.lng = lng
+    }
     
     func dictionary() -> [String: Any] {
         return [
@@ -65,9 +70,15 @@ public struct CommentPayload: Codable {
 }
 
 public struct UserStatus: Codable {
-    let userId: Int
-    let lastOnline: String
-    let position: Position
+    public let userId: Int
+    public let lastOnline: String
+    public let position: Position
+    
+    public init(userId: Int, lastOnline: String, position: Position) {
+        self.userId = userId
+        self.lastOnline = lastOnline
+        self.position = position
+    }
     
     func dictionary() -> [String: Any] {
         return [

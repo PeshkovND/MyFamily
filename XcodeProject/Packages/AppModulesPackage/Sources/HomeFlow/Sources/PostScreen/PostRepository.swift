@@ -2,6 +2,7 @@
 
 import Foundation
 import AppServices
+import Utilities
 
 final class PostRepository {
     private let firebaseClient: FirebaseClient
@@ -88,9 +89,8 @@ final class PostRepository {
     
     public func addComment(text: String, postId: UUID) async throws -> Comment? {
         guard let user = authService.account else { return nil }
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        let dateString = dateFormatter.string(from: Date())
+        let dateFormatter = AppDateFormatter()
+        let dateString = dateFormatter.toString(Date())
         let commentPayload = CommentPayload(
             id: UUID(),
             userId: user.id,
