@@ -49,7 +49,7 @@ final class NewsRepository {
             
             let newsPost = NewsViewPost(
                 id: post.id.uuidString,
-                userId: String(post.userId),
+                userId: post.userId,
                 userImageURL: user.photoURL,
                 name: user.firstName + " " + user.lastName,
                 contentLabel: post.text,

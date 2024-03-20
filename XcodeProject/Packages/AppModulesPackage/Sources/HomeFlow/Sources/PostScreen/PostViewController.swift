@@ -5,7 +5,7 @@ import AppBaseFlow
 import AVKit
 
 struct Comment {
-    let userId: String
+    let userId: Int
     let username: String
     let imageUrl: URL?
     let text: String
@@ -28,6 +28,7 @@ final class PostViewController: BaseViewController<PostViewModel,
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var textView: UITextView { contentView.textView }
     private var textContainer: UIView { contentView.textContainer }
+    private var sendButton: ActionButton { contentView.sendButton }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -113,6 +114,19 @@ final class PostViewController: BaseViewController<PostViewModel,
         
         let tableGesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         tableView.addGestureRecognizer(tableGesture)
+        
+        sendButton.onTap = {
+            if self.textView.textColor != UIColor.lightGray {
+                self.viewModel.addComment(text: self.textView.text) {
+                    self.textView.text = nil
+                    self.textViewDidEndEditing(self.textView)
+                    self.textView.resignFirstResponder()
+                    let indexPath = IndexPath(row: self.viewModel.comments.count-1, section: 1)
+                    self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                }
+            }
+
+        }
     }
     
     @objc
@@ -200,7 +214,7 @@ extension PostViewController: UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        guard let _ = viewModel.post else { return 0 }
+        guard viewModel.post != nil else { return 0 }
         return 2
     }
 }

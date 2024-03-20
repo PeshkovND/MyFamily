@@ -170,7 +170,8 @@ private extension HomeCoordinator {
     }
     
     func makeProfileViewController() -> UIViewController {
-        let viewModel = ProfileViewModel(userId: "1", audioPlayer: audioPlayer)
+        guard let userId = authService.account?.id else { return UIViewController() }
+        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         
         let nvc = UINavigationController(rootViewController: viewController)
@@ -197,7 +198,7 @@ private extension HomeCoordinator {
         return nvc
     }
     
-    private func openProfileScreen(id: String, nvc: UINavigationController) {
+    private func openProfileScreen(id: Int, nvc: UINavigationController) {
         let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer)
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
@@ -223,7 +224,8 @@ private extension HomeCoordinator {
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
-        let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer)
+        let repository = PostRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer, repository: repository)
         viewModel.outputEventPublisher
             .sink { [weak self] event in
                 guard let self = self else { return }

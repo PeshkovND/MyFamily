@@ -37,7 +37,7 @@ enum FamilyViewState: Stubable {
 // MARK: - Output Event
 
 enum FamilyOutputEvent {
-    case personCardTapped(id: String)
+    case personCardTapped(id: Int)
 }
 
 // MARK: - View Event
@@ -46,5 +46,5 @@ enum FamilyViewEvent {
     case viewDidLoad
     case `deinit`
     case pullToRefresh
-    case profileTapped(id: String)
+    case profileTapped(id: Int)
 }

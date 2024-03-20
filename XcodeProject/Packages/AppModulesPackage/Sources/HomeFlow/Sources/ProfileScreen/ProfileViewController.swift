@@ -5,7 +5,7 @@ import AppBaseFlow
 import AVKit
 
 struct Profile {
-    let id: String
+    let id: Int
     let userImageURL: URL?
     let name: String
     let status: PersonStatus

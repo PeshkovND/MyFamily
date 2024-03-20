@@ -12,7 +12,7 @@ enum MediaContent {
 
 struct NewsViewPost {
     let id: String
-    let userId: String
+    let userId: Int
     let userImageURL: URL?
     let name: String
     let contentLabel: String?
