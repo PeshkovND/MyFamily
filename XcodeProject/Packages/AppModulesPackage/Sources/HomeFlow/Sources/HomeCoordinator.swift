@@ -171,7 +171,8 @@ private extension HomeCoordinator {
     
     func makeProfileViewController() -> UIViewController {
         guard let userId = authService.account?.id else { return UIViewController() }
-        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer)
+        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         
         let nvc = UINavigationController(rootViewController: viewController)
@@ -199,7 +200,8 @@ private extension HomeCoordinator {
     }
     
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
-        let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer)
+        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         viewController.navigationItem.backButtonTitle = ""

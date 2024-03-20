@@ -30,6 +30,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private lazy var logoutNotifier: LogoutNotifier = authService
     private var accountHolder: AccountHolder { authService }
     private let firebaseClient = AppContainer.provideFirebaseClinet()
+    private var timer: DispatchSourceTimer?
 
     // Debug panel for testing
     private var inAppDebugger: InAppDebugger?
@@ -130,6 +131,7 @@ private extension AppCoordinator {
     }
 
     private func startHomeFlow() {
+        observeUserStatus()
         let coordinator = HomeCoordinator(
             navigationController: navigationController,
             authService: authService,
@@ -209,6 +211,35 @@ private extension AppCoordinator {
         defaultsStorage.primitiveValue(
             forKey: GlobalConfig.Keys.onboardingCompleted
         ) ?? false
+    }
+    
+    private func observeUserStatus() {
+        let queue = DispatchQueue(label: "com.domain.app.timer")
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        guard let timer = self.timer else { return }
+        timer.schedule(deadline: .now(), repeating: .seconds(300))
+        timer.setEventHandler {
+            Task {
+                let currentDate = Date()
+                let calendar = Calendar.current
+                var dateComponents = DateComponents()
+                dateComponents.minute = 5
+                guard
+                    let newDate = calendar.date(byAdding: dateComponents, to: currentDate),
+                    let userId = self.authService.account?.id
+                else { return }
+                let dateFormatter = AppDateFormatter()
+                let dateString = dateFormatter.toString(newDate)
+                
+                let userStatus = UserStatus(
+                    userId: userId,
+                    lastOnline: dateString,
+                    position: Position(lat: 0.0, lng: 0.0)
+                )
+                try await self.firebaseClient.setUserStatus(userStatus)
+            }
+        }
+        timer.resume()
     }
 }
 
