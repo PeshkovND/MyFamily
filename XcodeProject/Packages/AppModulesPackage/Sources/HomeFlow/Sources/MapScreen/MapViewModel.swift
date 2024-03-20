@@ -13,51 +13,15 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
     var persons: [MapViewData] = []
     var personsAtHome: [MapViewData] { persons.filter { $0.status == .atHome } }
     var personsNotAtHome: [MapViewData] { persons.filter { $0.status != .atHome } }
+    private let repository: MapRepository
+    
+    init(repository: MapRepository) {
+        self.repository = repository
+    }
     
     var homeCoordinate: Coordinate?
     
     private let strings = appDesignSystem.strings
-    private let mockData: [MapViewData] = [
-        MapViewData(
-            id: "0",
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Виталий Виталиев",
-            status: .atHome,
-            coordinate: Coordinate(latitude: 312.78, longitude: -122.40)
-        ),
-        MapViewData(
-            id: "1", userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Иванов Иван",
-            status: .offline(lastOnline: "11 march, 11:37"),
-            coordinate: Coordinate(latitude: 37.781, longitude: -122.401)
-        ),
-        MapViewData(
-            id: "2",
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Генадий Генадиев",
-            status: .online,
-            coordinate: Coordinate(latitude: 37.783, longitude: -122.403)
-        ),
-        MapViewData(
-            id: "2",
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Генадий Генадиев",
-            status: .atHome,
-            coordinate: Coordinate(latitude: 37.783, longitude: -122.403)
-        ),
-    ]
     
     override func onViewEvent(_ event: MapViewEvent) {
         switch event {
@@ -65,14 +29,18 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
             break
         case .viewDidLoad:
             self.viewState = .loading
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.persons = self.mockData
-                self.homeCoordinate = Coordinate(latitude: 37.78, longitude: -122.40)
-                self.viewState = .loaded
-            }
+            getUsers()
             viewState = .initial
         case .pullToRefresh:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            getUsers()
+        }
+    }
+    
+    private func getUsers() {
+        Task {
+            self.persons = try await self.repository.getUsers()
+            self.homeCoordinate = self.repository.getHomePosition()
+            await MainActor.run {
                 self.viewState = .loaded
             }
         }
