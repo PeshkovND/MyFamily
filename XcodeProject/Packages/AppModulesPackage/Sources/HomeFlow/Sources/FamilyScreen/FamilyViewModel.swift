@@ -11,24 +11,32 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
                                                FamilyOutputEvent> {
     
     private let strings = appDesignSystem.strings
+    private let repository: FamilyRepository
     var persons: [FamilyViewData] = []
+    
+    init(repository: FamilyRepository) {
+        self.repository = repository
+    }
     
     override func onViewEvent(_ event: FamilyViewEvent) {
         switch event {
         case .deinit:
             break
         case .viewDidLoad:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.persons = self.mockData
-                self.viewState = .loaded(content: self.persons)
-            }
-            viewState = .initial
+            getUsers()
         case .pullToRefresh:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.viewState = .loaded(content: self.persons)
-            }
+            getUsers()
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
+        }
+    }
+    
+    private func getUsers() {
+        Task {
+            self.persons = try await repository.getUsers()
+            await MainActor.run {
+                self.viewState = .loaded(content: persons)
+            }
         }
     }
     

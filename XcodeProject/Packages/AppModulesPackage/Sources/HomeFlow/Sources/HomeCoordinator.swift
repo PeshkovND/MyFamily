@@ -128,7 +128,8 @@ private extension HomeCoordinator {
     
     func makeFamilyViewController() -> UIViewController {
                 
-        let viewModel = FamilyViewModel()
+        let repository = FamilyRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = FamilyViewModel(repository: repository)
         let viewController = FamilyViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarFamilyTitle
         
