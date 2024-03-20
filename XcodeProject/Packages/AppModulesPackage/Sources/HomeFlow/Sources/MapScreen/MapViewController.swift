@@ -11,7 +11,7 @@ struct Coordinate {
 }
 
 struct MapViewData {
-    let id: String
+    let id: Int
     let userImageURL: URL?
     let name: String
     let status: PersonStatus
@@ -224,6 +224,7 @@ extension MapViewController: MKMapViewDelegate {
             
             guard let annotationView = annotationView as? MapHomeAnnotationView else { return nil }
             annotationView.annotation = annotation
+            annotationView.layoutIfNeeded()
             return annotationView
         }
         return nil

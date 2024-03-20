@@ -61,7 +61,6 @@ class MapHomeAnnotationView: MKAnnotationView {
         clipsToBounds = false
         frame = CGRect(x: 0, y: 0, width: 36, height: 36)
         addSubview(imageView)
-        addSubview(counterLabel)
         displayPriority = .required
     }
 
@@ -98,7 +97,12 @@ class MapHomeAnnotationView: MKAnnotationView {
                 stackView.addArrangedSubview(stack)
             }
             
-            counterLabel.text = String(persons.count)
+            if !persons.isEmpty {
+                addSubview(counterLabel)
+                counterLabel.text = String(persons.count)
+            } else {
+                counterLabel.removeFromSuperview()
+            }
             
             detailCalloutAccessoryView = stackView
             canShowCallout = true

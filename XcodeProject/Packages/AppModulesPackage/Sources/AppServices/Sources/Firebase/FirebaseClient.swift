@@ -300,6 +300,6 @@ public class FirebaseClient {
     }
     
     public func getHomePosition() -> Position {
-        return Position(lat: 0.0, lng: 0.0)
+        return Position(lat: 37.78, lng: -122.40)
     }
 }

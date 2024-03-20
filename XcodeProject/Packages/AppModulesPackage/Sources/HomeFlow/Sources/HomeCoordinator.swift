@@ -151,7 +151,8 @@ private extension HomeCoordinator {
     }
     
     func makeMapViewController() -> UIViewController {
-        let viewModel = MapViewModel()
+        let repository = MapRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = MapViewModel(repository: repository)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
         
