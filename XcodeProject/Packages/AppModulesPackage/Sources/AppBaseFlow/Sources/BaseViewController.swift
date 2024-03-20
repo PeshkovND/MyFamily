@@ -33,8 +33,6 @@ ViewState == SpecificViewModel.ViewState {
     /// Default value: false
     public var shouldManageShowingNavigationBar = false
     
-    
-    
     public init(viewModel: SpecificViewModel) {
         self.viewModel = viewModel
         

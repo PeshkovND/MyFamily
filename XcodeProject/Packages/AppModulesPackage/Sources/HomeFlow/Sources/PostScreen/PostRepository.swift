@@ -85,4 +85,26 @@ final class PostRepository {
         }
         try await self.firebaseClient.addPost(post)
     }
+    
+    public func addComment(text: String, postId: UUID) async throws -> Comment? {
+        guard let user = authService.account else { return nil }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        let dateString = dateFormatter.string(from: Date())
+        let commentPayload = CommentPayload(
+            id: UUID(),
+            userId: user.id,
+            postId: postId,
+            text: text,
+            date: dateString
+        )
+        try await firebaseClient.addComment(commentPayload)
+    
+        return Comment(
+            userId: user.id,
+            username: user.firstName + " " + user.lastName,
+            imageUrl: user.photoURL,
+            text: text
+        )
+    }
 }

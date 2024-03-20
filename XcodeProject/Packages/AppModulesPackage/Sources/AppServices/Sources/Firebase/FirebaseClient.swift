@@ -45,6 +45,14 @@ public struct CommentPayload: Codable {
     public let text: String
     public let date: String
     
+    public init(id: UUID, userId: Int, postId: UUID, text: String, date: String) {
+        self.id = id
+        self.userId = userId
+        self.postId = postId
+        self.text = text
+        self.date = date
+    }
+    
     func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
