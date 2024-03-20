@@ -5,7 +5,7 @@ import AppBaseFlow
 import AVKit
 
 struct Comment {
-    let userId: String
+    let userId: Int
     let username: String
     let imageUrl: URL?
     let text: String

@@ -40,7 +40,7 @@ public struct Position: Codable {
 
 public struct CommentPayload: Codable {
     public let id: UUID
-    public let userId: String
+    public let userId: Int
     public let postId: UUID
     public let text: String
     public let date: String

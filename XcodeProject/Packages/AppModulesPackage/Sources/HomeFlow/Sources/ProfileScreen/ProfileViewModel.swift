@@ -12,13 +12,13 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     
     var profile: Profile?
     var isCurrentUser: Bool {
-        profile?.id == "1"
+        profile?.id == 1
     }
     private let strings = appDesignSystem.strings
-    private let userId: String
+    private let userId: Int
     var audioPlayer: AVQueuePlayer
     
-    init(userId: String, audioPlayer: AVQueuePlayer) {
+    init(userId: Int, audioPlayer: AVQueuePlayer) {
         self.audioPlayer = audioPlayer
         self.userId = userId
         super.init()
@@ -85,7 +85,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     
     private let mockData = [
         Profile(
-            id: "1",
+            id: 1,
             userImageURL: URL(
                 string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
             ),
@@ -94,7 +94,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             posts: [
                 NewsViewPost(
                     id: "0",
-                    userId: "1",
+                    userId: 1,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: "Зацените трэк",
@@ -105,7 +105,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "1",
-                    userId: "1",
+                    userId: 1,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -116,7 +116,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "1",
-                    userId: "1",
+                    userId: 1,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -128,7 +128,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "2",
-                    userId: "1",
+                    userId: 1,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: "Какой я здесь красивый",
@@ -140,7 +140,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             ]
         ),
         Profile(
-            id: "0",
+            id: 0,
             userImageURL: URL(
                 string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
             ),
@@ -149,7 +149,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             posts: [
                 NewsViewPost(
                     id: "0",
-                    userId: "0",
+                    userId: 0,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: "Зацените трэк",
@@ -160,7 +160,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "1",
-                    userId: "0",
+                    userId: 0,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -171,7 +171,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "2",
-                    userId: "0",
+                    userId: 0,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -184,7 +184,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             ]
         ),
         Profile(
-            id: "2",
+            id: 2,
             userImageURL: URL(
                 string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
             ),
@@ -193,7 +193,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             posts: [
                 NewsViewPost(
                     id: "0",
-                    userId: "2",
+                    userId: 2,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: "Зацените трэк",
@@ -204,7 +204,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "1",
-                    userId: "2",
+                    userId: 2,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -215,7 +215,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "2",
-                    userId: "2",
+                    userId: 2,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: nil,
@@ -227,7 +227,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                 ),
                 NewsViewPost(
                     id: "3",
-                    userId: "2",
+                    userId: 2,
                     userImageURL: URL(string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"),
                     name: "Иванов Иван",
                     contentLabel: "Какой я здесь красивый",
