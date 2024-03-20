@@ -32,7 +32,7 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     
     func signInTapped() {
         authService.signIn(
-            onSucces: { self.outputEventSubject.send(.signedIn) },
+            onSuccess: { self.outputEventSubject.send(.signedIn) },
             onFailure: { print("error") }
         )
     }

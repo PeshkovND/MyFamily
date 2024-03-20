@@ -15,12 +15,12 @@ enum ParsingError: Error {
     case error
 }
 
-enum Role: String, Codable {
+public enum Role: String, Codable {
     case owner
     case regular
 }
 
-enum ContentType: String, Codable {
+public enum ContentType: String, Codable {
     case video
     case image
     case audio
@@ -39,11 +39,11 @@ public struct Position: Codable {
 }
 
 public struct CommentPayload: Codable {
-    let id: UUID
-    let userId: String
-    let postId: UUID
-    let text: String
-    let date: String
+    public let id: UUID
+    public let userId: String
+    public let postId: UUID
+    public let text: String
+    public let date: String
     
     func dictionary() -> [String: Any] {
         return [
@@ -71,19 +71,19 @@ public struct UserStatus: Codable {
 }
 
 public struct UserInfo: Codable {
-    let id: Int
-    let photoURL: URL?
-    let firstName: String
-    let lastName: String
+    public let id: Int
+    public let photoURL: URL?
+    public let firstName: String
+    public let lastName: String
 }
 
 public struct UserPayload: Codable {
-    let id: Int
-    let photoURL: URL?
-    let firstName: String
-    let lastName: String
-    let role: Role
-    var pro: Bool
+    public let id: Int
+    public let photoURL: URL?
+    public let firstName: String
+    public let lastName: String
+    public let role: Role
+    public var pro: Bool
     
     func dictionary() -> [String: Any] {
         return [
@@ -99,13 +99,13 @@ public struct UserPayload: Codable {
 }
 
 public struct PostPayload: Codable {
-    let id: UUID
-    let text: String?
-    let contentURL: URL?
-    let contentType: ContentType?
-    let userId: Int
-    let date: String
-    let likes: [Int]
+    public let id: UUID
+    public let text: String?
+    public let contentURL: URL?
+    public let contentType: ContentType?
+    public let userId: Int
+    public let date: String
+    public let likes: [Int]
     
     func dictionary() -> [String: Any] {
         return [
@@ -161,6 +161,20 @@ public class FirebaseClient {
         return result
     }
     
+    public func getAllUsers() async throws -> [UserPayload] {
+        let snapshot = try await db.collection(Collections.users).getDocuments()
+        var result: [UserPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let user = try doc.data(as: UserPayload.self)
+                result.append(user)
+            } catch {
+                continue
+            }
+        }
+        return result
+    }
+    
     public func addComment(_ comment: CommentPayload) async throws {
         try await self.db.collection(Collections.comments)
             .document(comment.id.uuidString)
@@ -171,6 +185,20 @@ public class FirebaseClient {
         let collection = db.collection(Collections.comments)
         let query = collection.whereField("postId", isEqualTo: id.uuidString)
         let snapshot = try await query.getDocuments()
+        var result: [CommentPayload] = []
+        for doc in snapshot.documents {
+            do {
+                let comment = try doc.data(as: CommentPayload.self)
+                result.append(comment)
+            } catch {
+                continue
+            }
+        }
+        return result
+    }
+    
+    public func getAllComments() async throws -> [CommentPayload] {
+        let snapshot = try await db.collection(Collections.comments).getDocuments()
         var result: [CommentPayload] = []
         for doc in snapshot.documents {
             do {

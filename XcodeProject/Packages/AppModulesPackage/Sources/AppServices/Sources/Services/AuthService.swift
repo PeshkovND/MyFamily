@@ -19,9 +19,9 @@ public protocol CredentialsProvider {
 // MARK: - AccountHolder
 
 public protocol AccountHolder {
-    var account: Account? { get }
+    var account: UserInfo? { get }
     var hasFilledProfile: Bool { get }
-    func updateAccount(_ account: Account)
+    func updateAccount(_ account: UserInfo)
 }
 
 // MARK: - AccountHolder
@@ -57,16 +57,16 @@ public final class AppAuthService: AuthService {
     }
 
     public var hasFilledProfile: Bool {
-        let profile = account?.profile
+        let profile = account
         let hasFirstName = profile?.firstName.isNotEmpty ?? false
         let hasLastName = profile?.lastName.isNotEmpty ?? false
-        let hasDisplayName = profile?.displayName.isNotEmpty ?? false
+        let hasDisplayName = profile?.firstName != nil
 
         return hasFirstName && hasLastName && hasDisplayName
     }
 
     public var credentials: Credentials? { provideCredentials() }
-    public var account: Account? { provideAccount() }
+    public var account: UserInfo? { provideAccount() }
 
     public var onLogoutCompleted: () -> Void = {}
     public var onAuthErrorOccured: () -> Void = {}
@@ -102,8 +102,9 @@ public final class AppAuthService: AuthService {
     
     public func signIn(onSuccess: @escaping () -> Void, onFailure: @escaping () -> Void) {
         vkIdClient.authorize(
-            onSuccess: { credentials in
+            onSuccess: { credentials, userInfo in
                 self.saveCredentials(credentials)
+                self.saveAccount(userInfo)
                 onSuccess()
             },
             onFailure: {
@@ -174,7 +175,7 @@ public final class AppAuthService: AuthService {
         )
     }
 
-    public func updateAccount(_ account: Account) {
+    public func updateAccount(_ account: UserInfo) {
         saveAccount(account)
     }
 }
@@ -221,7 +222,6 @@ private extension AppAuthService {
             let account = mappedPayload.account
             let credentials = mappedPayload.credentials
 
-            self.saveAccount(account)
             self.saveCredentials(credentials)
 
             let authState: AuthState = account.alreadyRegistered ? .signIn : .signUp
@@ -245,8 +245,7 @@ private extension AppAuthService {
             let mappedPayload = networkMapper.accountWithCreds(from: payload)
             let account = mappedPayload.account
             let credentials = mappedPayload.credentials
-
-            self.saveAccount(account)
+            
             self.saveCredentials(credentials)
 
             return Just<Result<Credentials, AppError>>(
@@ -260,7 +259,7 @@ private extension AppAuthService {
         }
     }
 
-    private func saveAccount(_ account: Account) {
+    private func saveAccount(_ account: UserInfo) {
         defaultsStorage.add(object: account, forKey: accountKey)
     }
 
@@ -273,7 +272,7 @@ private extension AppAuthService {
         defaultsStorage.object(forKey: credentialsKey)
     }
 
-    private func provideAccount() -> Account? {
+    private func provideAccount() -> UserInfo? {
         defaultsStorage.object(forKey: accountKey)
     }
 

@@ -134,7 +134,8 @@ private extension AppCoordinator {
             navigationController: navigationController,
             authService: authService,
             debugTogglesHolder: debugTogglesHolder,
-            audioPlayer: audioPlayer
+            audioPlayer: audioPlayer,
+            firebaseClient: firebaseClient
         )
         let token = coordinator.events.sink { event in
             switch event {

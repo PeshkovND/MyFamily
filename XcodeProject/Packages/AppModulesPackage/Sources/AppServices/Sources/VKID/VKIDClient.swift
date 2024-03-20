@@ -22,7 +22,7 @@ public final class VKIDClient {
         }
     }
     
-    public func authorize(onSuccess: @escaping (Credentials) -> Void, onFailure: @escaping () -> Void) {
+    public func authorize(onSuccess: @escaping (Credentials, UserInfo) -> Void, onFailure: @escaping () -> Void) {
         vkid.authorize(
             using: .newUIWindow
             // swiftlint:disable closure_body_length
@@ -44,7 +44,7 @@ public final class VKIDClient {
                     do {
                         try await self.firebaseClient.addUser(userInfo)
                         await MainActor.run {
-                            onSuccess(credentials)
+                            onSuccess(credentials, userInfo)
                         }
                     } catch {
                         await MainActor.run {

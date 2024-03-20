@@ -12,11 +12,13 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
+    private let repository: NewsRepository
     var audioPlayer: AVQueuePlayer
     var posts: [NewsViewPost] = []
     
-    init(audioPlayer: AVQueuePlayer) {
+    init(audioPlayer: AVQueuePlayer, repository: NewsRepository) {
         self.audioPlayer = audioPlayer
+        self.repository = repository
         super.init()
     }
     
@@ -37,24 +39,32 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
-            // swiftlint:disable closure_body_length
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.posts = self.mockData
-                self.viewState = .loaded(content: self.posts)
-            }
             viewState = .initial
+            getPosts()
         case .addPostTapped:
             outputEventSubject.send(.addPost)
         case .pullToRefresh:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.viewState = .loaded(content: self.posts)
-            }
+            getPosts()
         case .userTapped(id: let id):
             outputEventSubject.send(.openUserProfile(id: id))
         case .commentTapped(id: let id):
             outputEventSubject.send(.commentTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
+        }
+    }
+    
+    private func getPosts() {
+        Task {
+            do {
+                let posts = try await repository.getPosts()
+                self.posts = posts
+                await MainActor.run {
+                    self.viewState = .loaded(content: posts)
+                }
+            } catch {
+                print("Get post error")
+            }
         }
     }
 

@@ -16,8 +16,8 @@ public final class FakeAuthService: AuthService {
     public var hasAuthorizedUser: Bool { false }
     public var hasFilledProfile: Bool { false }
     public var credentials: Credentials? { nil }
-    public var account: Account? { nil }
-    public func updateAccount(_ account: Account) {}
+    public var account: AppServices.UserInfo? { nil }
+    public func updateAccount(_ account: UserInfo) {}
     public var onLogoutCompleted: () -> Void = {}
     public var onAuthErrorOccured: () -> Void = {}
 
