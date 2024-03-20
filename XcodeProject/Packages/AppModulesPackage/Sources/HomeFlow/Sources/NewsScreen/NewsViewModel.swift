@@ -30,6 +30,10 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             postItem.likesCount += 1
         }
         postItem.isLiked.toggle()
+        Task {
+            guard let postId = UUID(uuidString: post.id) else { return }
+            try await repository.likeOrUnlikePost(postId: postId)
+        }
         posts[index] = postItem
     }
 

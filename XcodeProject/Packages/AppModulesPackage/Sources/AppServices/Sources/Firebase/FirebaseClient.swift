@@ -105,7 +105,7 @@ public struct PostPayload: Codable {
     public let contentType: ContentType?
     public let userId: Int
     public let date: String
-    public let likes: [Int]
+    public var likes: [Int]
     
     func dictionary() -> [String: Any] {
         return [
@@ -139,7 +139,6 @@ public class FirebaseClient {
             pro: false
         )
         try await self.db.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
-        
     }
     
     public func getUser(_ id: Int) async throws -> UserPayload {
@@ -246,7 +245,7 @@ public class FirebaseClient {
     public func addPost(_ post: PostPayload) async throws {
         try await self.db.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
     }
-    
+      
     public func getAllPosts() async throws -> [PostPayload] {
         let snapshot = try await db.collection(Collections.posts).getDocuments()
         var result: [PostPayload] = []
