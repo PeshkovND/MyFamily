@@ -11,16 +11,15 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
                               ProfileOutputEvent> {
     
     var profile: Profile?
-    var isCurrentUser: Bool {
-        profile?.id == 1
-    }
     private let strings = appDesignSystem.strings
     private let userId: Int
+    private let repository: ProfileRepository
     var audioPlayer: AVQueuePlayer
     
-    init(userId: Int, audioPlayer: AVQueuePlayer) {
+    init(userId: Int, audioPlayer: AVQueuePlayer, repository: ProfileRepository) {
         self.audioPlayer = audioPlayer
         self.userId = userId
+        self.repository = repository
         super.init()
     }
     
@@ -35,28 +34,36 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
         profile?.posts[index] = postItem
     }
     
+    func isCurrentUser() -> Bool {
+        guard let id = profile?.id else { return false }
+        return repository.isCurrentUser(id: id)
+    }
+    
     override func onViewEvent(_ event: ProfileViewEvent) {
         switch event {
         case .deinit:
             break
         case .viewDidLoad:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.profile = self.mockData.first { elem in
-                    elem.id == self.userId
-                }
-                self.viewState = .loaded
-            }
             viewState = .initial
+            getProfile()
         case .pullToRefresh:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.viewState = .loaded
-            }
+            getProfile()
         case .commentTapped(id: let id):
             outputEventSubject.send(.commentTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
         case .signOut:
             outputEventSubject.send(.signOut)
+        }
+    }
+    
+    private func getProfile() {
+        Task {
+            self.profile = try await self.repository.getProfile(id: userId)
+            
+            await MainActor.run {
+                self.viewState = .loaded
+            }
         }
     }
     

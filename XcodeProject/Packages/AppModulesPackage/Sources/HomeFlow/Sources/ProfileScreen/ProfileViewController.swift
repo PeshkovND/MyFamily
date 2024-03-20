@@ -77,7 +77,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     }
     
     private func setupEditProfileButton() {
-        if viewModel.isCurrentUser {
+        if viewModel.isCurrentUser() {
             let menu = UIMenu(
                 options: .displayInline,
                 children: [editProfileAction, signOutAction]
