@@ -61,7 +61,7 @@ final class PostRepository {
         var newsComments: [Comment] = []
         for comment in comments {
             guard let user = users.first(where: { elem in
-                elem.id == post.userId
+                elem.id == comment.userId
             }) else { continue }
         
             let newsComment = Comment(
