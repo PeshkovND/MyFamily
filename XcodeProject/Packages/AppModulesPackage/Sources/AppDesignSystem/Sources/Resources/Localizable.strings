@@ -61,3 +61,5 @@
 
 "post_screen_title" = "Post";
 "post_screen_comment_placeholder" = "Type a comment...";
+
+"add_post_screen_title" = "Add post";

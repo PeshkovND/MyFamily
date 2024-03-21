@@ -113,7 +113,7 @@ private extension HomeCoordinator {
             .sink { [weak self] event in
                 switch event {
                 case .addPost:
-                    break
+                    self?.openAddPostScreen()
                 case .openUserProfile(id: let id):
                     self?.openProfileScreen(id: id, nvc: nvc)
                 case .commentTapped(id: let id):
@@ -155,16 +155,6 @@ private extension HomeCoordinator {
         let viewModel = MapViewModel(repository: repository)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
-        
-//        viewModel.outputEventPublisher
-//            .sink { [weak self] event in
-//                guard self != nil else { return }
-//                switch event {
-//                case .personCardTapped(let id):
-//                    break
-//                }
-//            }
-//            .store(in: &setCancelable)
         
         let nvc = UINavigationController(rootViewController: viewController)
         viewController.tabBarItem = appDesignSystem.components.mapTabBarItem
@@ -225,6 +215,27 @@ private extension HomeCoordinator {
             .store(in: &setCancelable)
         
         nvc.pushViewController(viewController, animated: true)
+    }
+    
+    private func openAddPostScreen() {
+        let repository = AddPostRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = AddPostViewModel(repository: repository)
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                switch event {
+                case .addedPost(let post):
+                    print(post)
+                }
+            }
+            .store(in: &setCancelable)
+        
+        let viewController = AddPostViewController(viewModel: viewModel)
+        viewController.navigationItem.backButtonTitle = ""
+        navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        navigationController?.isNavigationBarHidden = false
+        viewController.title = appDesignSystem.strings.postScreenTitle
+        navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
