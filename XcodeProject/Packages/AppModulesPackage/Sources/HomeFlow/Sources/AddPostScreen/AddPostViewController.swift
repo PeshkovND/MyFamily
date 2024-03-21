@@ -30,14 +30,14 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             image: UIImage(systemName: "camera")?.withTintColor(
                 appDesignSystem.colors.backgroundSecondaryVariant,
                 renderingMode: .alwaysOriginal
-            )) { _ in }
+            )) { _ in self.open(.camera, for: UTType.image.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
             image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
                 appDesignSystem.colors.backgroundSecondaryVariant,
                 renderingMode: .alwaysOriginal
-            )) { _ in }
+            )) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
@@ -49,14 +49,14 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             image: UIImage(systemName: "camera")?.withTintColor(
                 appDesignSystem.colors.backgroundSecondaryVariant,
                 renderingMode: .alwaysOriginal
-            )) { _ in }
+            )) { _ in self.open(.camera, for: UTType.movie.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
             image: UIImage(systemName: "arrow.up.right.video")?.withTintColor(
                 appDesignSystem.colors.backgroundSecondaryVariant,
                 renderingMode: .alwaysOriginal
-            )) { _ in }
+            )) { _ in self.open(.photoLibrary, for: UTType.movie.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
@@ -117,6 +117,16 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         switch viewState {
         default:
             break
+        }
+    }
+    
+    private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
+        if UIImagePickerController.isSourceTypeAvailable(sourceType) {
+            let imagePicker = UIImagePickerController()
+            imagePicker.sourceType = sourceType
+            imagePicker.mediaTypes = [mediaType]
+            imagePicker.allowsEditing = true
+            present(imagePicker, animated: true)
         }
     }
     
