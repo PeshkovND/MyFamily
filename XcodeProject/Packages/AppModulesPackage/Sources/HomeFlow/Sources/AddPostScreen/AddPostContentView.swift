@@ -56,6 +56,7 @@ extension AddPostViewController {
                     height: 30
                 )
             )
+            button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
         }()
@@ -71,6 +72,7 @@ extension AddPostViewController {
                     height: 30
                 )
             )
+            button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
         }()
@@ -86,6 +88,7 @@ extension AddPostViewController {
                     height: 30
                 )
             )
+            button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
         }()

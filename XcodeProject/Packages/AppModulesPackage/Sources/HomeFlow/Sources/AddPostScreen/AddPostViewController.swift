@@ -20,6 +20,47 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var textView: UITextView { contentView.textView }
     private var sendButton: ActionButton { contentView.sendButton }
     private var addMediaContainer: UIView { contentView.addMediaContainer }
+    private var addAudioButton: ActionButton { contentView.addAudioButton }
+    private var addVideoButton: ActionButton { contentView.addVideoButton }
+    private var addPhotoButton: ActionButton { contentView.addPhotoButton }
+    
+    private(set) lazy var addPhotoMenu: UIMenu = {
+        let cameraAction = UIAction(
+            title: appDesignSystem.strings.addPostCamera,
+            image: UIImage(systemName: "camera")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in }
+        
+        let galleryAction = UIAction(
+            title: appDesignSystem.strings.addPostGallery,
+            image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in }
+        
+        let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
+        return menu
+    }()
+    
+    private(set) lazy var addVideoMenu: UIMenu = {
+        let cameraAction = UIAction(
+            title: appDesignSystem.strings.addPostCamera,
+            image: UIImage(systemName: "camera")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in }
+        
+        let galleryAction = UIAction(
+            title: appDesignSystem.strings.addPostGallery,
+            image: UIImage(systemName: "arrow.up.right.video")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in }
+        
+        let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
+        return menu
+    }()
     
     // MARK: - View Controller Lifecycle
     
@@ -83,6 +124,9 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         self.contentView.backgroundColor = colors.backgroundPrimary
         viewModel.onViewEvent(.viewDidLoad)
         textView.delegate = self
+        
+        addPhotoButton.menu = addPhotoMenu
+        addVideoButton.menu = addVideoMenu
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         addMediaContainer.addGestureRecognizer(gesture)
