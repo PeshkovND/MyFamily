@@ -17,7 +17,7 @@ extension AddPostViewController {
             view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
             view.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
             
-            view.text = strings.postScreenCommentPlaceholder
+            view.text = strings.addPostScreenPlaceholder
             view.textColor = UIColor.lightGray
             
             return view
@@ -42,6 +42,22 @@ extension AddPostViewController {
         private(set) lazy var addMediaContainer: UIView = {
             let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
+            return view
+        }()
+        
+        private(set) lazy var deleteContentButton: ActionButton = {
+            let view = ActionButton()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            let image = UIImage(systemName: "x.circle.fill")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )
+                .scaleImageToFitSize(size: .init(width: 32, height: 32))
+            view.setImage(image, for: .normal)
+            view.contentMode = .scaleAspectFill
+            view.clipsToBounds = true
+            view.layer.cornerRadius = 16
+            view.backgroundColor = .white
             return view
         }()
         
@@ -93,6 +109,31 @@ extension AddPostViewController {
             return button
         }()
         
+        private(set) lazy var mediaContentContainer: UIView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = true
+            return view
+        }()
+        
+        private(set) lazy var contentImageView: UIImageView = {
+            let view = UIImageView()
+            view.contentMode = .scaleAspectFill
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.layer.cornerRadius = 8
+            view.clipsToBounds = true
+            return view
+        }()
+        
+        private(set) lazy var contentVideoView: VideoPlayerView = {
+            let view = VideoPlayerView()
+            view.backgroundColor = appDesignSystem.colors.labelPrimary
+            view.clipsToBounds = true
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.layer.cornerRadius = 8
+            view.clipsToBounds = true
+            return view
+        }()
+        
         override func setLayout() {
             addSubview(addMediaContainer)
             addSubview(textView)
@@ -100,18 +141,15 @@ extension AddPostViewController {
             addMediaContainer.addSubview(addAudioButton)
             addMediaContainer.addSubview(addPhotoButton)
             addMediaContainer.addSubview(addVideoButton)
-            
+            addSubview(mediaContentContainer)
+            contentImageView.addSubview(deleteContentButton)
+            contentVideoView.addSubview(deleteContentButton)
             setupConstraints()
         }
         
         func setupConstraints() {
-            addMediaContainer.snp.makeConstraints {
-                $0.height.equalTo(54)
-                $0.leading.equalToSuperview()
-                $0.trailing.equalToSuperview()
-                $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
-            }
-            
+            setupMediaConstraints()
+        
             sendButton.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.trailing.equalToSuperview().inset(4)
@@ -120,10 +158,26 @@ extension AddPostViewController {
             }
             
             textView.snp.makeConstraints {
-                $0.bottom.equalTo(addMediaContainer.snp.top)
+                $0.bottom.equalTo(mediaContentContainer.snp.top)
                 $0.top.equalTo(safeAreaLayoutGuide.snp.top)
                 $0.leading.equalToSuperview().inset(8)
                 $0.trailing.equalToSuperview().inset(8)
+            }
+        }
+        
+        private func setupMediaConstraints() {
+            mediaContentContainer.snp.makeConstraints {
+                $0.height.equalTo(0)
+                $0.width.equalTo(80)
+                $0.leading.equalToSuperview().inset(8)
+                $0.bottom.equalTo(addMediaContainer.snp.top)
+            }
+            
+            addMediaContainer.snp.makeConstraints {
+                $0.height.equalTo(54)
+                $0.leading.equalToSuperview()
+                $0.trailing.equalToSuperview()
+                $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
             }
             
             addPhotoButton.snp.makeConstraints {

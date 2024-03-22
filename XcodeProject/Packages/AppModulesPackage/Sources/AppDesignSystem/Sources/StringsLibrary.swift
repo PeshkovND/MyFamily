@@ -109,4 +109,5 @@ extension StringsLibrary {
     
     public var addPostCamera: String { localized("add_post_camera") }
     public var addPostGallery: String { localized("add_post_gallery") }
+    public var addPostScreenPlaceholder: String { localized("add_post_screen_placeholder") }
 }

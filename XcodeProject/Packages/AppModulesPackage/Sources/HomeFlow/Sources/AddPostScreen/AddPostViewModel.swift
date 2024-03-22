@@ -6,12 +6,19 @@ import AppServices
 import AppDesignSystem
 import AppBaseFlow
 
+struct DataToLoad {
+    let data: Data
+    let contentType: ContentType
+}
+
 final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                                                AddPostViewState,
                                                AddPostOutputEvent> {
     
     private let repository: AddPostRepository
     private let strings = appDesignSystem.strings
+    
+    var dataToLoad: DataToLoad?
     
     init(repository: AddPostRepository) {
         self.repository = repository
