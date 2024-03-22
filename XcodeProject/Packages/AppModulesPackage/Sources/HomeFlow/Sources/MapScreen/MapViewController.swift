@@ -39,6 +39,8 @@ final class MapViewController: BaseViewController<MapViewModel,
         viewModel.onViewEvent(.deinit)
     }
     
+    private var needFocusOnUser: Bool = true
+    
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -192,14 +194,17 @@ final class MapViewController: BaseViewController<MapViewModel,
 extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last?.coordinate {
-            let region = MKCoordinateRegion(
-                center: location,
-                latitudinalMeters: mapDefaultZoom,
-                longitudinalMeters: mapDefaultZoom
-            )
-            mapView.setRegion(region, animated: true)
-            meButton.alpha = 1
+        if needFocusOnUser {
+            if let location = locations.last?.coordinate {
+                let region = MKCoordinateRegion(
+                    center: location,
+                    latitudinalMeters: mapDefaultZoom,
+                    longitudinalMeters: mapDefaultZoom
+                )
+                mapView.setRegion(region, animated: true)
+                meButton.alpha = 1
+                needFocusOnUser = false
+            }
         }
     }
     

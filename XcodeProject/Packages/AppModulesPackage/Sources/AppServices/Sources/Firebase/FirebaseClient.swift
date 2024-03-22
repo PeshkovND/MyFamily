@@ -141,13 +141,14 @@ public struct PostPayload: Codable {
 
 public class FirebaseClient {
 
-    lazy var db = Firestore.firestore()
-    lazy var ref = Database.database().reference()
+    lazy var fs = Firestore.firestore()
+    lazy var db = Database.database().reference()
+    lazy var storage = Storage.storage().reference()
     
     public init() {}
     
     public func addUser(_ user: UserInfo) async throws {
-        let document = try await db.collection(Collections.users).document(String(user.id)).getDocument()
+        let document = try await fs.collection(Collections.users).document(String(user.id)).getDocument()
         guard !document.exists else { return }
         let user = UserPayload(
             id: user.id,
@@ -157,15 +158,15 @@ public class FirebaseClient {
             role: .regular,
             pro: false
         )
-        try await self.db.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
     }
     
     public func getUser(_ id: Int) async throws -> UserPayload {
-        try await db.collection(Collections.users).document(String(id)).getDocument(as: UserPayload.self)
+        try await fs.collection(Collections.users).document(String(id)).getDocument(as: UserPayload.self)
     }
     
     public func getAllUsers(instead id: Int) async throws -> [UserPayload] {
-        let snapshot = try await db.collection(Collections.users).getDocuments()
+        let snapshot = try await fs.collection(Collections.users).getDocuments()
         var result: [UserPayload] = []
         for doc in snapshot.documents {
             do {
@@ -180,7 +181,7 @@ public class FirebaseClient {
     }
     
     public func getAllUsers() async throws -> [UserPayload] {
-        let snapshot = try await db.collection(Collections.users).getDocuments()
+        let snapshot = try await fs.collection(Collections.users).getDocuments()
         var result: [UserPayload] = []
         for doc in snapshot.documents {
             do {
@@ -194,13 +195,13 @@ public class FirebaseClient {
     }
     
     public func addComment(_ comment: CommentPayload) async throws {
-        try await self.db.collection(Collections.comments)
+        try await self.fs.collection(Collections.comments)
             .document(comment.id.uuidString)
             .setData(comment.dictionary())
     }
     
     public func getCommentsOnPost(_ id: UUID) async throws -> [CommentPayload] {
-        let collection = db.collection(Collections.comments)
+        let collection = fs.collection(Collections.comments)
         let query = collection.whereField("postId", isEqualTo: id.uuidString)
         let snapshot = try await query.getDocuments()
         var result: [CommentPayload] = []
@@ -216,7 +217,7 @@ public class FirebaseClient {
     }
     
     public func getAllComments() async throws -> [CommentPayload] {
-        let snapshot = try await db.collection(Collections.comments).getDocuments()
+        let snapshot = try await fs.collection(Collections.comments).getDocuments()
         var result: [CommentPayload] = []
         for doc in snapshot.documents {
             do {
@@ -230,13 +231,13 @@ public class FirebaseClient {
     }
     
     public func setUserStatus(_ userStatus: UserStatus) async throws {
-        try await self.ref.child(Collections.statuses)
+        try await self.db.child(Collections.statuses)
             .child(String(userStatus.userId))
             .setValue(userStatus.dictionary())
     }
     
     public func getUserStatus(_ id: Int) async throws -> UserStatus {
-        let snapshot = try await self.ref.child(Collections.statuses)
+        let snapshot = try await self.db.child(Collections.statuses)
             .child(String(id))
             .getData()
         guard let value = snapshot.value,
@@ -250,7 +251,7 @@ public class FirebaseClient {
     }
     
     public func getAllUsersStatuses() async throws -> [UserStatus] {
-        let snapshot = try await self.ref.child(Collections.statuses).getData()
+        let snapshot = try await self.db.child(Collections.statuses).getData()
         guard let value = snapshot.value,
               let dict = value as? NSDictionary
         else {
@@ -262,11 +263,11 @@ public class FirebaseClient {
     }
     
     public func addPost(_ post: PostPayload) async throws {
-        try await self.db.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
+        try await self.fs.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
     }
       
     public func getAllPosts() async throws -> [PostPayload] {
-        let snapshot = try await db.collection(Collections.posts).getDocuments()
+        let snapshot = try await fs.collection(Collections.posts).getDocuments()
         var result: [PostPayload] = []
         for doc in snapshot.documents {
             do {
@@ -280,11 +281,11 @@ public class FirebaseClient {
     }
     
     public func getPost(_ id: UUID) async throws -> PostPayload {
-        try await db.collection(Collections.posts).document(id.uuidString).getDocument(as: PostPayload.self)
+        try await fs.collection(Collections.posts).document(id.uuidString).getDocument(as: PostPayload.self)
     }
     
     public func getUsersPosts(userId: Int) async throws -> [PostPayload] {
-        let collection = db.collection(Collections.posts)
+        let collection = fs.collection(Collections.posts)
         let query = collection.whereField("userId", isEqualTo: userId)
         let snapshot = try await query.getDocuments()
         var result: [PostPayload] = []
@@ -301,5 +302,21 @@ public class FirebaseClient {
     
     public func getHomePosition() -> Position {
         return Position(lat: 37.78, lng: -122.40)
+    }
+    
+    public func uploadImage(image: Data) async throws -> URL {
+        let ref = storage.child("Images").child(UUID().uuidString)
+        let uploadMetadata = StorageMetadata()
+        uploadMetadata.contentType = "image/jpeg"
+        let _ = try await ref.putDataAsync(image, metadata: uploadMetadata)
+        return try await ref.downloadURL()
+    }
+    
+    public func uploadVideo(video: Data) async throws -> URL {
+        let ref = storage.child("Videos").child(UUID().uuidString)
+        let uploadMetadata = StorageMetadata()
+        uploadMetadata.contentType = "video/mp4"
+        let _ = try await ref.putDataAsync(video, metadata: uploadMetadata)
+        return try await ref.downloadURL()
     }
 }

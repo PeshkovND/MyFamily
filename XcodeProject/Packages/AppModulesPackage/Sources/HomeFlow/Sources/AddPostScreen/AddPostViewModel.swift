@@ -29,6 +29,18 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         }
     }
     
+    func uploadImage(image: Data) {
+        Task {
+            try await self.repository.uploadImage(image: image)
+        }
+    }
+    
+    func uploadVideo(video: Data) {
+        Task {
+            try await self.repository.uploadVideo(video: video)
+        }
+    }
+    
     private func makeScreenError(from appError: AppError) -> AddPostContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):

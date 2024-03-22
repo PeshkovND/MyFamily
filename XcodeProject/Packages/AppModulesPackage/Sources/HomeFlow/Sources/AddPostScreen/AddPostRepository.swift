@@ -10,4 +10,14 @@ final class AddPostRepository {
         self.firebaseClient = firebaseClient
         self.authService = authService
     }
+    
+    func uploadImage(image: Data) async throws {
+        let url = try await firebaseClient.uploadImage(image: image)
+        print(url)
+    }
+    
+    func uploadVideo(video: Data) async throws {
+        let url = try await firebaseClient.uploadVideo(video: video)
+        print(url)
+    }
 }

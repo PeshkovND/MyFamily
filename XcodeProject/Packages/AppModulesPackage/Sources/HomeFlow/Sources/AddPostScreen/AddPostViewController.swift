@@ -123,6 +123,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
         if UIImagePickerController.isSourceTypeAvailable(sourceType) {
             let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
             imagePicker.sourceType = sourceType
             imagePicker.mediaTypes = [mediaType]
             imagePicker.allowsEditing = true
@@ -166,6 +167,30 @@ extension AddPostViewController: UITextViewDelegate {
         if textView.text.isEmpty {
             textView.text = appDesignSystem.strings.postScreenCommentPlaceholder
             textView.textColor = UIColor.lightGray
+        }
+    }
+}
+
+extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        
+        if let mediaType = info[UIImagePickerController.InfoKey.mediaType] as? String {
+            if mediaType == UTType.movie.identifier { // Проверка на видео
+                if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
+                    do {
+                        let videoData = try Data(contentsOf: videoURL)
+                        viewModel.uploadVideo(video: videoData)
+                    } catch {
+                        print("Error converting video to Data: \(error)")
+                    }
+                }
+            } else if mediaType == UTType.image.identifier { // Проверка на изображение
+                if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                    guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+                    viewModel.uploadImage(image: imageData)
+                }
+            }
         }
     }
 }
