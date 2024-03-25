@@ -11,13 +11,27 @@ final class AddPostRepository {
         self.authService = authService
     }
     
-    func uploadImage(image: Data) async throws {
-        let url = try await firebaseClient.uploadImage(image: image)
-        print(url)
+    func uploadImage(image: Data) async throws -> URL {
+        return try await firebaseClient.uploadImage(image: image)
     }
     
-    func uploadVideo(video: Data) async throws {
-        let url = try await firebaseClient.uploadVideo(video: video)
-        print(url)
+    func uploadVideo(video: Data) async throws -> URL {
+        return try await firebaseClient.uploadVideo(video: video)
+    }
+    
+    func addPost(text: String?, contentURL: URL?, contentType: ContentType?) async throws {
+        guard let userId = authService.account?.id else { return }
+        let dateFormatter = AppDateFormatter()
+        let date = dateFormatter.toString(Date())
+        let post = PostPayload(
+            id: UUID(),
+            text: text,
+            contentURL: contentURL,
+            contentType: contentType,
+            userId: userId,
+            date: date,
+            likes: []
+        )
+        try await firebaseClient.addPost(post)
     }
 }

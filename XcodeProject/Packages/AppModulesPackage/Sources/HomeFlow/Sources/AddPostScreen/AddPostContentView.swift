@@ -77,6 +77,14 @@ extension AddPostViewController {
             return button
         }()
         
+        private(set) lazy var activityIndicator: UIActivityIndicatorView = {
+            let indicator = UIActivityIndicatorView()
+            indicator.color = .white
+            indicator.backgroundColor = .black.withAlphaComponent(0.5)
+            indicator.layer.cornerRadius = 8
+            return indicator
+        }()
+        
         private(set) lazy var addVideoButton: ActionButton = {
             let button = ActionButton()
             let image = UIImage(systemName: "video")?.withTintColor(

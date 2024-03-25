@@ -13,10 +13,13 @@ struct DataToLoad {
 
 final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                                                AddPostViewState,
-                                               AddPostOutputEvent> {
+                              AddPostOutputEvent> {
     
+    private var uploadDataTask: Task<Void, Never>?
     private let repository: AddPostRepository
     private let strings = appDesignSystem.strings
+    var postText: String?
+    var linkToPost: URL?
     
     var dataToLoad: DataToLoad?
     
@@ -32,19 +35,79 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         case .viewDidLoad:
             break
         case .addPostTapped:
-            break
+            addPost()
+        }
+    }
+    
+    func addPost() {
+        if linkToPost != nil || postText != nil {
+            Task {
+                try await self.repository.addPost(
+                    text: postText,
+                    contentURL: linkToPost,
+                    contentType: dataToLoad?.contentType
+                )
+                
+                await MainActor.run {
+                    outputEventSubject.send(.addedPost)
+                }
+            }
+        } else {
+            print("nope")
         }
     }
     
     func uploadImage(image: Data) {
-        Task {
-            try await self.repository.uploadImage(image: image)
+        uploadDataTask?.cancel()
+        viewState = .contentLoading
+        linkToPost = nil
+        uploadDataTask = Task.detached {
+            do {
+                let link = try await self.repository.uploadImage(image: image)
+                try Task.checkCancellation()
+                self.linkToPost = link
+                await MainActor.run {
+                    self.viewState = .contentLoaded
+                }
+            } catch let error as NSError {
+                if error.domain == NSURLErrorDomain && error.code == -999 {
+                    self.linkToPost = nil
+                    return
+                }
+                if error.code == -1009 {
+                    self.linkToPost = nil
+                    print("error")
+                }
+            } catch {
+                self.linkToPost = nil
+            }
         }
     }
     
     func uploadVideo(video: Data) {
-        Task {
-            try await self.repository.uploadVideo(video: video)
+        uploadDataTask?.cancel()
+        viewState = .contentLoading
+        linkToPost = nil
+        uploadDataTask = Task.detached {
+            do {
+                let link = try await self.repository.uploadVideo(video: video)
+                try Task.checkCancellation()
+                self.linkToPost = link
+                await MainActor.run {
+                    self.viewState = .contentLoaded
+                }
+            } catch let error as NSError {
+                if error.domain == NSURLErrorDomain && error.code == -999 {
+                    self.linkToPost = nil
+                    return
+                }
+                if error.code == -1009 {
+                    self.linkToPost = nil
+                    print("error")
+                }
+            } catch {
+                self.linkToPost = nil
+            }
         }
     }
     

@@ -27,6 +27,8 @@ enum AddPostViewState: Stubable {
     }
 
     case initial
+    case contentLoading
+    case contentLoaded
 
     static var stub: AddPostViewState { .initial }
 }
@@ -34,7 +36,7 @@ enum AddPostViewState: Stubable {
 // MARK: - Output Event
 
 enum AddPostOutputEvent {
-    case addedPost(NewsViewPost)
+    case addedPost
 }
 
 // MARK: - View Event

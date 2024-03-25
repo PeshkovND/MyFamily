@@ -27,6 +27,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var contentImageView: UIImageView { contentView.contentImageView }
     private var contentVideoView: VideoPlayerView { contentView.contentVideoView }
     private var deleteContentButton: ActionButton { contentView.deleteContentButton }
+    private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
@@ -119,9 +120,16 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     
     override func onViewState(_ viewState: AddPostViewState) {
         switch viewState {
-        default:
+        case .contentLoaded:
+            activityIndicator.stopAnimating()
+            sendButton.isEnabled = true
+        case .initial:
             break
+        case .contentLoading:
+            sendButton.isEnabled = false
+            activityIndicator.startAnimating()
         }
+        
     }
     
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
@@ -147,13 +155,12 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         addMediaContainer.addGestureRecognizer(gesture)
         
         sendButton.onTap = {
-            if self.textView.textColor != UIColor.lightGray {
-                print("send")
-            }
+            self.viewModel.addPost()
         }
         
         deleteContentButton.onTap = {
             self.viewModel.dataToLoad = nil
+            self.viewModel.linkToPost = nil
             self.deleteContent()
             
             self.mediaContentContainer.snp.remakeConstraints {
@@ -186,6 +193,12 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             $0.width.equalTo(80)
             $0.bottom.equalTo(addMediaContainer.snp.top)
         }
+        
+        mediaContentContainer.addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        activityIndicator.startAnimating()
         
         mediaContentContainer.addSubview(deleteContentButton)
         
@@ -243,6 +256,15 @@ extension AddPostViewController: UITextViewDelegate {
             textView.textColor = UIColor.lightGray
         }
     }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        if self.textView.textColor == UIColor.lightGray ||
+            self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            self.viewModel.postText = nil
+        } else {
+            self.viewModel.postText = textView.text
+        }
+    }
 }
 
 extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -259,15 +281,17 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                         let videoData = try Data(contentsOf: videoURL)
                         viewModel.dataToLoad = DataToLoad(data: videoData, contentType: .video)
                         addVideo(videoURL)
+                        viewModel.uploadVideo(video: videoData)
                     } catch {
                         print("Error converting video to Data: \(error)")
                     }
                 }
             } else if mediaType == UTType.image.identifier { // Проверка на изображение
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-                    guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+                    guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
                     viewModel.dataToLoad = DataToLoad(data: imageData, contentType: .image)
                     addImage(image)
+                    viewModel.uploadImage(image: imageData)
                 }
             }
         }

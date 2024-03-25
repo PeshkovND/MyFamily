@@ -224,8 +224,8 @@ private extension HomeCoordinator {
             .sink { [weak self] event in
                 guard let self = self else { return }
                 switch event {
-                case .addedPost(let post):
-                    print(post)
+                case .addedPost:
+                    self.startHomeScreen()
                 }
             }
             .store(in: &setCancelable)

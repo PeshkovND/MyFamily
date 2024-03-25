@@ -126,6 +126,16 @@ public struct PostPayload: Codable {
     public let date: String
     public var likes: [Int]
     
+    public init(id: UUID, text: String?, contentURL: URL?, contentType: ContentType?, userId: Int, date: String, likes: [Int]) {
+        self.id = id
+        self.text = text
+        self.contentURL = contentURL
+        self.contentType = contentType
+        self.userId = userId
+        self.date = date
+        self.likes = likes
+    }
+    
     func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
