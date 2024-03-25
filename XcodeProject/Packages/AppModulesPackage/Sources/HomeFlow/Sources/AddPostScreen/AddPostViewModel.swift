@@ -111,6 +111,34 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         }
     }
     
+    func uploadAudio(url: URL?) {
+        guard let url = url else { return }
+        uploadDataTask?.cancel()
+        viewState = .contentLoading
+        linkToPost = nil
+        uploadDataTask = Task.detached {
+            do {
+                let link = try await self.repository.uploadAudio(url: url)
+                try Task.checkCancellation()
+                self.linkToPost = link
+                await MainActor.run {
+                    self.viewState = .contentLoaded
+                }
+            } catch let error as NSError {
+                if error.domain == NSURLErrorDomain && error.code == -999 {
+                    self.linkToPost = nil
+                    return
+                }
+                if error.code == -1009 {
+                    self.linkToPost = nil
+                    print("error")
+                }
+            } catch {
+                self.linkToPost = nil
+            }
+        }
+    }
+    
     private func makeScreenError(from appError: AppError) -> AddPostContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):

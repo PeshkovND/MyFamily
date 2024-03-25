@@ -329,4 +329,12 @@ public class FirebaseClient {
         let _ = try await ref.putDataAsync(video, metadata: uploadMetadata)
         return try await ref.downloadURL()
     }
+    
+    public func uploadAudio(url: URL) async throws -> URL {
+        let ref = storage.child("Audio").child(UUID().uuidString)
+        let uploadMetadata = StorageMetadata()
+        uploadMetadata.contentType = "audio"
+        let _ = try await ref.putFileAsync(from: url)
+        return try await ref.downloadURL()
+    }
 }

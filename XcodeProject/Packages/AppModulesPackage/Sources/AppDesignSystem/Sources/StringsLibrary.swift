@@ -110,4 +110,6 @@ extension StringsLibrary {
     public var addPostCamera: String { localized("add_post_camera") }
     public var addPostGallery: String { localized("add_post_gallery") }
     public var addPostScreenPlaceholder: String { localized("add_post_screen_placeholder") }
+    public var addPostRecord: String { localized("add_post_record") }
+    public var addPostChooseAudioFile: String { localized("add_post_choose_audio_file") }
 }

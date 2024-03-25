@@ -19,6 +19,10 @@ final class AddPostRepository {
         return try await firebaseClient.uploadVideo(video: video)
     }
     
+    func uploadAudio(url: URL) async throws -> URL {
+        return try await firebaseClient.uploadAudio(url: url)
+    }
+    
     func addPost(text: String?, contentURL: URL?, contentType: ContentType?) async throws {
         guard let userId = authService.account?.id else { return }
         let dateFormatter = AppDateFormatter()
