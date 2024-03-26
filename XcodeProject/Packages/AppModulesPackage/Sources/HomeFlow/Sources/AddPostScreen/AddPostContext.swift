@@ -29,6 +29,8 @@ enum AddPostViewState: Stubable {
     case initial
     case contentLoading
     case contentLoaded
+    case audioRecording
+    case audioRecorded
 
     static var stub: AddPostViewState { .initial }
 }
@@ -45,4 +47,6 @@ enum AddPostViewEvent {
     case viewDidLoad
     case `deinit`
     case addPostTapped
+    case recordAudioDidTapped
+    case deleteContentDidTapped
 }

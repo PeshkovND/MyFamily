@@ -26,6 +26,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var mediaContentContainer: UIView { contentView.mediaContentContainer }
     private var contentImageView: UIImageView { contentView.contentImageView }
     private var contentVideoView: VideoPlayerView { contentView.contentVideoView }
+    private var contentAudioView: UIImageView { contentView.contentAudioView }
     private var deleteContentButton: ActionButton { contentView.deleteContentButton }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     
@@ -128,8 +129,27 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         case .contentLoading:
             sendButton.isEnabled = false
             activityIndicator.startAnimating()
+        case .audioRecording:
+            recordingDidBegin()
+        case .audioRecorded:
+            recordingDidEnd()
+            addAudio()
         }
         
+    }
+    
+    private func recordingDidBegin() {
+        let image = UIImage(systemName: "stop.circle")?
+            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        self.addAudioButton.setImage(image, for: .normal)
+    }
+    
+    private func recordingDidEnd() {
+        let image = UIImage(systemName: "mic")?
+            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        self.addAudioButton.setImage(image, for: .normal)
     }
     
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
@@ -159,17 +179,12 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         }
         
         deleteContentButton.onTap = {
-            self.viewModel.dataToLoad = nil
-            self.viewModel.linkToPost = nil
+            self.viewModel.onViewEvent(.deleteContentDidTapped)
+            self.sendButton.isEnabled = true
             self.deleteContent()
-            
-            self.mediaContentContainer.snp.remakeConstraints {
-                $0.height.equalTo(0)
-                $0.leading.equalToSuperview().inset(8)
-                $0.width.equalTo(80)
-                $0.bottom.equalTo(self.addMediaContainer.snp.top)
-            }
         }
+        
+        addAudioButton.onTap = { self.viewModel.onViewEvent(.recordAudioDidTapped) }
     }
     
     @objc
@@ -182,8 +197,17 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         contentImageView.removeFromSuperview()
         contentVideoView.snp.removeConstraints()
         contentVideoView.removeFromSuperview()
+        contentAudioView.snp.removeConstraints()
+        contentAudioView.removeFromSuperview()
         deleteContentButton.snp.removeConstraints()
         deleteContentButton.removeFromSuperview()
+        
+        self.mediaContentContainer.snp.remakeConstraints {
+            $0.height.equalTo(0)
+            $0.leading.equalToSuperview().inset(8)
+            $0.width.equalTo(80)
+            $0.bottom.equalTo(self.addMediaContainer.snp.top)
+        }
     }
     
     private func setupContentContainer() {
@@ -216,6 +240,20 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         contentImageView.image = image
         mediaContentContainer.addSubview(contentImageView)
         contentImageView.snp.makeConstraints {
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+        
+        setupContentContainer()
+    }
+    
+    private func addAudio() {
+        deleteContent()
+        
+        mediaContentContainer.addSubview(contentAudioView)
+        contentAudioView.snp.makeConstraints {
             $0.height.equalTo(80)
             $0.width.equalTo(80)
             $0.leading.equalToSuperview()
@@ -279,7 +317,6 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
                     do {
                         let videoData = try Data(contentsOf: videoURL)
-                        viewModel.dataToLoad = DataToLoad(data: videoData, contentType: .video)
                         addVideo(videoURL)
                         viewModel.uploadVideo(video: videoData)
                     } catch {
@@ -289,7 +326,6 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
             } else if mediaType == UTType.image.identifier { // Проверка на изображение
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
                     guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
-                    viewModel.dataToLoad = DataToLoad(data: imageData, contentType: .image)
                     addImage(image)
                     viewModel.uploadImage(image: imageData)
                 }

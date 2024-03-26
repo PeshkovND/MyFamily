@@ -103,7 +103,7 @@ extension AddPostViewController {
         
         private(set) lazy var addAudioButton: ActionButton = {
             let button = ActionButton()
-            let image = UIImage(systemName: "music.note")?.withTintColor(
+            let image = UIImage(systemName: "mic")?.withTintColor(
                 appDesignSystem.colors.backgroundSecondaryVariant,
                 renderingMode: .alwaysOriginal
             ).scaleImageToFitSize(
@@ -112,7 +112,6 @@ extension AddPostViewController {
                     height: 30
                 )
             )
-            button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
         }()
@@ -129,6 +128,23 @@ extension AddPostViewController {
             view.translatesAutoresizingMaskIntoConstraints = true
             view.layer.cornerRadius = 8
             view.clipsToBounds = true
+            return view
+        }()
+        
+        private(set) lazy var contentAudioView: UIImageView = {
+            let view = UIImageView()
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.layer.cornerRadius = 8
+            view.clipsToBounds = true
+            view.contentMode = .center
+            view.backgroundColor = appDesignSystem.colors.backgroundTertiary
+            
+            let image = UIImage(systemName: "music.note")?
+                .withTintColor(appDesignSystem.colors.backgroundSecondaryVariant,
+                               renderingMode: .alwaysOriginal)
+                .scaleImageToFitSize(size: .init(width: 36, height: 36))
+
+            view.image = image
             return view
         }()
         
@@ -152,6 +168,7 @@ extension AddPostViewController {
             addSubview(mediaContentContainer)
             contentImageView.addSubview(deleteContentButton)
             contentVideoView.addSubview(deleteContentButton)
+            contentAudioView.addSubview(deleteContentButton)
             setupConstraints()
         }
         
