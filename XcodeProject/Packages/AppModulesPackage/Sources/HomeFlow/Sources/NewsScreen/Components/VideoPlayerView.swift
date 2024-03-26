@@ -2,6 +2,7 @@ import Foundation
 import AVKit
 import UIKit
 import AVFoundation
+import AppDesignSystem
 
 final class VideoPlayerView: UIView {
     private let videoPlayerView = VideoPlayer()
@@ -15,7 +16,7 @@ final class VideoPlayerView: UIView {
     
     private(set) lazy var activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .medium)
-        activityIndicator.color = .black
+        activityIndicator.color = appDesignSystem.colors.backgroundPrimary
         activityIndicator.startAnimating()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         return activityIndicator
@@ -25,7 +26,7 @@ final class VideoPlayerView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Video loading error"
-        label.textColor = .black
+        label.textColor = appDesignSystem.colors.backgroundPrimary
         label.alpha = 0
         label.textAlignment = .center
         return label
@@ -35,6 +36,7 @@ final class VideoPlayerView: UIView {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
+        self.backgroundColor = appDesignSystem.colors.labelPrimary
         activityIndicator.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.bottom.equalToSuperview()
@@ -86,7 +88,9 @@ final class VideoPlayerView: UIView {
     }
     
     func play() {
-        player.play()
+        DispatchQueue.main.async {
+            self.player.play()
+        }
     }
     
     public func addVideoToPlayer(videoUrl: URL) {
