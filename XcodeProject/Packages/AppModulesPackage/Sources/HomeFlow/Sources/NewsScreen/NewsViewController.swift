@@ -3,6 +3,7 @@ import AppEntities
 import AppDesignSystem
 import AppBaseFlow
 import AVKit
+import MobileCoreServices
 
 enum MediaContent {
     case Image(url: URL?)

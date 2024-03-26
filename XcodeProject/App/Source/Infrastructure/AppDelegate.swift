@@ -4,6 +4,7 @@ import UIKit
 import Utilities
 import AppServices
 import FirebaseCore
+import AVFoundation
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -32,6 +33,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
+        } catch {
+            print("AVAudioSessionCategoryPlayback not work")
+        }
         Deeplinker.checkDeepLink()
     }
     

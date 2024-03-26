@@ -24,7 +24,7 @@ public protocol Stubable {
 
 // MARK: - BaseViewModel
 
-open class BaseViewModel<ViewEvent, ViewState: Stubable, OutputEvent>: ViewModel {
+open class BaseViewModel<ViewEvent, ViewState: Stubable, OutputEvent>: NSObject, ViewModel {
 
     // MARK: - View Model Output
 
@@ -51,5 +51,5 @@ open class BaseViewModel<ViewEvent, ViewState: Stubable, OutputEvent>: ViewModel
     /// - Parameter event: Received event
     open func onViewEvent(_ event: ViewEvent) {}
 
-    public init() {}
+    public override init() {}
 }

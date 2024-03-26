@@ -5,3 +5,7 @@
 "NSLocationAlwaysUsageDescription" = "The application needs constant access to your geolocation to display on the map";
 "NSLocationWhenInUseUsageDescription" = "The application needs constant access to your geolocation to display on the map";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "The application needs constant access to your geolocation to display on the map";
+"NSCameraUsageDescription" = "For taking photos and videos";
+"NSMicrophoneUsageDescription" = "For recording audio";
+"NSPhotoLibraryAddUsageDescription" = "For save photos and videos";
+"NSAppleMusicUsageDescription" = "For add audio to your posts";

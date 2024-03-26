@@ -12,7 +12,11 @@ import AVFoundation
 
 struct AppContainer {
     
-    private static let audioPlayer = AVQueuePlayer()
+    private static var audioPlayer: AVQueuePlayer = {
+        let player = AVQueuePlayer()
+        player.allowsExternalPlayback = true
+        return player
+    }()
     
     private static let debugTogglesHolder = DebugTogglesHolder(
         debugStorage: debugStorage
