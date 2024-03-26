@@ -180,6 +180,8 @@ private extension HomeCoordinator {
                     showSharePostViewController(id: id)
                 case .signOut:
                     eventSubject.send(.signOut)
+                case .editProfile:
+                    openEditProfileScreen()
                 }
             }
             .store(in: &setCancelable)
@@ -210,6 +212,8 @@ private extension HomeCoordinator {
                     showSharePostViewController(id: id)
                 case .signOut:
                     eventSubject.send(.signOut)
+                case .editProfile:
+                    openEditProfileScreen()
                 }
             }
             .store(in: &setCancelable)
@@ -235,6 +239,18 @@ private extension HomeCoordinator {
         navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
         navigationController?.isNavigationBarHidden = false
         viewController.title = appDesignSystem.strings.postScreenTitle
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func openEditProfileScreen() {
+        let repository = EditProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = EditProfileViewModel(repository: repository)
+
+        let viewController = EditProfileViewController(viewModel: viewModel)
+        viewController.navigationItem.backButtonTitle = ""
+        navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        navigationController?.isNavigationBarHidden = false
+        viewController.title = appDesignSystem.strings.editProfileScreenTitle
         navigationController?.pushViewController(viewController, animated: true)
     }
     
