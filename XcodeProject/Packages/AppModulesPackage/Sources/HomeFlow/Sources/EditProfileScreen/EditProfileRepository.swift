@@ -14,4 +14,8 @@ final class EditProfileRepository {
     func uploadImage(image: Data) async throws -> URL {
         return try await firebaseClient.uploadImage(image: image)
     }
+    
+    func getUserInfo() -> UserInfo? {
+        return authService.account
+    }
 }

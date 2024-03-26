@@ -15,7 +15,7 @@ extension EditProfileViewController {
             return view
         }()
         
-        private var contentView: UIView = {
+        private(set) var contentContainer: UIView = {
             let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
             return view
@@ -37,6 +37,7 @@ extension EditProfileViewController {
             view.layer.cornerRadius = 36
             view.backgroundColor = .red
             view.clipsToBounds = true
+            view.isUserInteractionEnabled = true
             return view
         }()
         
@@ -68,6 +69,7 @@ extension EditProfileViewController {
                 .scaleImageToFitSize(size: .init(width: 32, height: 32))
             view.setImage(image, for: .normal)
             view.backgroundColor = .black.withAlphaComponent(0.5)
+            view.showsMenuAsPrimaryAction = true
             return view
         }()
         
@@ -85,12 +87,12 @@ extension EditProfileViewController {
         
         override func setLayout() {
             addSubview(scrollView)
-            scrollView.addSubview(contentView)
-            contentView.addSubview(nameLabel)
-            contentView.addSubview(surnameLabel)
-            contentView.addSubview(nameInputField)
-            contentView.addSubview(surnameInputField)
-            contentView.addSubview(userPhotoView)
+            scrollView.addSubview(contentContainer)
+            contentContainer.addSubview(nameLabel)
+            contentContainer.addSubview(surnameLabel)
+            contentContainer.addSubview(nameInputField)
+            contentContainer.addSubview(surnameInputField)
+            contentContainer.addSubview(userPhotoView)
             userPhotoView.addSubview(editImageButton)
             
             setupConstraints()
@@ -104,7 +106,7 @@ extension EditProfileViewController {
                 $0.bottom.equalToSuperview()
             }
             
-            contentView.snp.makeConstraints {
+            contentContainer.snp.makeConstraints {
                 $0.top.equalTo(self.scrollView)
                 $0.left.equalTo(self.scrollView)
                 $0.width.equalTo(self.scrollView)

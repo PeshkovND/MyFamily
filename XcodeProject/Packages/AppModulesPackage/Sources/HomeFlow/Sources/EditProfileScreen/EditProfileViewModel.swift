@@ -12,8 +12,10 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
     private var uploadDataTask: Task<Void, Never>?
     private let repository: EditProfileRepository
     private let strings = appDesignSystem.strings
-    var postText: String?
     var linkToMediaContent: URL?
+    var userName = ""
+    var userSurname = ""
+    var userPhotoUrl: URL?
     
     init(repository: EditProfileRepository) {
         self.repository = repository
@@ -25,7 +27,11 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
-            break
+            viewState = .initial
+            guard let userInfo = self.repository.getUserInfo() else { return }
+            self.userName = userInfo.firstName
+            self.userSurname = userInfo.lastName
+            self.userPhotoUrl = userInfo.photoURL
         }
     }
     

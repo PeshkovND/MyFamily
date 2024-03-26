@@ -12,6 +12,30 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     private let colors = appDesignSystem.colors
     
     private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
+    private var editImageButton: ActionButton { contentView.editImageButton }
+    private var nameInputField: UITextField { contentView.nameInputField }
+    private var surnameInputField: UITextField { contentView.surnameInputField }
+    private var userPhotoView: UIImageView { contentView.userPhotoView }
+    private var contentContainer: UIView { contentView.contentContainer }
+    
+    private(set) lazy var addPhotoMenu: UIMenu = {
+        let cameraAction = UIAction(
+            title: appDesignSystem.strings.addPostCamera,
+            image: UIImage(systemName: "camera")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in self.open(.camera, for: UTType.image.identifier) }
+        
+        let galleryAction = UIAction(
+            title: appDesignSystem.strings.addPostGallery,
+            image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
+                appDesignSystem.colors.backgroundSecondaryVariant,
+                renderingMode: .alwaysOriginal
+            )) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
+        
+        let menu = UIMenu(options: .displayInline, children: [cameraAction, galleryAction])
+        return menu
+    }()
     
     deinit {
         viewModel.onViewEvent(.deinit)
@@ -19,6 +43,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.onViewEvent(.viewDidLoad)
         configureView()
     }
     
@@ -56,7 +81,9 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     override func onViewState(_ viewState: EditProfileViewState) {
         switch viewState {
         case .initial:
-            break
+            self.nameInputField.text = viewModel.userName
+            self.surnameInputField.text = viewModel.userSurname
+            self.userPhotoView.setImageUrl(url: viewModel.userPhotoUrl)
         case .imageloading:
             break
         case .imageLoaded:
@@ -82,14 +109,17 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         self.contentView.backgroundColor = colors.backgroundPrimary
         viewModel.onViewEvent(.viewDidLoad)
         
+        editImageButton.menu = addPhotoMenu
+        
         let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
+        contentContainer.addGestureRecognizer(gesture)
     }
     
     @objc
     private func closeKeyboard() {
-        //        textView.resignFirstResponder()
+        nameInputField.resignFirstResponder()
+        surnameInputField.resignFirstResponder()
     }
-    
     
     private func showContentLoadingError() {
         //        activityIndicator.stopAnimating()
