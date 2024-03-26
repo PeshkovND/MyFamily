@@ -315,6 +315,7 @@ public class FirebaseClient {
     }
     
     public func uploadImage(image: Data) async throws -> URL {
+        storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Images").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "image/jpeg"
@@ -323,6 +324,7 @@ public class FirebaseClient {
     }
     
     public func uploadVideo(video: Data) async throws -> URL {
+        storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Videos").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "video/mp4"
@@ -331,6 +333,7 @@ public class FirebaseClient {
     }
     
     public func uploadAudio(url: URL) async throws -> URL {
+        storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Audio").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "audio"

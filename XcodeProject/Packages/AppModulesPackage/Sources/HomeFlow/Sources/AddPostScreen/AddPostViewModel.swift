@@ -22,7 +22,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     private var linkToMediaContent: URL?
     private var recordingSession = AVAudioSession.sharedInstance()
     private var audioRecorder: AVAudioRecorder?
-
+    
     var contentType: ContentType?
     var postText: String?
     
@@ -87,16 +87,9 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     self.viewState = .contentLoaded
                 }
             } catch let error as NSError {
-                if error.domain == NSURLErrorDomain && error.code == -999 {
-                    self.linkToMediaContent = nil
-                    return
-                }
-                if error.code == -1009 {
-                    self.linkToMediaContent = nil
-                    print("error")
-                }
+                await self.catchNSError(error: error)
             } catch {
-                self.linkToMediaContent = nil
+                await MainActor.run { self.showContentError() }
             }
         }
     }
@@ -115,16 +108,9 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     self.viewState = .contentLoaded
                 }
             } catch let error as NSError {
-                if error.domain == NSURLErrorDomain && error.code == -999 {
-                    self.linkToMediaContent = nil
-                    return
-                }
-                if error.code == -1009 {
-                    self.linkToMediaContent = nil
-                    print("error")
-                }
+                await self.catchNSError(error: error)
             } catch {
-                self.linkToMediaContent = nil
+                await MainActor.run { self.showContentError() }
             }
         }
     }
@@ -144,18 +130,19 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     self.viewState = .contentLoaded
                 }
             } catch let error as NSError {
-                if error.domain == NSURLErrorDomain && error.code == -999 {
-                    self.linkToMediaContent = nil
-                    return
-                }
-                if error.code == -1009 {
-                    self.linkToMediaContent = nil
-                    print("error")
-                }
+                await self.catchNSError(error: error)
             } catch {
-                self.linkToMediaContent = nil
+                await MainActor.run { self.showContentError() }
             }
         }
+    }
+    
+    private func catchNSError(error: NSError) async {
+        if error.domain == NSURLErrorDomain && error.code == -999 {
+            self.linkToMediaContent = nil
+            return
+        }
+        await MainActor.run { self.showContentError() }
     }
     
     private func makeScreenError(from appError: AppError) -> AddPostContext.ScreenError? {
@@ -222,6 +209,11 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         } else {
             finishRecording(success: true)
         }
+    }
+    
+    private func showContentError() {
+        self.viewState = .contentLoadingError
+        self.linkToMediaContent = nil
     }
 }
 

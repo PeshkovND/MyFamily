@@ -29,6 +29,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var contentAudioView: UIImageView { contentView.contentAudioView }
     private var deleteContentButton: ActionButton { contentView.deleteContentButton }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private var errorImageView: UIImageView { contentView.errorImageView }
     
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
@@ -134,6 +135,8 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         case .audioRecorded:
             recordingDidEnd()
             addAudio()
+        case .contentLoadingError:
+            showContentLoadingError()
         }
         
     }
@@ -217,9 +220,13 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             $0.width.equalTo(80)
             $0.bottom.equalTo(addMediaContainer.snp.top)
         }
-        
+        errorImageView.alpha = 0
         mediaContentContainer.addSubview(activityIndicator)
+        mediaContentContainer.addSubview(errorImageView)
         activityIndicator.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        errorImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         activityIndicator.startAnimating()
@@ -232,6 +239,11 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             $0.top.equalToSuperview().inset(-10)
             $0.trailing.equalToSuperview().inset(-10)
         }
+    }
+    
+    private func showContentLoadingError() {
+        activityIndicator.stopAnimating()
+        errorImageView.alpha = 1
     }
     
     private func addImage(_ image: UIImage) {

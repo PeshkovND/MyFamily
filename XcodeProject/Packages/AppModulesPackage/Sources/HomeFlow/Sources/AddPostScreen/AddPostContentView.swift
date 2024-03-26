@@ -85,6 +85,24 @@ extension AddPostViewController {
             return indicator
         }()
         
+        private(set) lazy var errorImageView: UIImageView = {
+            let view = UIImageView()
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.layer.cornerRadius = 8
+            view.clipsToBounds = true
+            view.contentMode = .center
+            view.backgroundColor = .black.withAlphaComponent(0.5)
+            view.alpha = 0
+            
+            let image = UIImage(systemName: "exclamationmark.triangle.fill")?
+                .withTintColor(appDesignSystem.colors.backgroundPrimary,
+                               renderingMode: .alwaysOriginal)
+                .scaleImageToFitSize(size: .init(width: 36, height: 36))
+
+            view.image = image
+            return view
+        }()
+        
         private(set) lazy var addVideoButton: ActionButton = {
             let button = ActionButton()
             let image = UIImage(systemName: "video")?.withTintColor(

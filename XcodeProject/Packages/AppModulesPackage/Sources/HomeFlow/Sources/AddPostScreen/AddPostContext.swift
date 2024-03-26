@@ -29,6 +29,7 @@ enum AddPostViewState: Stubable {
     case initial
     case contentLoading
     case contentLoaded
+    case contentLoadingError
     case audioRecording
     case audioRecorded
 
