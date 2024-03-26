@@ -212,7 +212,7 @@ public class FirebaseClient {
     
     public func getCommentsOnPost(_ id: UUID) async throws -> [CommentPayload] {
         let collection = fs.collection(Collections.comments)
-        let query = collection.whereField("postId", isEqualTo: id.uuidString)
+        let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
         let snapshot = try await query.getDocuments()
         var result: [CommentPayload] = []
         for doc in snapshot.documents {
@@ -277,7 +277,9 @@ public class FirebaseClient {
     }
       
     public func getAllPosts() async throws -> [PostPayload] {
-        let snapshot = try await fs.collection(Collections.posts).getDocuments()
+        let snapshot = try await fs.collection(Collections.posts)
+            .order(by: "date", descending: true)
+            .getDocuments()
         var result: [PostPayload] = []
         for doc in snapshot.documents {
             do {
@@ -296,7 +298,7 @@ public class FirebaseClient {
     
     public func getUsersPosts(userId: Int) async throws -> [PostPayload] {
         let collection = fs.collection(Collections.posts)
-        let query = collection.whereField("userId", isEqualTo: userId)
+        let query = collection.whereField("userId", isEqualTo: userId).order(by: "date", descending: true)
         let snapshot = try await query.getDocuments()
         var result: [PostPayload] = []
         for doc in snapshot.documents {
@@ -319,7 +321,7 @@ public class FirebaseClient {
         let ref = storage.child("Images").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "image/jpeg"
-        let _ = try await ref.putDataAsync(image, metadata: uploadMetadata)
+        _ = try await ref.putDataAsync(image, metadata: uploadMetadata)
         return try await ref.downloadURL()
     }
     
@@ -328,7 +330,7 @@ public class FirebaseClient {
         let ref = storage.child("Videos").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "video/mp4"
-        let _ = try await ref.putDataAsync(video, metadata: uploadMetadata)
+        _ = try await ref.putDataAsync(video, metadata: uploadMetadata)
         return try await ref.downloadURL()
     }
     
@@ -337,7 +339,7 @@ public class FirebaseClient {
         let ref = storage.child("Audio").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "audio"
-        let _ = try await ref.putFileAsync(from: url)
+        _ = try await ref.putFileAsync(from: url)
         return try await ref.downloadURL()
     }
 }

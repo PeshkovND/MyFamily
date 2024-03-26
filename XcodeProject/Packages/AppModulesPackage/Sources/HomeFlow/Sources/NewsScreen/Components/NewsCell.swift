@@ -1,4 +1,3 @@
-//  
 import UIKit
 import Foundation
 import Utilities
@@ -132,6 +131,8 @@ final class NewsCell: UITableViewCell {
         contentView.addSubview(userInfoContainerButton)
         userInfoContainerButton.addSubview(userImageView)
         userInfoContainerButton.addSubview(usernameLabel)
+        setupUserInfoConstraints()
+        setupControlButtonConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -141,10 +142,7 @@ final class NewsCell: UITableViewCell {
     
     // swiftlint:disable function_body_length
     private func setupLayout(model: Model) {
-        setupUserInfoConstraints()
         setupContentConstraints(model: model)
-        setupControlButtonConstraints()
-        
         setupData(model: model)
     }
     
@@ -175,6 +173,7 @@ final class NewsCell: UITableViewCell {
         if let contentText = model.contentLabel {
             contentView.addSubview(contentLabel)
             contentLabel.text = contentText
+            contentLabel.snp.removeConstraints()
             contentLabel.snp.makeConstraints {
                 $0.top.equalTo(userImageView.snp.bottom).inset(-8)
                 $0.leading.equalTo(contentView.snp.leading).inset(16)
@@ -198,6 +197,7 @@ final class NewsCell: UITableViewCell {
             videoContainer.onCloseBigPlayer = {
                 model.audioPlayer.play()
             }
+            videoContainer.snp.removeConstraints()
             videoContainer.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -214,6 +214,7 @@ final class NewsCell: UITableViewCell {
             guard let url = url else { return }
             contentView.addSubview(contentImageView)
             self.contentImageView.setImageUrl(url: url)
+            contentImageView.snp.removeConstraints()
             contentImageView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -232,6 +233,7 @@ final class NewsCell: UITableViewCell {
             audioView.player = model.audioPlayer
             audioView.audioURL = url
             audioView.setupPlayerData()
+            audioView.snp.removeConstraints()
             audioView.snp.makeConstraints {
                 $0.top.equalTo(model.contentLabel != nil
                                ? contentLabel.snp.bottom
@@ -245,6 +247,9 @@ final class NewsCell: UITableViewCell {
             contentImageView.removeFromSuperview()
             videoContainer.removeFromSuperview()
         case .none:
+            videoContainer.snp.removeConstraints()
+            contentImageView.snp.removeConstraints()
+            audioView.snp.removeConstraints()
             videoContainer.removeFromSuperview()
             contentImageView.removeFromSuperview()
             audioView.removeFromSuperview()
@@ -253,16 +258,22 @@ final class NewsCell: UITableViewCell {
     
     private func setupControlButtonConstraints() {
         shareButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
             $0.trailing.equalTo(contentView.snp.trailing).inset(8)
             $0.bottom.equalTo(contentView.snp.bottom)
         }
         
         commentButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
             $0.trailing.equalTo(shareButton.snp.leading)
             $0.centerY.equalTo(shareButton.snp.centerY)
         }
         
         likeButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
             $0.trailing.equalTo(commentButton.snp.leading)
             $0.centerY.equalTo(shareButton.snp.centerY)
         }
