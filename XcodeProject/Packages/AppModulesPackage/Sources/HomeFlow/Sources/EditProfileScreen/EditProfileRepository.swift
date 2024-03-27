@@ -18,4 +18,18 @@ final class EditProfileRepository {
     func getUserInfo() -> UserInfo? {
         return authService.account
     }
+    
+    func editUser(name: String, surname: String, imageURL: URL) async throws {
+        guard let currentUserInfo = authService.account else { return }
+        
+        let userInfo = UserInfo(
+            id: currentUserInfo.id,
+            photoURL: imageURL,
+            firstName: name,
+            lastName: surname
+        )
+        
+        try await self.firebaseClient.updateUser(userInfo)
+        authService.updateAccount(userInfo)
+    }
 }

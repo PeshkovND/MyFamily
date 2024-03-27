@@ -73,6 +73,13 @@ extension EditProfileViewController {
             return view
         }()
         
+        private(set) var activityIndicator: UIActivityIndicatorView = {
+            let view = UIActivityIndicatorView()
+            view.color = .white
+            view.backgroundColor = .black.withAlphaComponent(0.5)
+            return view
+        }()
+        
         private(set) var surnameInputField: TextFieldWithInsets = {
             let view = TextFieldWithInsets()
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -94,6 +101,7 @@ extension EditProfileViewController {
             contentContainer.addSubview(surnameInputField)
             contentContainer.addSubview(userPhotoView)
             userPhotoView.addSubview(editImageButton)
+            userPhotoView.addSubview(activityIndicator)
             
             setupConstraints()
         }
@@ -126,6 +134,10 @@ extension EditProfileViewController {
             }
             
             editImageButton.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+            
+            activityIndicator.snp.makeConstraints {
                 $0.edges.equalToSuperview()
             }
         }

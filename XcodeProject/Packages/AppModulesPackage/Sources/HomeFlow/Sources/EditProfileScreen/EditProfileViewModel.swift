@@ -13,9 +13,13 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
     private let repository: EditProfileRepository
     private let strings = appDesignSystem.strings
     var linkToMediaContent: URL?
-    var userName = ""
-    var userSurname = ""
-    var userPhotoUrl: URL?
+    private var userName = ""
+    private var userSurname = ""
+    private var userPhotoUrl: URL?
+    var isSaveButtonActive: Bool {
+        !(userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          || userSurname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
     
     init(repository: EditProfileRepository) {
         self.repository = repository
@@ -27,18 +31,42 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
-            viewState = .initial
             guard let userInfo = self.repository.getUserInfo() else { return }
             self.userName = userInfo.firstName
             self.userSurname = userInfo.lastName
             self.userPhotoUrl = userInfo.photoURL
+            self.linkToMediaContent = userPhotoUrl
+            viewState = .initial(
+                firstname: self.userName,
+                lastname: userSurname,
+                photoUrl: userPhotoUrl
+            )
+        case .saveButtonDidTapped:
+            editUser()
+        case .usernameDidChanged(let firstName, let lastName):
+            self.userName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.userSurname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+    
+    private func editUser() {
+        Task {
+            guard let url = self.linkToMediaContent else { return }
+            try await self.repository.editUser(
+                name: self.userName,
+                surname: self.userSurname,
+                imageURL: url
+            )
+            await MainActor.run {
+                outputEventSubject.send(.saveTapped)
+            }
         }
     }
     
     func uploadImage(image: Data) {
         uploadDataTask?.cancel()
         viewState = .imageloading
-        linkToMediaContent = nil
+        linkToMediaContent = userPhotoUrl
         uploadDataTask = Task.detached {
             do {
                 let link = try await self.repository.uploadImage(image: image)
@@ -57,7 +85,7 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
     
     private func catchNSError(error: NSError) async {
         if error.domain == NSURLErrorDomain && error.code == -999 {
-            self.linkToMediaContent = nil
+            self.linkToMediaContent = userPhotoUrl
             return
         }
         await MainActor.run { self.showContentError() }
@@ -88,6 +116,6 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
 
     private func showContentError() {
         self.viewState = .contentLoadingError
-        self.linkToMediaContent = nil
+        self.linkToMediaContent = userPhotoUrl
     }
 }

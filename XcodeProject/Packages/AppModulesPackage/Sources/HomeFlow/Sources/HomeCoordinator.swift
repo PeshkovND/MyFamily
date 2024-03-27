@@ -246,6 +246,18 @@ private extension HomeCoordinator {
         let repository = EditProfileRepository(firebaseClient: firebaseClient, authService: authService)
         let viewModel = EditProfileViewModel(repository: repository)
 
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                
+                switch event {
+                case .saveTapped:
+                    start()
+                    tabBarController.selectedIndex = 3
+                }
+            }
+            .store(in: &setCancelable)
+        
         let viewController = EditProfileViewController(viewModel: viewModel)
         viewController.navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant

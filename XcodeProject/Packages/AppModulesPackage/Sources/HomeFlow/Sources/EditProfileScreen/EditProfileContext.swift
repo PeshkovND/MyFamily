@@ -26,18 +26,22 @@ enum EditProfileViewState: Stubable {
         let actionEnabled: Bool
     }
 
-    case initial
+    case initial(firstname: String, lastname: String, photoUrl: URL? )
     case imageloading
     case imageLoaded
     case contentLoadingError
 
-    static var stub: EditProfileViewState { .initial }
+    static var stub: EditProfileViewState { .initial(
+        firstname: "",
+        lastname: "",
+        photoUrl: nil
+    ) }
 }
 
 // MARK: - Output Event
 
 enum EditProfileOutputEvent {
-    case addedPost
+    case saveTapped
 }
 
 // MARK: - View Event
@@ -45,4 +49,6 @@ enum EditProfileOutputEvent {
 enum EditProfileViewEvent {
     case viewDidLoad
     case `deinit`
+    case saveButtonDidTapped
+    case usernameDidChanged(firstname: String, lastName: String)
 }

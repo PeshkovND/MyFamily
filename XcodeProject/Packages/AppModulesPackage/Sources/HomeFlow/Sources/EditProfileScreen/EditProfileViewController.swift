@@ -17,6 +17,12 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     private var surnameInputField: UITextField { contentView.surnameInputField }
     private var userPhotoView: UIImageView { contentView.userPhotoView }
     private var contentContainer: UIView { contentView.contentContainer }
+    private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private let saveButton = UIBarButtonItem(
+        barButtonSystemItem: .save,
+        target: self,
+        action: #selector(saveTapped)
+    )
     
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
@@ -80,14 +86,18 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     
     override func onViewState(_ viewState: EditProfileViewState) {
         switch viewState {
-        case .initial:
-            self.nameInputField.text = viewModel.userName
-            self.surnameInputField.text = viewModel.userSurname
-            self.userPhotoView.setImageUrl(url: viewModel.userPhotoUrl)
+        case .initial(let firstname, let lastname, let photoURL):
+            self.nameInputField.text = firstname
+            self.surnameInputField.text = lastname
+            self.userPhotoView.setImageUrl(url: photoURL)
         case .imageloading:
-            break
+            self.saveButton.isEnabled = false
+            self.editImageButton.alpha = 0
+            self.activityIndicator.startAnimating()
         case .imageLoaded:
-            break
+            self.saveButton.isEnabled = true
+            self.editImageButton.alpha = 1
+            self.activityIndicator.stopAnimating()
         case .contentLoadingError:
             break
         }
@@ -113,6 +123,37 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         contentContainer.addGestureRecognizer(gesture)
+        
+        navigationItem.rightBarButtonItem = saveButton
+        
+        nameInputField.addTarget(
+            self,
+            action: #selector(usernameDidChanged),
+            for: .editingChanged
+        )
+        surnameInputField.addTarget(
+            self,
+            action: #selector(usernameDidChanged),
+            for: .editingChanged
+        )
+    }
+    
+    @objc func usernameDidChanged() {
+        nameInputField.text = nameInputField.text?
+            .replacingOccurrences(of: "  ", with: " ")
+        surnameInputField.text = surnameInputField.text?
+            .replacingOccurrences(of: "  ", with: " ")
+        viewModel.onViewEvent(.usernameDidChanged(
+            firstname: nameInputField.text ?? "",
+            lastName: surnameInputField.text ?? ""
+        ))
+        
+        self.saveButton.isEnabled = viewModel.isSaveButtonActive
+    }
+    
+    @objc
+    private func saveTapped() {
+        viewModel.onViewEvent(.saveButtonDidTapped)
     }
     
     @objc
@@ -140,6 +181,7 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
                     guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
                     viewModel.uploadImage(image: imageData)
+                    userPhotoView.image = image
                 }
             }
         }

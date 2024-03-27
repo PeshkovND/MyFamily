@@ -94,6 +94,13 @@ public struct UserInfo: Codable {
     public let photoURL: URL?
     public let firstName: String
     public let lastName: String
+    
+    public init(id: Int, photoURL: URL?, firstName: String, lastName: String) {
+        self.id = id
+        self.photoURL = photoURL
+        self.firstName = firstName
+        self.lastName = lastName
+    }
 }
 
 public struct UserPayload: Codable {
@@ -167,6 +174,20 @@ public class FirebaseClient {
             lastName: user.lastName,
             role: .regular,
             pro: false
+        )
+        try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+    }
+    
+    public func updateUser(_ user: UserInfo) async throws {
+        let document = try await fs.collection(Collections.users).document(String(user.id)).getDocument(as: UserPayload.self)
+        
+        let user = UserPayload(
+            id: user.id,
+            photoURL: user.photoURL,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: document.role,
+            pro: document.pro
         )
         try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
     }
