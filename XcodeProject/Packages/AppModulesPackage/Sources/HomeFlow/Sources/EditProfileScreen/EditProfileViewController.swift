@@ -24,6 +24,15 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         action: #selector(saveTapped)
     )
     
+    private let errorImage = UIImage(systemName: "exclamationmark.triangle.fill")?
+        .withTintColor(appDesignSystem.colors.backgroundPrimary,
+                       renderingMode: .alwaysOriginal)
+        .scaleImageToFitSize(size: .init(width: 32, height: 32))
+    
+    private let editImage = UIImage(systemName: "photo.badge.plus")?
+        .withTintColor(.white, renderingMode: .alwaysOriginal)
+        .scaleImageToFitSize(size: .init(width: 32, height: 32))
+    
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
@@ -99,8 +108,13 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
             self.saveButton.isEnabled = true
             self.editImageButton.alpha = 1
             self.activityIndicator.stopAnimating()
+            self.editImageButton.setImage(editImage, for: .normal)
         case .contentLoadingError:
-            break
+            self.saveButton.isEnabled = false
+            self.activityIndicator.stopAnimating()
+            self.editImageButton.setImage(errorImage, for: .normal)
+            self.editImageButton.alpha = 1
+            
         }
         
     }
