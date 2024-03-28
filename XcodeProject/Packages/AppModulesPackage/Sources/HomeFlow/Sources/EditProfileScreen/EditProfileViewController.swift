@@ -73,6 +73,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         super.viewWillDisappear(animated)
         closeKeyboard()
         NotificationCenter.default.removeObserver(self)
+        viewModel.onViewEvent(.viewWillDisapear)
     }
     
     @objc func keyboardWillShow(_ notification: Notification) {

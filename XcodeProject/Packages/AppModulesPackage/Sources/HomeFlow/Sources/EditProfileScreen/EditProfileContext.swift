@@ -42,12 +42,14 @@ enum EditProfileViewState: Stubable {
 
 enum EditProfileOutputEvent {
     case saveTapped
+    case viewWillDisapear
 }
 
 // MARK: - View Event
 
 enum EditProfileViewEvent {
     case viewDidLoad
+    case viewWillDisapear
     case `deinit`
     case saveButtonDidTapped
     case usernameDidChanged(firstname: String, lastName: String)

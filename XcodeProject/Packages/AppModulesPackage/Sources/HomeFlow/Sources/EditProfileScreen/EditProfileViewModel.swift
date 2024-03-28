@@ -46,6 +46,8 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
         case .usernameDidChanged(let firstName, let lastName):
             self.userName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
             self.userSurname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        case .viewWillDisapear:
+            outputEventSubject.send(.viewWillDisapear)
         }
     }
     
