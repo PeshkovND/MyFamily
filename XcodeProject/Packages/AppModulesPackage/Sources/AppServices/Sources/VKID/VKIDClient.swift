@@ -34,7 +34,7 @@ public final class VKIDClient {
                     accessToken: session.accessToken.value,
                     expirationDate: session.accessToken.expirationDate
                 )
-                let userInfo = UserInfo(
+                let userInfoPayload = UserInfo(
                     id: session.user.id.value,
                     photoURL: session.user.avatarURL,
                     firstName: session.user.firstName,
@@ -42,7 +42,7 @@ public final class VKIDClient {
                 )
                 Task {
                     do {
-                        try await self.firebaseClient.addUser(userInfo)
+                        let userInfo = try await self.firebaseClient.addUser(userInfoPayload)
                         await MainActor.run {
                             onSuccess(credentials, userInfo)
                         }

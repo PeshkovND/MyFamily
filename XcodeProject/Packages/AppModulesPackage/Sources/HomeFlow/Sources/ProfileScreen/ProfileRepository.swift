@@ -22,7 +22,7 @@ final class ProfileRepository {
         
         let posts = try await postsTask
         let comments = try await commentsTask
-        let user = try await userTask
+        guard let user = try await userTask else { return nil }
         let status = try await statusTask
         let username = user.firstName + " " + user.lastName
         

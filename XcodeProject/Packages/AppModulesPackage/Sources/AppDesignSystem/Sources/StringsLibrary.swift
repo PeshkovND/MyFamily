@@ -112,4 +112,8 @@ extension StringsLibrary {
     public var addPostScreenPlaceholder: String { localized("add_post_screen_placeholder") }
     public var addPostRecord: String { localized("add_post_record") }
     public var addPostChooseAudioFile: String { localized("add_post_choose_audio_file") }
+    
+    public var editProfileScreenTitle: String { localized("edit_profile_screen_title") }
+    public var editProfileNameTitle: String { localized("edit_profile_name_title") }
+    public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }
 }

@@ -180,6 +180,8 @@ private extension HomeCoordinator {
                     showSharePostViewController(id: id)
                 case .signOut:
                     eventSubject.send(.signOut)
+                case .editProfile:
+                    openEditProfileScreen()
                 }
             }
             .store(in: &setCancelable)
@@ -210,6 +212,8 @@ private extension HomeCoordinator {
                     showSharePostViewController(id: id)
                 case .signOut:
                     eventSubject.send(.signOut)
+                case .editProfile:
+                    openEditProfileScreen()
                 }
             }
             .store(in: &setCancelable)
@@ -236,6 +240,31 @@ private extension HomeCoordinator {
         navigationController?.isNavigationBarHidden = false
         viewController.title = appDesignSystem.strings.postScreenTitle
         navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func openEditProfileScreen() {
+        let repository = EditProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = EditProfileViewModel(repository: repository)
+
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                switch event {
+                case .saveTapped:
+                    start()
+                    tabBarController.selectedIndex = 3
+                case .viewWillDisapear:
+                    self.navigationController?.isNavigationBarHidden = true
+                }
+            }
+            .store(in: &setCancelable)
+        
+        let viewController = EditProfileViewController(viewModel: viewModel)
+        viewController.navigationItem.backButtonTitle = ""
+        navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        viewController.title = appDesignSystem.strings.editProfileScreenTitle
+        navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.isNavigationBarHidden = false
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {

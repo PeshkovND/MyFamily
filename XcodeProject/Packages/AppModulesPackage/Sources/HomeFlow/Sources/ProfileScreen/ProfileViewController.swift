@@ -38,7 +38,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     private lazy var editProfileAction = UIAction(
         title: appDesignSystem.strings.profileEditProfile,
         image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-    ) { _ in }
+    ) { _ in self.editProfileTapped() }
     
     private lazy var signOutAction = UIAction(
         title: appDesignSystem.strings.profileSignOut,
@@ -67,7 +67,9 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     }
     
     @objc
-    private func editProfileTapped() {}
+    private func editProfileTapped() {
+        viewModel.onViewEvent(.editProfileTapped)
+    }
     
     private func configureView() {
         self.contentView.backgroundColor = colors.backgroundPrimary

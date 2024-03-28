@@ -54,6 +54,8 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             outputEventSubject.send(.shareTapped(id: id))
         case .signOut:
             outputEventSubject.send(.signOut)
+        case .editProfileTapped:
+            outputEventSubject.send(.editProfile)
         }
     }
     
