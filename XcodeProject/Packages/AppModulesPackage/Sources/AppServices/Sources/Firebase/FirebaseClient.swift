@@ -164,10 +164,16 @@ public class FirebaseClient {
     
     public init() {}
     
-    public func addUser(_ user: UserInfo) async throws {
-        let document = try await fs.collection(Collections.users).document(String(user.id)).getDocument()
-        guard !document.exists else { return }
-        let user = UserPayload(
+    public func addUser(_ user: UserInfo) async throws -> UserInfo {
+        if let dbUser = try await getUser(user.id) {
+            return UserInfo(
+                id: dbUser.id,
+                photoURL: dbUser.photoURL,
+                firstName: dbUser.firstName,
+                lastName: dbUser.lastName
+            )
+        }
+        let userPayload = UserPayload(
             id: user.id,
             photoURL: user.photoURL,
             firstName: user.firstName,
@@ -175,7 +181,8 @@ public class FirebaseClient {
             role: .regular,
             pro: false
         )
-        try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
+        return user
     }
     
     public func updateUser(_ user: UserInfo) async throws {
@@ -192,8 +199,14 @@ public class FirebaseClient {
         try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
     }
     
-    public func getUser(_ id: Int) async throws -> UserPayload {
-        try await fs.collection(Collections.users).document(String(id)).getDocument(as: UserPayload.self)
+    public func getUser(_ id: Int) async throws -> UserPayload? {
+        do {
+            return try await fs.collection(Collections.users).document(String(id)).getDocument(as: UserPayload.self)
+        } catch let e as DecodingError {
+            return nil
+        } catch let e {
+            throw e
+        }
     }
     
     public func getAllUsers(instead id: Int) async throws -> [UserPayload] {
