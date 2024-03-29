@@ -32,6 +32,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
     private let audioPlayer: AVQueuePlayer
+    private let locationManager: AppLocationManager
     private let sharePostDeeplinkBody = "mf://post/"
     
     public init(
@@ -39,13 +40,15 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         authService: AuthService,
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVQueuePlayer,
-        firebaseClient: FirebaseClient
+        firebaseClient: FirebaseClient,
+        locationManager: AppLocationManager
     ) {
         self.navigationController = navigationController
         self.authService = authService
         self.debugTogglesHolder = debugTogglesHolder
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
+        self.locationManager = locationManager
     }
     
     public func start() {
@@ -152,7 +155,7 @@ private extension HomeCoordinator {
     
     func makeMapViewController() -> UIViewController {
         let repository = MapRepository(firebaseClient: firebaseClient, authService: authService)
-        let viewModel = MapViewModel(repository: repository)
+        let viewModel = MapViewModel(repository: repository, locationManager: locationManager)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
         

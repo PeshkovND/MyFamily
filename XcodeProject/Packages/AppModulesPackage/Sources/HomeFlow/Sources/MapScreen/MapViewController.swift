@@ -19,14 +19,11 @@ struct MapViewData {
 }
 
 final class MapViewController: BaseViewController<MapViewModel,
-                                MapViewEvent,
-                                MapViewState,
-                                MapViewController.ContentView> {
+                               MapViewEvent,
+                               MapViewState,
+                               MapViewController.ContentView> {
     
     private let colors = appDesignSystem.colors
-    
-    private let locationManager = CLLocationManager()
-    private let mapDefaultZoom = 1000.0
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var tableView: UITableView { contentView.tableView }
@@ -64,152 +61,73 @@ final class MapViewController: BaseViewController<MapViewModel,
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        checkLocationEnabled()
-        checkAuthorization()
     }
-
+    
     override func onViewState(_ viewState: MapViewState) {
         switch viewState {
         case .loaded:
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
-            tableView.reloadData()
-            viewModel.personsNotAtHome.forEach { elem in
-                let annotation = MapQuickEventUserAnnotation(
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: elem.coordinate.latitude,
-                        longitude: elem.coordinate.longitude
-                    ),
-                    photo: elem.userImageURL,
-                    title: elem.name,
-                    status: elem.status
-                )
-                
-                mapView.addAnnotation(annotation)
-            }
-            
-            guard let coordinate = viewModel.homeCoordinate else { return }
-            
-            let annotation = MapHomeAnnotation(
-                coordinate: CLLocationCoordinate2D(
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude
-                ),
-                persons: viewModel.personsAtHome
-            )
-            homeButton.alpha = 1
-            mapView.addAnnotation(annotation)
+            self.onDataLoaded()
         case .loading:
             homeButton.alpha = 0
             meButton.alpha = 0
-        default:
+        case .zoomedTo(location: let location):
+            let region = MKCoordinateRegion(
+                center: location,
+                latitudinalMeters: self.viewModel.mapDefaultZoom,
+                longitudinalMeters: self.viewModel.mapDefaultZoom
+            )
+            self.mapView.setRegion(region, animated: true)
+        case .initial:
             break
+        case .failed:
+            break
+        case .currentUserLocationLoaded:
+            self.meButton.alpha = 1
+            self.mapView.showsUserLocation = true
         }
     }
     
-    private func configureView() {
-        meButton.onTap = zoomToCurrentUser
-        homeButton.onTap = zoomToHome
-        tableView.refreshControl = refreshControl
-    }
-    
-    private func zoomToHome() {
-        guard let coordinate = self.viewModel.homeCoordinate else { return }
+    private func onDataLoaded() {
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+        tableView.reloadData()
+        viewModel.personsNotAtHome.forEach { elem in
+            let annotation = MapQuickEventUserAnnotation(
+                coordinate: CLLocationCoordinate2D(
+                    latitude: elem.coordinate.latitude,
+                    longitude: elem.coordinate.longitude
+                ),
+                photo: elem.userImageURL,
+                title: elem.name,
+                status: elem.status
+            )
+            
+            mapView.addAnnotation(annotation)
+        }
         
-        let region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
+        guard let coordinate = viewModel.homeCoordinate else { return }
+        
+        let annotation = MapHomeAnnotation(
+            coordinate: CLLocationCoordinate2D(
                 latitude: coordinate.latitude,
                 longitude: coordinate.longitude
             ),
-            latitudinalMeters: self.mapDefaultZoom,
-            longitudinalMeters: self.mapDefaultZoom
+            persons: viewModel.personsAtHome
         )
-        self.mapView.setRegion(region, animated: true)
+        homeButton.alpha = 1
+        mapView.addAnnotation(annotation)
     }
     
-    private func zoomToCurrentUser() {
-        if let location = self.locationManager.location?.coordinate {
-            let region = MKCoordinateRegion(
-                center: location,
-                latitudinalMeters: self.mapDefaultZoom,
-                longitudinalMeters: self.mapDefaultZoom
-            )
-            self.mapView.setRegion(region, animated: true)
-        }
+    private func configureView() {
+        meButton.onTap = { self.viewModel.onViewEvent(.currentUserTapped) }
+        homeButton.onTap = { self.viewModel.onViewEvent(.homeTapped) }
+        tableView.refreshControl = refreshControl
     }
     
-    private func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-    }
-    
-    private func checkLocationEnabled() {
-        DispatchQueue.global().async {
-            if CLLocationManager.locationServicesEnabled() {
-                self.setupLocationManager()
-            } else {
-                let alert = UIAlertController(
-                    title: "Error",
-                    message: "Please enable location services",
-                    preferredStyle: .alert
-                )
-                
-                self.present(alert, animated: true)
-            }
-        }
-    }
-    
-    private func checkAuthorization() {
-        // swiftlint:disable closure_body_length
-            switch self.locationManager.authorizationStatus {
-            case .notDetermined:
-                self.locationManager.requestWhenInUseAuthorization()
-                self.locationManager.requestAlwaysAuthorization()
-            case .restricted:
-                break
-            case .denied:
-                let alert = UIAlertController(
-                    title: "Error",
-                    message: "Please enable always-on location",
-                    preferredStyle: .alert
-                )
-                self.present(alert, animated: true)
-            case .authorizedAlways:
-                self.mapView.showsUserLocation = true
-                self.locationManager.startUpdatingLocation()
-            case .authorizedWhenInUse:
-                self.locationManager.requestAlwaysAuthorization()
-            @unknown default:
-                break
-            }
-    }
-
     @objc
     private func onPullToRefresh() {
         refreshControl.beginRefreshing()
         viewModel.onViewEvent(.pullToRefresh)
-    }
-}
-
-extension MapViewController: CLLocationManagerDelegate {
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if needFocusOnUser {
-            if let location = locations.last?.coordinate {
-                let region = MKCoordinateRegion(
-                    center: location,
-                    latitudinalMeters: mapDefaultZoom,
-                    longitudinalMeters: mapDefaultZoom
-                )
-                mapView.setRegion(region, animated: true)
-                meButton.alpha = 1
-                needFocusOnUser = false
-            }
-        }
-    }
-    
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        checkAuthorization()
     }
 }
 
@@ -258,25 +176,9 @@ extension MapViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         68
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
-        let item = viewModel.persons[indexPath.row]
-        
-        if item.status == .atHome {
-            zoomToHome()
-            return
-        }
-        
-        let region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
-                latitude: item.coordinate.latitude,
-                longitude: item.coordinate.longitude
-            ),
-            latitudinalMeters: mapDefaultZoom,
-            longitudinalMeters: mapDefaultZoom
-        )
-        mapView.setRegion(region, animated: true)
+        viewModel.onViewEvent(.userTapped(at: indexPath.row))
     }
 }
 

@@ -3,6 +3,7 @@ import AppEntities
 import AppServices
 import AppBaseFlow
 import AVKit
+import CoreLocation
 
 // MARK: - Context
 
@@ -30,6 +31,8 @@ enum MapViewState: Stubable {
     case loading
     case loaded
     case failed(error: MapContext.ScreenError)
+    case zoomedTo(location: CLLocationCoordinate2D)
+    case currentUserLocationLoaded
 
     static var stub: MapViewState { .initial }
 }
@@ -44,4 +47,7 @@ enum MapViewEvent {
     case viewDidLoad
     case `deinit`
     case pullToRefresh
+    case homeTapped
+    case userTapped(at: Int)
+    case currentUserTapped
 }
