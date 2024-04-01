@@ -280,6 +280,18 @@ public class FirebaseClient {
             .setValue(userStatus.dictionary())
     }
     
+    public func setUserCoordinates(userId: Int, coordinates: Position) async throws {
+        let lastUserStatus = try await getUserStatus(userId)
+        let currentUserStatus = UserStatus(
+            userId: userId,
+            lastOnline: lastUserStatus.lastOnline,
+            position: coordinates
+        )
+        try await self.db.child(Collections.statuses)
+            .child(String(currentUserStatus.userId))
+            .setValue(currentUserStatus.dictionary())
+    }
+    
     public func getUserStatus(_ id: Int) async throws -> UserStatus {
         let snapshot = try await self.db.child(Collections.statuses)
             .child(String(id))

@@ -250,29 +250,36 @@ private extension AppCoordinator {
         guard let timer = self.timer else { return }
         timer.schedule(deadline: .now(), repeating: .seconds(300))
         timer.setEventHandler {
-            Task {
-                let currentDate = Date()
-                let calendar = Calendar.current
-                var dateComponents = DateComponents()
-                dateComponents.minute = 5
-                guard
-                    let newDate = calendar.date(byAdding: dateComponents, to: currentDate),
-                    let userId = self.authService.account?.id
-                else { return }
-                let dateFormatter = AppDateFormatter()
-                let dateString = dateFormatter.toString(newDate)
-                
-                let userStatus = UserStatus(
-                    userId: userId,
-                    lastOnline: dateString,
-                    position: Position(
-                        lat: self.locationManager.lastLocation?.latitude ?? 0.0,
-                        lng: self.locationManager.lastLocation?.longitude ?? 0.0)
-                )
-                try await self.firebaseClient.setUserStatus(userStatus)
-            }
+            self.sendUserStatusTask()
         }
         timer.resume()
+    }
+    
+    private func sendUserStatusTask() {
+        Task {
+            let currentDate = Date()
+            let calendar = Calendar.current
+            var dateComponents = DateComponents()
+            dateComponents.minute = 5
+            guard
+                let newDate = calendar.date(byAdding: dateComponents, to: currentDate),
+                let userId = self.authService.account?.id,
+                let location = self.locationManager.lastLocation
+            else { return }
+            let dateFormatter = AppDateFormatter()
+            let dateString = dateFormatter.toString(newDate)
+            
+            
+            let userStatus = UserStatus(
+                userId: userId,
+                lastOnline: dateString,
+                position: Position(
+                    lat: location.latitude,
+                    lng: location.longitude
+                )
+            )
+            try await self.firebaseClient.setUserStatus(userStatus)
+        }
     }
 }
 
