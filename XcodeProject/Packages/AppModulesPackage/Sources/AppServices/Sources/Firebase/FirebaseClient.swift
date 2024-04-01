@@ -251,10 +251,13 @@ public class FirebaseClient {
             .setData(comment.dictionary())
     }
     
-    public func getCommentsOnPost(_ id: UUID) async throws -> [CommentPayload] {
+    public func getCommentsOnPost(_ id: UUID) async throws -> Result<[CommentPayload], FirebaseClientError> {
         let collection = fs.collection(Collections.comments)
         let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
         let snapshot = try await query.getDocuments()
+        if snapshot.metadata.isFromCache {
+            return .failure(.fetchingError)
+        }
         var result: [CommentPayload] = []
         for doc in snapshot.documents {
             do {
@@ -264,7 +267,7 @@ public class FirebaseClient {
                 continue
             }
         }
-        return result
+        return .success(result)
     }
     
     public func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {

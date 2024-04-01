@@ -24,7 +24,7 @@ final class PostRepository {
         async let usersTask = firebaseClient.getAllUsers()
         
         let postResult = try await postTask
-        let comments = try await commentsTask
+        let commentsResult = try await commentsTask
         let usersResult = try await usersTask
         
         var users: [UserPayload] = []
@@ -48,6 +48,18 @@ final class PostRepository {
                 post = postPayload
             }
         }
+        
+        var comments: [CommentPayload] = []
+        switch commentsResult {
+        case .success(let commentsPayload):
+            comments = commentsPayload
+            try await swiftDataManager.setAllComments(comments: comments)
+        case .failure:
+            if let commentsPayload = try await swiftDataManager.getPostComments(id: id) {
+                comments = commentsPayload
+            }
+        }
+        
         guard let post = post else { return (nil, []) }
         let commentCount = comments.filter { elem in
             elem.postId == post.id

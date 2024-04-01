@@ -83,6 +83,22 @@ public class SwiftDataMAnager {
         }
     }
     
+    public func getPostComments(id: UUID) async throws -> [CommentPayload]? {
+        let predicate = #Predicate<CommentModel> { $0.postId == id }
+        let descriptor = FetchDescriptor<CommentModel>(predicate: predicate)
+        
+        guard let commentsModels = try context?.fetch(descriptor) else { return nil }
+        return commentsModels.map { elem in
+            CommentPayload(
+                id: elem.id,
+                userId: elem.userId,
+                postId: elem.postId,
+                text: elem.text,
+                date: elem.date
+            )
+        }
+    }
+    
     public func setAllComments(comments: [CommentPayload]) async throws {
         comments.forEach { elem in
             let commentModel = CommentModel(
