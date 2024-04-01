@@ -6,10 +6,12 @@ import AppServices
 final class NewsRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let swiftDataManager: SwiftDataMAnager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataMAnager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.swiftDataManager = swiftDataManager
     }
     
     // swiftlint:disable function_body_length
@@ -23,6 +25,23 @@ final class NewsRepository {
         let comments = try await commentsTask
         let users = try await usersTask
         
+        var result: [NewsViewPost] = []
+            
+        switch posts {
+        case .success(let posts):
+            result = parsePosts(posts: posts, users: users, comments: comments)
+            try await self.swiftDataManager.setAllPosts(posts: posts)
+        case .failure(_):
+            guard let posts = try await self.swiftDataManager.getAllPosts() else { return [] }
+            print(posts.first)
+            result = parsePosts(posts: posts, users: users, comments: comments)
+        }
+        
+        return result
+    }
+    
+    private func parsePosts(posts: [PostPayload], users: [UserPayload], comments: [CommentPayload]) -> [NewsViewPost] {
+        guard let userId = authService.account?.id else { return [] }
         var result: [NewsViewPost] = []
             
         for post in posts {

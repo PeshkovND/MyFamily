@@ -32,6 +32,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
     private let audioPlayer: AVQueuePlayer
+    private let swiftDataManager: SwiftDataMAnager
     private let sharePostDeeplinkBody = "mf://post/"
     
     public init(
@@ -39,13 +40,15 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         authService: AuthService,
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVQueuePlayer,
-        firebaseClient: FirebaseClient
+        firebaseClient: FirebaseClient,
+        swiftDataManager: SwiftDataMAnager
     ) {
         self.navigationController = navigationController
         self.authService = authService
         self.debugTogglesHolder = debugTogglesHolder
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
+        self.swiftDataManager = swiftDataManager
     }
     
     public func start() {
@@ -100,7 +103,11 @@ private extension HomeCoordinator {
     
     func makeNewsViewController() -> UINavigationController {
         
-        let repository = NewsRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = NewsRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle

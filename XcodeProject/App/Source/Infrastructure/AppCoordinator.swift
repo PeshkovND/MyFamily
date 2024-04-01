@@ -30,6 +30,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private lazy var logoutNotifier: LogoutNotifier = authService
     private var accountHolder: AccountHolder { authService }
     private let firebaseClient = AppContainer.provideFirebaseClinet()
+    private let swiftDataManager = AppContainer.provideSwiftDataManager()
     private var timer: DispatchSourceTimer?
 
     // Debug panel for testing
@@ -137,7 +138,8 @@ private extension AppCoordinator {
             authService: authService,
             debugTogglesHolder: debugTogglesHolder,
             audioPlayer: audioPlayer,
-            firebaseClient: firebaseClient
+            firebaseClient: firebaseClient, 
+            swiftDataManager: swiftDataManager
         )
         let token = coordinator.events.sink { event in
             switch event {
