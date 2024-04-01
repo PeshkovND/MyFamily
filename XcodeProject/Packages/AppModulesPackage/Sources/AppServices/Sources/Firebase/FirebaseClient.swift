@@ -213,21 +213,6 @@ public class FirebaseClient {
         }
     }
     
-    public func getAllUsers(instead id: Int) async throws -> [UserPayload] {
-        let snapshot = try await fs.collection(Collections.users).getDocuments()
-        var result: [UserPayload] = []
-        for doc in snapshot.documents {
-            do {
-                let user = try doc.data(as: UserPayload.self)
-                guard user.id != id else { continue }
-                result.append(user)
-            } catch {
-                continue
-            }
-        }
-        return result
-    }
-    
     public func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
         let snapshot = try await fs.collection(Collections.users).getDocuments()
         if snapshot.metadata.isFromCache {

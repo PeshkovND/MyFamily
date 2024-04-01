@@ -7,9 +7,9 @@ import Utilities
 final class PostRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
-    private let swiftDataManager: SwiftDataMAnager
+    private let swiftDataManager: SwiftDataManager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataMAnager) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataManager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
         self.swiftDataManager = swiftDataManager

@@ -3,7 +3,7 @@
 import Foundation
 import SwiftData
 
-public class SwiftDataMAnager {
+public class SwiftDataManager {
     private let container: ModelContainer?
     private let context: ModelContext?
     
