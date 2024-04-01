@@ -51,4 +51,34 @@ public class SwiftDataMAnager {
         
         try context?.save()
     }
+    
+    public func getAllComments() async throws -> [CommentPayload]? {
+        let descriptor = FetchDescriptor<CommentModel>()
+        
+        guard let commentsModels = try context?.fetch(descriptor) else { return nil }
+        return commentsModels.map { elem in
+            CommentPayload(
+                id: elem.id,
+                userId: elem.userId,
+                postId: elem.postId,
+                text: elem.text,
+                date: elem.date
+            )
+        }
+    }
+    
+    public func setAllComments(comments: [CommentPayload]) async throws {
+        comments.forEach { elem in
+            let commentModel = CommentModel(
+                id: elem.id,
+                userId: elem.userId,
+                postId: elem.postId,
+                text: elem.text,
+                date: elem.date
+            )
+            context?.insert(commentModel)
+        }
+        
+        try context?.save()
+    }
 }

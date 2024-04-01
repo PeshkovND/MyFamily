@@ -7,10 +7,12 @@ import Utilities
 final class ProfileRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let swiftDataManager: SwiftDataMAnager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataMAnager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.swiftDataManager = swiftDataManager
     }
     
     func getProfile(id: Int) async throws -> Profile? {
@@ -21,7 +23,19 @@ final class ProfileRepository {
         async let statusTask = firebaseClient.getUserStatus(id)
         
         let posts = try await postsTask
-        let comments = try await commentsTask
+        let commentsResult = try await commentsTask
+        var comments: [CommentPayload] = []
+        
+        switch commentsResult {
+        case .success(let commentsPayload):
+            comments = commentsPayload
+            try await swiftDataManager.setAllComments(comments: commentsPayload)
+        case .failure(_):
+            if let commentsPayload = try await swiftDataManager.getAllComments() {
+                comments = commentsPayload
+            }
+        }
+        
         guard let user = try await userTask else { return nil }
         let status = try await statusTask
         let username = user.firstName + " " + user.lastName

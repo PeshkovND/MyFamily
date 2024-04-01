@@ -12,7 +12,7 @@ private final class Collections {
     static let statuses = "Statuses"
 }
 
-enum FirebaseClientError: Error {
+public enum FirebaseClientError: Error {
     case parsingError
     case fetchingError
 }
@@ -264,8 +264,11 @@ public class FirebaseClient {
         return result
     }
     
-    public func getAllComments() async throws -> [CommentPayload] {
+    public func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {
         let snapshot = try await fs.collection(Collections.comments).getDocuments()
+        if snapshot.metadata.isFromCache {
+            return .failure(.fetchingError)
+        }
         var result: [CommentPayload] = []
         for doc in snapshot.documents {
             do {
@@ -275,7 +278,7 @@ public class FirebaseClient {
                 continue
             }
         }
-        return result
+        return .success(result)
     }
     
     public func setUserStatus(_ userStatus: UserStatus) async throws {

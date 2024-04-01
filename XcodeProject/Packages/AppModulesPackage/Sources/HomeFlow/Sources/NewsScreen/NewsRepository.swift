@@ -21,19 +21,29 @@ final class NewsRepository {
         async let commentsTask = firebaseClient.getAllComments()
         async let usersTask = firebaseClient.getAllUsers()
         
-        let posts = try await postsTask
-        let comments = try await commentsTask
+        let postsResult = try await postsTask
+        let commentsResult = try await commentsTask
         let users = try await usersTask
+        
+        var comments: [CommentPayload] = []
+        switch commentsResult {
+        case .success(let commentsPayload):
+            comments = commentsPayload
+            try await swiftDataManager.setAllComments(comments: commentsPayload)
+        case .failure(_):
+            if let commentsPayload = try await swiftDataManager.getAllComments() {
+                comments = commentsPayload
+            }
+        }
         
         var result: [NewsViewPost] = []
             
-        switch posts {
+        switch postsResult {
         case .success(let posts):
             result = parsePosts(posts: posts, users: users, comments: comments)
             try await self.swiftDataManager.setAllPosts(posts: posts)
         case .failure(_):
             guard let posts = try await self.swiftDataManager.getAllPosts() else { return [] }
-            print(posts.first)
             result = parsePosts(posts: posts, users: users, comments: comments)
         }
         
