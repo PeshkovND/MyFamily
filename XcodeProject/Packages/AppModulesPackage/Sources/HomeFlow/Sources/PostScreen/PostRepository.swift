@@ -7,10 +7,12 @@ import Utilities
 final class PostRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let swiftDataManager: SwiftDataMAnager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataMAnager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.swiftDataManager = swiftDataManager
     }
     
     // swiftlint:disable function_body_length
@@ -22,7 +24,18 @@ final class PostRepository {
         
         let post = try await postTask
         let comments = try await commentsTask
-        let users = try await usersTask
+        let usersResult = try await usersTask
+        
+        var users: [UserPayload] = []
+        switch usersResult {
+        case .success(let usersPayload):
+            users = usersPayload
+            try await swiftDataManager.setAllUsers(users: usersPayload)
+        case .failure(_):
+            if let usersPayload = try await swiftDataManager.getAllUsers() {
+                users = usersPayload
+            }
+        }
         
         let commentCount = comments.filter { elem in
             elem.postId == post.id

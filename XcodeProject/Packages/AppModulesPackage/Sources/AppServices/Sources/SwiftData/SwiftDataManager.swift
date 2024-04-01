@@ -81,4 +81,36 @@ public class SwiftDataMAnager {
         
         try context?.save()
     }
+    
+    public func getAllUsers() async throws -> [UserPayload]? {
+        let descriptor = FetchDescriptor<UserModel>()
+        
+        guard let models = try context?.fetch(descriptor) else { return nil }
+        return models.map { elem in
+            UserPayload(
+                id: elem.id,
+                photoURL: elem.photoURL,
+                firstName: elem.firstName,
+                lastName: elem.lastName,
+                role: elem.role,
+                pro: elem.pro
+            )
+        }
+    }
+    
+    public func setAllUsers(users: [UserPayload]) async throws {
+        users.forEach { elem in
+            let model = UserModel(
+                id: elem.id,
+                photoURL: elem.photoURL,
+                firstName: elem.firstName,
+                lastName: elem.lastName,
+                role: elem.role,
+                pro: elem.pro
+            )
+            context?.insert(model)
+        }
+        
+        try context?.save()
+    }
 }

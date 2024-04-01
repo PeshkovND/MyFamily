@@ -228,8 +228,11 @@ public class FirebaseClient {
         return result
     }
     
-    public func getAllUsers() async throws -> [UserPayload] {
+    public func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
         let snapshot = try await fs.collection(Collections.users).getDocuments()
+        if snapshot.metadata.isFromCache {
+            return .failure(.fetchingError)
+        }
         var result: [UserPayload] = []
         for doc in snapshot.documents {
             do {
@@ -239,7 +242,7 @@ public class FirebaseClient {
                 continue
             }
         }
-        return result
+        return .success(result)
     }
     
     public func addComment(_ comment: CommentPayload) async throws {

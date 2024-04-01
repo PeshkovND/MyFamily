@@ -283,7 +283,11 @@ private extension HomeCoordinator {
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
-        let repository = PostRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = PostRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer, repository: repository)
         viewModel.outputEventPublisher
             .sink { [weak self] event in

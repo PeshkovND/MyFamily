@@ -23,7 +23,7 @@ final class NewsRepository {
         
         let postsResult = try await postsTask
         let commentsResult = try await commentsTask
-        let users = try await usersTask
+        let usersResult = try await usersTask
         
         var comments: [CommentPayload] = []
         switch commentsResult {
@@ -33,6 +33,17 @@ final class NewsRepository {
         case .failure(_):
             if let commentsPayload = try await swiftDataManager.getAllComments() {
                 comments = commentsPayload
+            }
+        }
+        
+        var users: [UserPayload] = []
+        switch usersResult {
+        case .success(let usersPayload):
+            users = usersPayload
+            try await swiftDataManager.setAllUsers(users: usersPayload)
+        case .failure(_):
+            if let usersPayload = try await swiftDataManager.getAllUsers() {
+                users = usersPayload
             }
         }
         
