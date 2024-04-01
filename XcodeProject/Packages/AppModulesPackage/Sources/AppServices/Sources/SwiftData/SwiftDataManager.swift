@@ -35,6 +35,22 @@ public class SwiftDataMAnager {
         }
     }
     
+    public func getPost(id: UUID) async throws -> PostPayload? {
+        let predicate = #Predicate<PostModel> { $0.id == id }
+        let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
+        
+        guard let postModel = try context?.fetch(descriptor).first else { return nil }
+        return PostPayload(
+            id: postModel.id,
+            text: postModel.text,
+            contentURL: postModel.contentURL,
+            contentType: postModel.contentType,
+            userId: postModel.userId,
+            date: postModel.date,
+            likes: postModel.likes
+        )
+    }
+    
     public func setAllPosts(posts: [PostPayload]) async throws {
         posts.forEach { elem in
             let postModel = PostModel(

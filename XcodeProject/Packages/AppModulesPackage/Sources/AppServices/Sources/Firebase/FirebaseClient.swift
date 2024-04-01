@@ -343,8 +343,12 @@ public class FirebaseClient {
         }
     }
     
-    public func getPost(_ id: UUID) async throws -> PostPayload {
-        try await fs.collection(Collections.posts).document(id.uuidString).getDocument(as: PostPayload.self)
+    public func getPost(_ id: UUID) async throws -> Result<PostPayload, FirebaseClientError> {
+        let document = try await fs.collection(Collections.posts).document(id.uuidString).getDocument()
+        if document.metadata.isFromCache {
+            return .failure(.fetchingError)
+        }
+        return .success(try document.data(as: PostPayload.self))
     }
     
     public func getUsersPosts(userId: Int) async throws -> [PostPayload] {

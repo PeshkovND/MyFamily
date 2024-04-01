@@ -118,14 +118,19 @@ final class ProfileRepository {
     
     public func likeOrUnlikePost(postId: UUID) async throws {
         guard let userId = authService.account?.id else { return }
-        var post = try await firebaseClient.getPost(postId)
-        if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
-            post.likes.remove(at: index)
-        } else {
-            post.likes.append(userId)
-            
+        let postResult = try await firebaseClient.getPost(postId)
+        switch postResult {
+        case .success(var post):
+            if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
+                post.likes.remove(at: index)
+            } else {
+                post.likes.append(userId)
+                
+            }
+            try await self.firebaseClient.addPost(post)
+        case .failure(_):
+            return
         }
-        try await self.firebaseClient.addPost(post)
     }
     
     public func isCurrentUser(id: Int) -> Bool {

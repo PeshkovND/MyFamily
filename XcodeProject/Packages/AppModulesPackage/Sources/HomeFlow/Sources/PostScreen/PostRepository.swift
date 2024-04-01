@@ -16,13 +16,14 @@ final class PostRepository {
     }
     
     // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
     func getPostData(id: UUID) async throws -> (NewsViewPost?, [Comment]) {
         guard let userId = authService.account?.id else { return (nil, []) }
         async let postTask = firebaseClient.getPost(id)
         async let commentsTask = firebaseClient.getCommentsOnPost(id)
         async let usersTask = firebaseClient.getAllUsers()
         
-        let post = try await postTask
+        let postResult = try await postTask
         let comments = try await commentsTask
         let usersResult = try await usersTask
         
@@ -31,12 +32,23 @@ final class PostRepository {
         case .success(let usersPayload):
             users = usersPayload
             try await swiftDataManager.setAllUsers(users: usersPayload)
-        case .failure(_):
+        case .failure:
             if let usersPayload = try await swiftDataManager.getAllUsers() {
                 users = usersPayload
             }
         }
         
+        var post: PostPayload? = nil
+        switch postResult {
+        case .success(let postPayload):
+            post = postPayload
+            try await swiftDataManager.setAllPosts(posts: [postPayload])
+        case .failure:
+            if let postPayload = try await swiftDataManager.getPost(id: id) {
+                post = postPayload
+            }
+        }
+        guard let post = post else { return (nil, []) }
         let commentCount = comments.filter { elem in
             elem.postId == post.id
         }.count
@@ -90,14 +102,19 @@ final class PostRepository {
     
     public func likeOrUnlikePost(postId: UUID) async throws {
         guard let userId = authService.account?.id else { return }
-        var post = try await firebaseClient.getPost(postId)
-        if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
-            post.likes.remove(at: index)
-        } else {
-            post.likes.append(userId)
-            
+        let postResult = try await firebaseClient.getPost(postId)
+        switch postResult {
+        case .success(var post):
+            if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
+                post.likes.remove(at: index)
+            } else {
+                post.likes.append(userId)
+                
+            }
+            try await self.firebaseClient.addPost(post)
+        case .failure(_):
+            return
         }
-        try await self.firebaseClient.addPost(post)
     }
     
     public func addComment(text: String, postId: UUID) async throws -> Comment? {
