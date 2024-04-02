@@ -387,7 +387,7 @@ private let testAppModules: [AppModule] = [
 
 let package = Package(
     name: appModulesPackageName,
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS("17.0")],
     products: productAppModules.map(\.libraryProduct),
     dependencies: externalPackages.map(\.dependency),
     targets: (productAppModules + testAppModules).map(\.target)

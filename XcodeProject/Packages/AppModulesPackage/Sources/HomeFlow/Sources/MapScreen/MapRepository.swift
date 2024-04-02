@@ -5,22 +5,44 @@ import Utilities
 final class MapRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let swiftDataManager: SwiftDataManager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataManager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.swiftDataManager = swiftDataManager
     }
     
     func getUsers() async throws -> [MapViewData] {
-        guard let userId = authService.account?.id else { return [] }
-        async let usersTask = firebaseClient.getAllUsers(instead: userId)
+        async let usersTask = firebaseClient.getAllUsers()
         async let statusesTask = firebaseClient.getAllUsersStatuses()
         
-        let users = try await usersTask
-        let statuses = try await statusesTask
+        let usersResult = try await usersTask
+        let statusesResult = try await statusesTask
+        
+        guard
+            let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                failureAction: { try await swiftDataManager.getAllUsers() }
+            ),
+            let statuses = try await firebaseClient.unwrapResult(
+                result: statusesResult,
+                successAction: { payload in try await swiftDataManager.setAllStatuses(statuses: payload) },
+                failureAction: { try await swiftDataManager.getAllStatuses() }
+            )
+        else { return [] }
+        return parseData(users: users, statuses: statuses)
+        
+    }
+    
+    private func parseData(users: [UserPayload], statuses: [UserStatus]) -> [MapViewData] {
+        guard let userId = authService.account?.id else { return [] }
         var result: [MapViewData] = []
+        
         for user in users {
             guard
+                user.id != userId,
                 let status = statuses.first(where: { $0.userId == user.id }),
                 let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position)
             else { continue }

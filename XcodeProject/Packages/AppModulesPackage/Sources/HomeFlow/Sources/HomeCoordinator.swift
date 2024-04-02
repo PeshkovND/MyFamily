@@ -32,6 +32,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
     private let audioPlayer: AVQueuePlayer
+    private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
     
     public init(
@@ -39,13 +40,15 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         authService: AuthService,
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVQueuePlayer,
-        firebaseClient: FirebaseClient
+        firebaseClient: FirebaseClient,
+        swiftDataManager: SwiftDataManager
     ) {
         self.navigationController = navigationController
         self.authService = authService
         self.debugTogglesHolder = debugTogglesHolder
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
+        self.swiftDataManager = swiftDataManager
     }
     
     public func start() {
@@ -100,7 +103,11 @@ private extension HomeCoordinator {
     
     func makeNewsViewController() -> UINavigationController {
         
-        let repository = NewsRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = NewsRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
@@ -128,7 +135,7 @@ private extension HomeCoordinator {
     
     func makeFamilyViewController() -> UIViewController {
                 
-        let repository = FamilyRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = FamilyRepository(firebaseClient: firebaseClient, authService: authService, swiftDataManager: swiftDataManager)
         let viewModel = FamilyViewModel(repository: repository)
         let viewController = FamilyViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarFamilyTitle
@@ -151,7 +158,11 @@ private extension HomeCoordinator {
     }
     
     func makeMapViewController() -> UIViewController {
-        let repository = MapRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = MapRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = MapViewModel(repository: repository)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
@@ -163,7 +174,11 @@ private extension HomeCoordinator {
     
     func makeProfileViewController() -> UIViewController {
         guard let userId = authService.account?.id else { return UIViewController() }
-        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = ProfileRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         
@@ -194,7 +209,11 @@ private extension HomeCoordinator {
     }
     
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
-        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = ProfileRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
@@ -268,7 +287,11 @@ private extension HomeCoordinator {
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
-        let repository = PostRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = PostRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer, repository: repository)
         viewModel.outputEventPublisher
             .sink { [weak self] event in

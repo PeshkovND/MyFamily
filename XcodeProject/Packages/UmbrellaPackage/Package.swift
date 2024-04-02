@@ -40,7 +40,7 @@ private let appModuleTargets: [Target.Dependency] = [
 
 let package = Package(
     name: umbrellaPackageName,
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS("17.0")],
     products: [
         .library(
             name: umbrellaPackageName,
