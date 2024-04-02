@@ -37,7 +37,6 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         posts[index] = postItem
     }
 
-    // swiftlint:disable function_body_length
     override func onViewEvent(_ event: NewsViewEvent) {
         switch event {
         case .deinit:

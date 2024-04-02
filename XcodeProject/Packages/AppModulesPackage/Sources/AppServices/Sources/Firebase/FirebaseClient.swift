@@ -361,7 +361,7 @@ public class FirebaseClient {
         try await self.fs.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
     }
       
-    public func getAllPosts() async throws -> Result<[PostPayload], Error> {
+    public func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.posts)
                 .order(by: "date", descending: true)
@@ -379,8 +379,8 @@ public class FirebaseClient {
                 }
             }
             return .success(result)
-        } catch let e {
-            return .failure(e)
+        } catch {
+            return .failure(.fetchingError)
         }
     }
     
@@ -448,5 +448,31 @@ public class FirebaseClient {
         uploadMetadata.contentType = "audio"
         _ = try await ref.putFileAsync(from: url)
         return try await ref.downloadURL()
+    }
+    
+    public func unwrapResult<T>(
+        result: Result<T, FirebaseClientError>,
+        successAction: (T) async throws -> Void,
+        failureAction: () async throws -> T?
+    ) async throws -> T? {
+        switch result {
+        case .success(let resultPayload):
+            do {
+                try await successAction(resultPayload)
+                return resultPayload
+            } catch let e {
+                throw e
+            }
+        case .failure(_):
+            do {
+                if let unwrappedData = try await failureAction() {
+                    return unwrappedData
+                } else {
+                    return nil
+                }
+            } catch let e {
+                throw e
+            }
+        }
     }
 }

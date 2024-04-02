@@ -14,9 +14,7 @@ final class NewsRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
     func getPosts() async throws -> [NewsViewPost] {
-        guard let userId = authService.account?.id else { return [] }
         async let postsTask = firebaseClient.getAllPosts()
         async let commentsTask = firebaseClient.getAllComments()
         async let usersTask = firebaseClient.getAllUsers()
@@ -25,40 +23,25 @@ final class NewsRepository {
         let commentsResult = try await commentsTask
         let usersResult = try await usersTask
         
-        var comments: [CommentPayload] = []
-        switch commentsResult {
-        case .success(let commentsPayload):
-            comments = commentsPayload
-            try await swiftDataManager.setAllComments(comments: commentsPayload)
-        case .failure(_):
-            if let commentsPayload = try await swiftDataManager.getAllComments() {
-                comments = commentsPayload
-            }
-        }
+        guard
+            let comments = try await firebaseClient.unwrapResult(
+                result: commentsResult,
+                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                failureAction: { try await swiftDataManager.getAllComments() }
+            ),
+            let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                failureAction: { try await swiftDataManager.getAllUsers() }
+            ),
+            let posts = try await firebaseClient.unwrapResult(
+                result: postsResult,
+                successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
+                failureAction: { try await self.swiftDataManager.getAllPosts() }
+            )
+        else { return [] }
         
-        var users: [UserPayload] = []
-        switch usersResult {
-        case .success(let usersPayload):
-            users = usersPayload
-            try await swiftDataManager.setAllUsers(users: usersPayload)
-        case .failure(_):
-            if let usersPayload = try await swiftDataManager.getAllUsers() {
-                users = usersPayload
-            }
-        }
-        
-        var result: [NewsViewPost] = []
-            
-        switch postsResult {
-        case .success(let posts):
-            result = parsePosts(posts: posts, users: users, comments: comments)
-            try await self.swiftDataManager.setAllPosts(posts: posts)
-        case .failure(_):
-            guard let posts = try await self.swiftDataManager.getAllPosts() else { return [] }
-            result = parsePosts(posts: posts, users: users, comments: comments)
-        }
-        
-        return result
+        return parsePosts(posts: posts, users: users, comments: comments)
     }
     
     private func parsePosts(posts: [PostPayload], users: [UserPayload], comments: [CommentPayload]) -> [NewsViewPost] {
@@ -116,7 +99,7 @@ final class NewsRepository {
                 
             }
             try await self.firebaseClient.addPost(post)
-        case .failure(_):
+        case .failure:
             return
         }
     }

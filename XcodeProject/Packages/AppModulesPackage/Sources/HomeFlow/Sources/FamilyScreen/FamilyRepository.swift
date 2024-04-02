@@ -13,38 +13,12 @@ final class FamilyRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
-    func getUsers() async throws -> [FamilyViewData] {
+    private func parseUsers(
+        users: [UserPayload],
+        statuses: [UserStatus]
+    ) -> [FamilyViewData] {
         guard let userId = authService.account?.id else { return [] }
-        async let usersTask = firebaseClient.getAllUsers()
-        async let statusesTask = firebaseClient.getAllUsersStatuses()
-        
-        let usersResult = try await usersTask
-        let statusesResult = try await statusesTask
         var result: [FamilyViewData] = []
-        
-        var users: [UserPayload] = []
-        switch usersResult {
-        case .success(let usersPayload):
-            users = usersPayload
-            try await swiftDataManager.setAllUsers(users: users)
-        case .failure(_):
-            if let usersPayload = try await swiftDataManager.getAllUsers() {
-                users = usersPayload
-            }
-        }
-        
-        var statuses: [UserStatus] = []
-        switch statusesResult {
-        case .success(let statusesPayload):
-            statuses = statusesPayload
-            try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
-        case .failure(_):
-            if let statusesPayload = try await swiftDataManager.getAllStatuses() {
-                statuses = statusesPayload
-            }
-        }
-        
         for user in users {
             guard
                 user.id != userId,
@@ -61,6 +35,33 @@ final class FamilyRepository {
         }
         
         return result
+    }
+    
+    func getUsers() async throws -> [FamilyViewData] {
+        async let usersTask = firebaseClient.getAllUsers()
+        async let statusesTask = firebaseClient.getAllUsersStatuses()
+        
+        let usersResult = try await usersTask
+        let statusesResult = try await statusesTask
+        
+        guard let users = try await firebaseClient.unwrapResult(
+            result: usersResult,
+            successAction: { users in try await swiftDataManager.setAllUsers(users: users) },
+            failureAction: { try await swiftDataManager.getAllUsers() }
+        ) else {
+            return []
+        }
+        guard let statuses = try await firebaseClient.unwrapResult(
+            result: statusesResult,
+            successAction: { statusesPayload in
+                try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
+            },
+            failureAction: { try await swiftDataManager.getAllStatuses() }
+        ) else {
+            return []
+        }
+
+        return parseUsers(users: users, statuses: statuses)
     }
     
     private func makeStatus(lastOnlineString: String, position: Position) -> PersonStatus? {

@@ -15,10 +15,7 @@ final class PostRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
-    // swiftlint:disable cyclomatic_complexity
     func getPostData(id: UUID) async throws -> (NewsViewPost?, [Comment]) {
-        guard let userId = authService.account?.id else { return (nil, []) }
         async let postTask = firebaseClient.getPost(id)
         async let commentsTask = firebaseClient.getCommentsOnPost(id)
         async let usersTask = firebaseClient.getAllUsers()
@@ -27,40 +24,31 @@ final class PostRepository {
         let commentsResult = try await commentsTask
         let usersResult = try await usersTask
         
-        var users: [UserPayload] = []
-        switch usersResult {
-        case .success(let usersPayload):
-            users = usersPayload
-            try await swiftDataManager.setAllUsers(users: usersPayload)
-        case .failure:
-            if let usersPayload = try await swiftDataManager.getAllUsers() {
-                users = usersPayload
-            }
-        }
+        guard 
+            let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                failureAction: { try await swiftDataManager.getAllUsers() }
+            ),
+            let post = try await firebaseClient.unwrapResult(
+                result: postResult,
+                successAction: { payload in try await swiftDataManager.setAllPosts(posts: [payload]) },
+                failureAction: { try await swiftDataManager.getPost(id: id) }
+            ),
+            let comments = try await firebaseClient.unwrapResult(
+                result: commentsResult,
+                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                failureAction: { try await swiftDataManager.getPostComments(id: id) }
+            )
+        else { return (nil, []) }
         
-        var post: PostPayload? = nil
-        switch postResult {
-        case .success(let postPayload):
-            post = postPayload
-            try await swiftDataManager.setAllPosts(posts: [postPayload])
-        case .failure:
-            if let postPayload = try await swiftDataManager.getPost(id: id) {
-                post = postPayload
-            }
-        }
-        
-        var comments: [CommentPayload] = []
-        switch commentsResult {
-        case .success(let commentsPayload):
-            comments = commentsPayload
-            try await swiftDataManager.setAllComments(comments: comments)
-        case .failure:
-            if let commentsPayload = try await swiftDataManager.getPostComments(id: id) {
-                comments = commentsPayload
-            }
-        }
-        
-        guard let post = post else { return (nil, []) }
+        let newsPost = makePost(post: post, comments: comments, users: users)
+        let newsComments = makeComments(comments: comments, users: users)
+        return (newsPost, newsComments)
+    }
+    
+    private func makePost(post: PostPayload, comments: [CommentPayload], users: [UserPayload]) -> NewsViewPost? {
+        guard let userId = authService.account?.id else { return nil }
         let commentCount = comments.filter { elem in
             elem.postId == post.id
         }.count
@@ -81,9 +69,9 @@ final class PostRepository {
         
         guard let user = users.first(where: { elem in
             elem.id == post.userId
-        }) else { return (nil, []) }
+        }) else { return nil }
         
-        let newsPost = NewsViewPost(
+        return NewsViewPost(
             id: post.id.uuidString,
             userId: post.userId,
             userImageURL: user.photoURL,
@@ -94,13 +82,15 @@ final class PostRepository {
             commentsCount: commentCount,
             isLiked: isLiked
         )
-            
+    }
+    
+    private func makeComments(comments: [CommentPayload], users: [UserPayload]) -> [Comment] {
         var newsComments: [Comment] = []
         for comment in comments {
             guard let user = users.first(where: { elem in
                 elem.id == comment.userId
             }) else { continue }
-        
+            
             let newsComment = Comment(
                 userId: user.id,
                 username: user.firstName + " " + user.lastName,
@@ -109,7 +99,7 @@ final class PostRepository {
             )
             newsComments.append(newsComment)
         }
-        return (newsPost, newsComments)
+        return newsComments
     }
     
     public func likeOrUnlikePost(postId: UUID) async throws {
@@ -141,7 +131,7 @@ final class PostRepository {
             date: dateString
         )
         try await firebaseClient.addComment(commentPayload)
-    
+        
         return Comment(
             userId: user.id,
             username: user.firstName + " " + user.lastName,

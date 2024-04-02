@@ -13,37 +13,32 @@ final class MapRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
     func getUsers() async throws -> [MapViewData] {
-        guard let userId = authService.account?.id else { return [] }
         async let usersTask = firebaseClient.getAllUsers()
         async let statusesTask = firebaseClient.getAllUsersStatuses()
         
         let usersResult = try await usersTask
         let statusesResult = try await statusesTask
+        
+        guard
+            let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                failureAction: { try await swiftDataManager.getAllUsers() }
+            ),
+            let statuses = try await firebaseClient.unwrapResult(
+                result: statusesResult,
+                successAction: { payload in try await swiftDataManager.setAllStatuses(statuses: payload) },
+                failureAction: { try await swiftDataManager.getAllStatuses() }
+            )
+        else { return [] }
+        return parseData(users: users, statuses: statuses)
+        
+    }
+    
+    private func parseData(users: [UserPayload], statuses: [UserStatus]) -> [MapViewData] {
+        guard let userId = authService.account?.id else { return [] }
         var result: [MapViewData] = []
-        
-        var users: [UserPayload] = []
-        switch usersResult {
-        case .success(let usersPayload):
-            users = usersPayload
-            try await swiftDataManager.setAllUsers(users: users)
-        case .failure(_):
-            if let usersPayload = try await swiftDataManager.getAllUsers() {
-                users = usersPayload
-            }
-        }
-        
-        var statuses: [UserStatus] = []
-        switch statusesResult {
-        case .success(let statusesPayload):
-            statuses = statusesPayload
-            try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
-        case .failure(_):
-            if let statusesPayload = try await swiftDataManager.getAllStatuses() {
-                statuses = statusesPayload
-            }
-        }
         
         for user in users {
             guard

@@ -140,7 +140,6 @@ final class NewsCell: UITableViewCell {
         
     }
     
-    // swiftlint:disable function_body_length
     private func setupLayout(model: Model) {
         setupContentConstraints(model: model)
         setupData(model: model)
@@ -168,6 +167,7 @@ final class NewsCell: UITableViewCell {
         }
     }
     
+    // swiftlint:disable function_body_length
     private func setupContentConstraints(model: Model) {
         
         if let contentText = model.contentLabel {

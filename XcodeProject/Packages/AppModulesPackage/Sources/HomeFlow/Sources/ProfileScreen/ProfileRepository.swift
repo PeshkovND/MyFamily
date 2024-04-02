@@ -15,76 +15,68 @@ final class ProfileRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
-    // swiftlint:disable cyclomatic_complexity
     func getProfile(id: Int) async throws -> Profile? {
-        guard let userId = authService.account?.id else { return nil }
         async let postsTask = firebaseClient.getUsersPosts(userId: id)
         async let commentsTask = firebaseClient.getAllComments()
         async let userTask = firebaseClient.getUser(id)
         async let statusTask = firebaseClient.getUserStatus(id)
         
         let postsResult = try await postsTask
-        
-        var posts: [PostPayload] = []
-        switch postsResult {
-        case .success(let postsPayload):
-            posts = postsPayload
-            try await self.swiftDataManager.setAllPosts(posts: posts)
-        case .failure:
-            if let postsPayload = try await self.swiftDataManager.getUserPosts(id: id) {
-                posts = postsPayload
-            }
-        }
-        
         let commentsResult = try await commentsTask
-        var comments: [CommentPayload] = []
-        
-        switch commentsResult {
-        case .success(let commentsPayload):
-            comments = commentsPayload
-            try await swiftDataManager.setAllComments(comments: commentsPayload)
-        case .failure(_):
-            if let commentsPayload = try await swiftDataManager.getAllComments() {
-                comments = commentsPayload
-            }
-        }
         let userResult = try await userTask
-        var user: UserPayload? = nil
-        switch userResult {
-        case .success(let userPayload):
-            user = userPayload
-            try await self.swiftDataManager.setAllUsers(users: [userPayload])
-        case .failure(_):
-            if let userPayload = try await swiftDataManager.getUser(id: id) {
-                user = userPayload
-            }
-        }
-        guard let user = user else { return nil }
         let statusResult = try await statusTask
-        var status: UserStatus? = nil
-        switch statusResult {
-        case .success(let statusPayload):
-            status = statusPayload
-            try await self.swiftDataManager.setAllStatuses(statuses: [statusPayload])
-        case .failure(_):
-            if let statusPayload = try await swiftDataManager.getUserStatus(id: id) {
-                status = statusPayload
-            }
-        }
-        guard let status = status else { return nil }
-        let username = user.firstName + " " + user.lastName
         
-        guard let personStatus = makeStatus(
-            lastOnlineString: status.lastOnline,
-            position: status.position
-        ) else { return nil }
+        guard
+            let posts = try await firebaseClient.unwrapResult(
+                result: postsResult,
+                successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
+                failureAction: { try await self.swiftDataManager.getUserPosts(id: id) }
+            ),
+            let comments = try await firebaseClient.unwrapResult(
+                result: commentsResult,
+                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                failureAction: { try await swiftDataManager.getAllComments() }
+            ),
+            let user = try await firebaseClient.unwrapResult(
+                result: userResult,
+                successAction: { payload in try await self.swiftDataManager.setAllUsers(users: [payload]) },
+                failureAction: { try await swiftDataManager.getUser(id: id) }
+            ),
+            let status = try await firebaseClient.unwrapResult(
+                result: statusResult,
+                successAction: { payload in try await self.swiftDataManager.setAllStatuses(statuses: [payload]) },
+                failureAction: { try await swiftDataManager.getUserStatus(id: id) }
+            )
+        else {
+            return nil
+        }
+        
+        return makeProfile(
+            id: id,
+            user: user,
+            status: status,
+            posts: posts,
+            comments: comments
+        )
+    }
+    
+    private func makeProfile(
+        id: Int,
+        user: UserPayload,
+        status: UserStatus,
+        posts: [PostPayload],
+        comments: [CommentPayload]
+    ) -> Profile? {
+        guard let userId = authService.account?.id,
+              let personStatus = makeStatus(
+                lastOnlineString: status.lastOnline,
+                position: status.position
+              ) else { return nil }
         let newsPosts = makePosts(posts: posts, comments: comments, currentUserId: userId, user: user)
-          
         let profile = Profile(
             id: id,
             userImageURL: user.photoURL,
-            name: username,
+            name: user.firstName + " " + user.lastName,
             status: personStatus,
             posts: newsPosts
         )
