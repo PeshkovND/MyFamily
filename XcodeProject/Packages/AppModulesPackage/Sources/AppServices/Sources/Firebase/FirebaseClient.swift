@@ -160,36 +160,50 @@ public struct PostPayload: Codable {
 
 public class FirebaseClient {
 
-    lazy var fs = Firestore.firestore()
-    var db: DatabaseReference
-    lazy var storage = Storage.storage().reference()
+    private var fs: Firestore
+    private var db: DatabaseReference
+    private lazy var storage = Storage.storage().reference()
     
     public init() {
         FirebaseApp.configure()
         let db = Database.database()
         db.isPersistenceEnabled = false
+        let settings = FirestoreSettings()
+        settings.isPersistenceEnabled = false
+        let fs = Firestore.firestore()
+        fs.settings = settings
+        self.fs = fs
         self.db = db.reference()
     }
     
-    public func addUser(_ user: UserInfo) async throws -> UserInfo {
-        if let dbUser = try await getUser(user.id) {
-            return UserInfo(
+    public func addUser(_ user: UserInfo) async throws -> Result<UserInfo,FirebaseClientError> {
+        let dbUserResult = try await getUser(user.id)
+        switch dbUserResult {
+        case .success(let dbUser):
+            let userInfo = UserInfo(
                 id: dbUser.id,
                 photoURL: dbUser.photoURL,
                 firstName: dbUser.firstName,
                 lastName: dbUser.lastName
             )
+            return .success(userInfo)
+        case .failure(let e):
+            switch e {
+            case .fetchingError:
+                return .failure(.fetchingError)
+            case .parsingError:
+                let userPayload = UserPayload(
+                    id: user.id,
+                    photoURL: user.photoURL,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: .regular,
+                    pro: false
+                )
+                try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
+                return .success(user)
+            }
         }
-        let userPayload = UserPayload(
-            id: user.id,
-            photoURL: user.photoURL,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: .regular,
-            pro: false
-        )
-        try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
-        return user
     }
     
     public func updateUser(_ user: UserInfo) async throws {
@@ -206,31 +220,39 @@ public class FirebaseClient {
         try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
     }
     
-    public func getUser(_ id: Int) async throws -> UserPayload? {
+    public func getUser(_ id: Int) async throws -> Result<UserPayload, FirebaseClientError> {
         do {
-            return try await fs.collection(Collections.users).document(String(id)).getDocument(as: UserPayload.self)
+            let snapshot = try await fs.collection(Collections.users).document(String(id)).getDocument()
+            if snapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+            return .success(try snapshot.data(as: UserPayload.self))
         } catch let e as DecodingError {
-            return nil
-        } catch let e {
-            throw e
+            return .failure(.parsingError)
+        } catch {
+            return .failure(.fetchingError)
         }
     }
     
     public func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
-        let snapshot = try await fs.collection(Collections.users).getDocuments()
-        if snapshot.metadata.isFromCache {
+        do {
+            let snapshot = try await fs.collection(Collections.users).getDocuments(source: .server)
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [UserPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let user = try doc.data(as: UserPayload.self)
+                    result.append(user)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
             return .failure(.fetchingError)
         }
-        var result: [UserPayload] = []
-        for doc in snapshot.documents {
-            do {
-                let user = try doc.data(as: UserPayload.self)
-                result.append(user)
-            } catch {
-                continue
-            }
-        }
-        return .success(result)
     }
     
     public func addComment(_ comment: CommentPayload) async throws {
@@ -240,39 +262,47 @@ public class FirebaseClient {
     }
     
     public func getCommentsOnPost(_ id: UUID) async throws -> Result<[CommentPayload], FirebaseClientError> {
-        let collection = fs.collection(Collections.comments)
-        let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
-        let snapshot = try await query.getDocuments()
-        if snapshot.metadata.isFromCache {
+        do {
+            let collection = fs.collection(Collections.comments)
+            let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
+            let snapshot = try await query.getDocuments()
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [CommentPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let comment = try doc.data(as: CommentPayload.self)
+                    result.append(comment)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
             return .failure(.fetchingError)
         }
-        var result: [CommentPayload] = []
-        for doc in snapshot.documents {
-            do {
-                let comment = try doc.data(as: CommentPayload.self)
-                result.append(comment)
-            } catch {
-                continue
-            }
-        }
-        return .success(result)
     }
     
     public func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {
-        let snapshot = try await fs.collection(Collections.comments).getDocuments()
-        if snapshot.metadata.isFromCache {
+        do {
+            let snapshot = try await fs.collection(Collections.comments).getDocuments()
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [CommentPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let comment = try doc.data(as: CommentPayload.self)
+                    result.append(comment)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
             return .failure(.fetchingError)
         }
-        var result: [CommentPayload] = []
-        for doc in snapshot.documents {
-            do {
-                let comment = try doc.data(as: CommentPayload.self)
-                result.append(comment)
-            } catch {
-                continue
-            }
-        }
-        return .success(result)
     }
     
     public func setUserStatus(_ userStatus: UserStatus) async throws {
@@ -281,18 +311,28 @@ public class FirebaseClient {
             .setValue(userStatus.dictionary())
     }
     
-    public func getUserStatus(_ id: Int) async throws -> UserStatus {
-        let snapshot = try await self.db.child(Collections.statuses)
-            .child(String(id))
-            .getData()
-        guard let value = snapshot.value,
-              let dict = value as? NSDictionary
-        else {
-            throw FirebaseClientError.parsingError
+    public func getUserStatus(_ id: Int) async throws -> Result<UserStatus, FirebaseClientError> {
+        let connectionTest = try await self.getAllUsers()
+        switch connectionTest {
+        case .success:
+            do {
+                let snapshot = try await self.db.child(Collections.statuses)
+                    .child(String(id))
+                    .getData()
+                guard let value = snapshot.value,
+                      let dict = value as? NSDictionary
+                else {
+                    throw FirebaseClientError.parsingError
+                }
+                let jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
+                let result = try JSONDecoder().decode(UserStatus.self, from: jsonData)
+                return .success(result)
+            } catch {
+                return .failure(.fetchingError)
+            }
+        case .failure(_):
+            return .failure(.fetchingError)
         }
-        let jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
-        let result = try JSONDecoder().decode(UserStatus.self, from: jsonData)
-        return result
     }
     
     public func getAllUsersStatuses() async throws -> Result<[UserStatus], FirebaseClientError> {
@@ -345,27 +385,38 @@ public class FirebaseClient {
     }
     
     public func getPost(_ id: UUID) async throws -> Result<PostPayload, FirebaseClientError> {
-        let document = try await fs.collection(Collections.posts).document(id.uuidString).getDocument()
-        if document.metadata.isFromCache {
+        do {
+            let document = try await fs.collection(Collections.posts).document(id.uuidString).getDocument()
+            if document.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            return .success(try document.data(as: PostPayload.self))
+        } catch {
             return .failure(.fetchingError)
         }
-        return .success(try document.data(as: PostPayload.self))
     }
     
-    public func getUsersPosts(userId: Int) async throws -> [PostPayload] {
-        let collection = fs.collection(Collections.posts)
-        let query = collection.whereField("userId", isEqualTo: userId).order(by: "date", descending: true)
-        let snapshot = try await query.getDocuments()
-        var result: [PostPayload] = []
-        for doc in snapshot.documents {
-            do {
-                let post = try doc.data(as: PostPayload.self)
-                result.append(post)
-            } catch {
-                continue
+    public func getUsersPosts(userId: Int) async throws -> Result<[PostPayload], FirebaseClientError> {
+        do {
+            let collection = fs.collection(Collections.posts)
+            let query = collection.whereField("userId", isEqualTo: userId).order(by: "date", descending: true)
+            let snapshot = try await query.getDocuments()
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
             }
+            var result: [PostPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let post = try doc.data(as: PostPayload.self)
+                    result.append(post)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
         }
-        return result
     }
     
     public func getHomePosition() -> Position {

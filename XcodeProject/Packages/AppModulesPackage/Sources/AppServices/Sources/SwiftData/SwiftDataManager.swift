@@ -51,6 +51,24 @@ public class SwiftDataManager {
         )
     }
     
+    public func getUserPosts(id: Int) async throws -> [PostPayload]? {
+        let predicate = #Predicate<PostModel> { $0.userId == id }
+        let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
+        
+        guard let postModels = try context?.fetch(descriptor) else { return nil }
+        return postModels.map { elem in
+            PostPayload(
+                id: elem.id,
+                text: elem.text,
+                contentURL: elem.contentURL,
+                contentType: elem.contentType,
+                userId: elem.userId,
+                date: elem.date,
+                likes: elem.likes
+            )
+        }
+    }
+    
     public func setAllPosts(posts: [PostPayload]) async throws {
         posts.forEach { elem in
             let postModel = PostModel(
@@ -130,6 +148,21 @@ public class SwiftDataManager {
         }
     }
     
+    public func getUser(id: Int) async throws -> UserPayload? {
+        let predicate = #Predicate<UserModel> { $0.id == id }
+        let descriptor = FetchDescriptor<UserModel>(predicate: predicate)
+        
+        guard let model = try context?.fetch(descriptor).first else { return nil }
+        return UserPayload(
+            id: model.id,
+            photoURL: model.photoURL,
+            firstName: model.firstName,
+            lastName: model.lastName,
+            role: model.role,
+            pro: model.pro
+        )
+    }
+    
     public func setAllUsers(users: [UserPayload]) async throws {
         users.forEach { elem in
             let model = UserModel(
@@ -170,5 +203,17 @@ public class SwiftDataManager {
                 position: elem.position
             )
         }
+    }
+    
+    public func getUserStatus(id: Int) async throws -> UserStatus? {
+        let predicate = #Predicate<UserStatusModel> { $0.userId == id }
+        let descriptor = FetchDescriptor<UserStatusModel>(predicate: predicate)
+        
+        guard let model = try context?.fetch(descriptor).first else { return nil }
+        return UserStatus(
+            userId: model.userId,
+            lastOnline: model.lastOnline,
+            position: model.position
+        )
     }
 }
