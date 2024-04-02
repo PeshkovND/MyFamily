@@ -13,13 +13,14 @@ final class MapRepository {
         self.swiftDataManager = swiftDataManager
     }
     
+    // swiftlint:disable function_body_length
     func getUsers() async throws -> [MapViewData] {
         guard let userId = authService.account?.id else { return [] }
         async let usersTask = firebaseClient.getAllUsers()
         async let statusesTask = firebaseClient.getAllUsersStatuses()
         
         let usersResult = try await usersTask
-        let statuses = try await statusesTask
+        let statusesResult = try await statusesTask
         var result: [MapViewData] = []
         
         var users: [UserPayload] = []
@@ -30,6 +31,17 @@ final class MapRepository {
         case .failure(_):
             if let usersPayload = try await swiftDataManager.getAllUsers() {
                 users = usersPayload
+            }
+        }
+        
+        var statuses: [UserStatus] = []
+        switch statusesResult {
+        case .success(let statusesPayload):
+            statuses = statusesPayload
+            try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
+        case .failure(_):
+            if let statusesPayload = try await swiftDataManager.getAllStatuses() {
+                statuses = statusesPayload
             }
         }
         

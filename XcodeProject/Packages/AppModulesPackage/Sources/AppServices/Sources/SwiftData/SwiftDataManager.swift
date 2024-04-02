@@ -145,4 +145,30 @@ public class SwiftDataManager {
         
         try context?.save()
     }
+    
+    public func setAllStatuses(statuses: [UserStatus]) async throws {
+        statuses.forEach { elem in
+            let model = UserStatusModel(
+                userId: elem.userId,
+                lastOnline: elem.lastOnline,
+                position: elem.position
+            )
+            context?.insert(model)
+        }
+        
+        try context?.save()
+    }
+    
+    public func getAllStatuses() async throws -> [UserStatus]? {
+        let descriptor = FetchDescriptor<UserStatusModel>()
+        
+        guard let models = try context?.fetch(descriptor) else { return nil }
+        return models.map { elem in
+            UserStatus(
+                userId: elem.userId,
+                lastOnline: elem.lastOnline,
+                position: elem.position
+            )
+        }
+    }
 }

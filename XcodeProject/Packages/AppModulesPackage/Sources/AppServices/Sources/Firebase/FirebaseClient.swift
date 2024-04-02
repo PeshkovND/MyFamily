@@ -161,11 +161,14 @@ public struct PostPayload: Codable {
 public class FirebaseClient {
 
     lazy var fs = Firestore.firestore()
-    lazy var db = Database.database().reference()
+    var db: DatabaseReference
     lazy var storage = Storage.storage().reference()
     
     public init() {
         FirebaseApp.configure()
+        let db = Database.database()
+        db.isPersistenceEnabled = false
+        self.db = db.reference()
     }
     
     public func addUser(_ user: UserInfo) async throws -> UserInfo {
@@ -292,16 +295,26 @@ public class FirebaseClient {
         return result
     }
     
-    public func getAllUsersStatuses() async throws -> [UserStatus] {
-        let snapshot = try await self.db.child(Collections.statuses).getData()
-        guard let value = snapshot.value,
-              let dict = value as? NSDictionary
-        else {
-            throw FirebaseClientError.parsingError
+    public func getAllUsersStatuses() async throws -> Result<[UserStatus], FirebaseClientError> {
+        let connectionTest = try await self.getAllUsers()
+        switch connectionTest {
+        case .success:
+            do {
+                let snapshot = try await self.db.child(Collections.statuses).getData()
+                guard let value = snapshot.value,
+                      let dict = value as? NSDictionary
+                else {
+                    throw FirebaseClientError.parsingError
+                }
+                let jsonData = try JSONSerialization.data(withJSONObject: dict.allValues, options: [])
+                let result = try JSONDecoder().decode([UserStatus].self, from: jsonData)
+                return .success(result)
+            } catch {
+                return .failure(.fetchingError)
+            }
+        case .failure:
+            return .failure(.fetchingError)
         }
-        let jsonData = try JSONSerialization.data(withJSONObject: dict.allValues, options: [])
-        let result = try JSONDecoder().decode([UserStatus].self, from: jsonData)
-        return result
     }
     
     public func addPost(_ post: PostPayload) async throws {

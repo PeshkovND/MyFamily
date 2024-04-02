@@ -13,13 +13,14 @@ final class FamilyRepository {
         self.swiftDataManager = swiftDataManager
     }
     
+    // swiftlint:disable function_body_length
     func getUsers() async throws -> [FamilyViewData] {
         guard let userId = authService.account?.id else { return [] }
         async let usersTask = firebaseClient.getAllUsers()
         async let statusesTask = firebaseClient.getAllUsersStatuses()
         
         let usersResult = try await usersTask
-        let statuses = try await statusesTask
+        let statusesResult = try await statusesTask
         var result: [FamilyViewData] = []
         
         var users: [UserPayload] = []
@@ -32,6 +33,18 @@ final class FamilyRepository {
                 users = usersPayload
             }
         }
+        
+        var statuses: [UserStatus] = []
+        switch statusesResult {
+        case .success(let statusesPayload):
+            statuses = statusesPayload
+            try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
+        case .failure(_):
+            if let statusesPayload = try await swiftDataManager.getAllStatuses() {
+                statuses = statusesPayload
+            }
+        }
+        
         for user in users {
             guard
                 user.id != userId,
