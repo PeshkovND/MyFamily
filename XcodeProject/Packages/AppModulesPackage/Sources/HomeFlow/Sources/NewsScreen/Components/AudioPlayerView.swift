@@ -214,6 +214,7 @@ final class AudioPlayerView: UIView {
     }
     
     private func addAudioToPlayer(url: URL?) {
+        player?.replaceCurrentItem(with: nil)
         guard let url = url else { return }
         storage?.async.entry(forKey: url.absoluteString) { result in
             let playerItem: CachingPlayerItem
@@ -228,8 +229,8 @@ final class AudioPlayerView: UIView {
             playerItem.delegate = self
             DispatchQueue.main.async {
                 self.player?.replaceCurrentItem(with: playerItem)
-                self.player?.seek(to: CMTime.zero)
                 self.setupSliderObserver()
+//                self.setupTrackEndedObserver()
             }
         }
     }
@@ -243,6 +244,8 @@ final class AudioPlayerView: UIView {
         removeSliderObserver()
         self.slider.value = 0
         self.playButton.setImage(playImage, for: .normal)
+        self.player?.replaceCurrentItem(with: nil)
+        self.player?.pause()
         removeTrackEndedObserver()
     }
 }
