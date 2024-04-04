@@ -137,6 +137,13 @@ enum ExternalModules {
             from: "10.22.1"
         )
     )
+    static let cache = ExternalPackage(
+        productName: "Cache",
+        dependency: .package(
+            url: "https://github.com/hyperoslo/Cache.git",
+            from: "7.1.0"
+        )
+    )
     static let firebaseAnalytics = ExternalPackage(
         productName: "FirebaseAnalytics",
         packageName: "firebase-ios-sdk",
@@ -210,14 +217,6 @@ enum ExternalModules {
         dependency: .package(
             url: "https://github.com/JonasGessner/JGProgressHUD.git",
             from: "2.2.0"
-        )
-    )
-    
-    static let cachingPlayerItem = ExternalPackage(
-        productName: "CachingPlayerItem",
-        dependency: .package(
-            url: "https://github.com/sukov/CachingPlayerItem.git",
-            from: "1.0.5"
         )
     )
 }
@@ -340,7 +339,7 @@ enum InternalModules {
             appBaseFlowModule,
             appServicesModule,
             devToolsModule,
-            ExternalModules.cachingPlayerItem
+            ExternalModules.cache
         ]
     )
 }
@@ -359,9 +358,9 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.sdWebImageWebPCoder,
     ExternalModules.snapKit,
     ExternalModules.progressHUD,
-    ExternalModules.cachingPlayerItem,
     ExternalModules.firebase,
-    ExternalModules.vkIdSdk
+    ExternalModules.vkIdSdk,
+    ExternalModules.cache
 ]
 
 /// Defines use of product modules to build tha app
