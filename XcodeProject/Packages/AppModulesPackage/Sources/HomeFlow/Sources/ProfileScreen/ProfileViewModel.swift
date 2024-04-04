@@ -14,9 +14,9 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     private let strings = appDesignSystem.strings
     private let userId: Int
     private let repository: ProfileRepository
-    var audioPlayer: AVQueuePlayer
+    var audioPlayer: AVPlayer
     
-    init(userId: Int, audioPlayer: AVQueuePlayer, repository: ProfileRepository) {
+    init(userId: Int, audioPlayer: AVPlayer, repository: ProfileRepository) {
         self.audioPlayer = audioPlayer
         self.userId = userId
         self.repository = repository

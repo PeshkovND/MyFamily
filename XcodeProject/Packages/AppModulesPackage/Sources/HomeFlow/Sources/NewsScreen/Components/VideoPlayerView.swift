@@ -10,10 +10,10 @@ final class VideoPlayerView: UIView {
     private let videoPlayerView = VideoPlayer()
     private var playerLooper: AVPlayerLooper?
     private var token: NSKeyValueObservation?
-    let diskConfig = DiskConfig(name: "DiskCache")
-    let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 10)
+    private let diskConfig = DiskConfig(name: "DiskCache")
+    private let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 10)
     
-    lazy var storage: Cache.Storage<String, Data>? = {
+    private lazy var storage: Cache.Storage<String, Data>? = {
         return try? Cache.Storage(
             diskConfig: diskConfig,
             memoryConfig: memoryConfig,
@@ -44,7 +44,7 @@ final class VideoPlayerView: UIView {
         return label
     }()
     
-    init(audioPlayer: AVQueuePlayer? = nil) {
+    init(audioPlayer: AVPlayer? = nil) {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
@@ -104,7 +104,7 @@ final class VideoPlayerView: UIView {
     }
     
     @objc func playerItemDidReachEnd(notification: Notification) {
-        if let playerItem = notification.object as? AVPlayerItem {
+        if let _ = notification.object as? AVPlayerItem {
             player.seek(to: CMTime.zero)
         }
     }
@@ -126,7 +126,7 @@ final class VideoPlayerView: UIView {
                 playerItem = CachingPlayerItem(url: videoUrl, customFileExtension: "mp4")
             case .success(let entry):
                 // The track is cached.
-                playerItem = CachingPlayerItem(data: entry.object, mimeType: "video/mp4", fileExtension: "mp4")
+                playerItem = CachingPlayerItem(data: entry.object, url: videoUrl, mimeType: "video/mp4", fileExtension: "mp4")
             }
             playerItem.delegate = self
             self.player.replaceCurrentItem(with: playerItem)

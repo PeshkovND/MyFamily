@@ -18,7 +18,7 @@ final class NewsCell: UITableViewCell {
         let shareButtonTapAction: () -> Void
         
         let likesModel: LikesModel
-        let audioPlayer: AVQueuePlayer
+        let audioPlayer: AVPlayer
     }
     
     struct LikesModel {

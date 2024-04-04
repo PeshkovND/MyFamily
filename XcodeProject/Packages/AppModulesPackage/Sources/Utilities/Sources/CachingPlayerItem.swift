@@ -226,12 +226,10 @@ open class CachingPlayerItem: AVPlayerItem {
     }
     
     /// Is used for playing from Data.
-    public init(data: Data, mimeType: String, fileExtension: String) {
-        
-        guard let fakeUrl = URL(string: cachingPlayerItemScheme + "://whatever/file.\(fileExtension)") else {
+    public init(data: Data, url: URL, mimeType: String, fileExtension: String) {
+        guard let fakeUrl = URL(string: cachingPlayerItemScheme + "://whatever/\(url.lastPathComponent).\(fileExtension)") else {
             fatalError("internal inconsistency")
         }
-        
         self.url = fakeUrl
         self.initialScheme = nil
         

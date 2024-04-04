@@ -13,10 +13,10 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
     private let repository: NewsRepository
-    var audioPlayer: AVQueuePlayer
+    var audioPlayer: AVPlayer
     var posts: [NewsViewPost] = []
     
-    init(audioPlayer: AVQueuePlayer, repository: NewsRepository) {
+    init(audioPlayer: AVPlayer, repository: NewsRepository) {
         self.audioPlayer = audioPlayer
         self.repository = repository
         super.init()
