@@ -129,6 +129,14 @@ enum ExternalModules {
             from: "5.6.1"
         )
     )
+    static let snackbar = ExternalPackage(
+        productName: "SnackBar",
+        packageName: "SnackBar.swift",
+        dependency: .package(
+            url: "https://github.com/ahmedAlmasri/SnackBar.swift.git",
+            from: "0.1.2"
+        )
+    )
     static let firebase = ExternalPackage(
         productName: "Firebase",
         packageName: "firebase-ios-sdk",
@@ -246,7 +254,8 @@ enum InternalModules {
         dependencies: [
             utilitiesModule,
             ExternalModules.tweeTextField,
-            ExternalModules.progressHUD
+            ExternalModules.progressHUD,
+            ExternalModules.snackbar
         ]
     )
     static let appDesignSystemTestsModule: AppModule = .makeTestModule(
@@ -360,7 +369,8 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.progressHUD,
     ExternalModules.firebase,
     ExternalModules.vkIdSdk,
-    ExternalModules.cache
+    ExternalModules.cache,
+    ExternalModules.snackbar
 ]
 
 /// Defines use of product modules to build tha app
