@@ -190,4 +190,13 @@ extension VideoPlayerView: CachingPlayerItemDelegate {
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
         print("\(bytesDownloaded) / \(bytesExpected)")
     }
+    
+    func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
+        DispatchQueue.main.async {
+            self.activityIndicator.stopAnimating()
+            self.videoPlayerView.alpha = 0
+            self.player.replaceCurrentItem(with: nil)
+            self.errorLabel.alpha = 1
+        }
+    }
 }

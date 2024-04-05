@@ -45,6 +45,8 @@
 "sign_in_vk" = "Sign in with VK";
 "sign_in_title" = "Welcome to MyFamily";
 "sign_in_subtitle" = "Please log in to stay in touch with your family";
+"sign_in_auth_error_title" = "Auth error";
+"sign_in_auth_error_message" = "Please try again later";
 
 "tabbar_map_title" = "Map";
 "tabbar_news_title" = "News";

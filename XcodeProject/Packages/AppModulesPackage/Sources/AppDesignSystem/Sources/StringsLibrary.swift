@@ -61,6 +61,8 @@ extension StringsLibrary {
         )
     }
     public var signInVerifyContentTitle: String { localized("sign_in_verify_content_title") }
+    public var signInAuthErrorTitle: String { localized("sign_in_auth_error_title") }
+    public var signInAuthErrorMessage: String { localized("sign_in_auth_error_message") }
     public var signInVerifyPlaceholder: String { localized("sign_in_verify_placeholder") }
     public var signInResentButtonActive: String { localized("sign_in_resent_button_active") }
     public func signInResentButtonDisable(formattedTimer: String) -> String {
