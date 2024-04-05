@@ -104,8 +104,10 @@ final class VideoPlayerView: UIView {
     }
     
     @objc func playerItemDidReachEnd(notification: Notification) {
-        if let _ = notification.object as? AVPlayerItem {
-            player.seek(to: CMTime.zero)
+        if let item = notification.object as? AVPlayerItem {
+            if item == player.currentItem {
+                player.seek(to: CMTime.zero)
+            }
         }
     }
     

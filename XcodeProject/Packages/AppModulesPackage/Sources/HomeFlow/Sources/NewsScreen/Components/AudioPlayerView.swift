@@ -112,7 +112,7 @@ final class AudioPlayerView: UIView {
     private func setupTrackEndedObserver() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(audioDidEnded),
+            selector: #selector(audioDidEnded(notification:)),
             name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
             object: player?.currentItem
         )
@@ -240,13 +240,17 @@ final class AudioPlayerView: UIView {
         playButton.addGestureRecognizer(tap)
     }
     
-    @objc private func audioDidEnded() {
-        removeSliderObserver()
-        self.slider.value = 0
-        self.playButton.setImage(playImage, for: .normal)
-        self.player?.replaceCurrentItem(with: nil)
-        self.player?.pause()
-        removeTrackEndedObserver()
+    @objc private func audioDidEnded(notification: Notification) {
+        if let item = notification.object as? AVPlayerItem {
+            if item == player?.currentItem {
+                removeSliderObserver()
+                self.slider.value = 0
+                self.playButton.setImage(playImage, for: .normal)
+                self.player?.replaceCurrentItem(with: nil)
+                self.player?.pause()
+                removeTrackEndedObserver()
+            }
+        }
     }
 }
 
