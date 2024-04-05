@@ -30,6 +30,8 @@ final class NewsCell: UITableViewCell {
         static let cardLabelConstraintValue = CGFloat(16)
         static let containerWidthMultiplier = CGFloat(0.8)
     }
+    
+    private var isAudioPlayerPlaingBeforeBigPlayerOpening = false
 
     private let userImageView: UIImageView = {
         let userImageView = UIImageView()
@@ -192,10 +194,17 @@ final class NewsCell: UITableViewCell {
             contentView.addSubview(videoContainer)
             videoContainer.addVideoToPlayer(videoUrl: url)
             videoContainer.onOpenBigPlayer = {
-                model.audioPlayer.pause()
+                if model.audioPlayer.timeControlStatus == .playing {
+                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = true
+                    model.audioPlayer.pause()
+                } else {
+                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = false
+                }
             }
             videoContainer.onCloseBigPlayer = {
-                model.audioPlayer.play()
+                if self.isAudioPlayerPlaingBeforeBigPlayerOpening {
+                    model.audioPlayer.play()
+                }
             }
             videoContainer.snp.removeConstraints()
             videoContainer.snp.makeConstraints {
