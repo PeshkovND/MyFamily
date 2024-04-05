@@ -31,7 +31,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let debugTogglesHolder: DebugTogglesHolder
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
-    private let audioPlayer: AVQueuePlayer
+    private let audioPlayer: AVPlayer
     private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
     
@@ -39,7 +39,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         navigationController: UINavigationController,
         authService: AuthService,
         debugTogglesHolder: DebugTogglesHolder,
-        audioPlayer: AVQueuePlayer,
+        audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
         swiftDataManager: SwiftDataManager
     ) {

@@ -28,12 +28,12 @@
       }
     },
     {
-      "identity" : "cachingplayeritem",
+      "identity" : "cache",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sukov/CachingPlayerItem.git",
+      "location" : "https://github.com/hyperoslo/Cache.git",
       "state" : {
-        "revision" : "613ee44cac1e4fd97a58d1b98c8a79ddd17e27cb",
-        "version" : "1.0.8"
+        "revision" : "f44a8f6b5ec27730198725ccc542fef0d1cc6b3d",
+        "version" : "7.1.0"
       }
     },
     {

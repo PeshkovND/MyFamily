@@ -3,16 +3,28 @@ import AVKit
 import UIKit
 import AVFoundation
 import AppDesignSystem
+import Cache
+import Utilities
 
 final class VideoPlayerView: UIView {
     private let videoPlayerView = VideoPlayer()
     private var playerLooper: AVPlayerLooper?
     private var token: NSKeyValueObservation?
+    private let diskConfig = DiskConfig(name: "DiskCache")
+    private let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 10)
+    
+    private lazy var storage: Cache.Storage<String, Data>? = {
+        return try? Cache.Storage(
+            diskConfig: diskConfig,
+            memoryConfig: memoryConfig,
+            transformer: TransformerFactory.forCodable(ofType: Data.self)
+        )
+    }()
     
     var onOpenBigPlayer: (() -> Void)?
     var onCloseBigPlayer: (() -> Void)?
     
-    @objc private var player = AVQueuePlayer()
+    @objc private var player = AVPlayer()
     
     private(set) lazy var activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .medium)
@@ -32,7 +44,7 @@ final class VideoPlayerView: UIView {
         return label
     }()
     
-    init(audioPlayer: AVQueuePlayer? = nil) {
+    init(audioPlayer: AVPlayer? = nil) {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
@@ -58,27 +70,43 @@ final class VideoPlayerView: UIView {
     }
     
     private func initPlayer() {
-        player.removeAllItems()
         errorLabel.alpha = 0
         videoPlayerView.alpha = 0
         videoPlayerView.player = player
         addGestureRecognizers()
-        
+        player.actionAtItemEnd = .none
         player.volume = 0.0
         
         token = player.observe(\.currentItem) { (player, _) in
             if player.currentItem?.asset.isPlayable == true {
-                self.errorLabel.alpha = 0
-                self.activityIndicator.stopAnimating()
-                self.videoPlayerView.alpha = 1
+                DispatchQueue.main.async {
+                    self.errorLabel.alpha = 0
+                    self.activityIndicator.stopAnimating()
+                    self.videoPlayerView.alpha = 1
+                }
             }
             
             if player.currentItem?.asset.isPlayable == false {
-                self.activityIndicator.stopAnimating()
-                self.videoPlayerView.alpha = 0
-                self.player.removeAllItems()
-                self.errorLabel.alpha = 1
-                player.removeAllItems()
+                DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating()
+                    self.videoPlayerView.alpha = 0
+                    self.player.replaceCurrentItem(with: nil)
+                    self.errorLabel.alpha = 1
+                }
+            }
+        }
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(playerItemDidReachEnd(notification:)),
+                                               name: .AVPlayerItemDidPlayToEndTime,
+                                               object: player.currentItem)
+
+    }
+    
+    @objc func playerItemDidReachEnd(notification: Notification) {
+        if let item = notification.object as? AVPlayerItem {
+            if item == player.currentItem {
+                player.seek(to: CMTime.zero)
             }
         }
     }
@@ -88,35 +116,27 @@ final class VideoPlayerView: UIView {
     }
     
     func play() {
-        DispatchQueue.main.async {
-            self.player.play()
-        }
+        self.player.play()
     }
     
     public func addVideoToPlayer(videoUrl: URL) {
-        self.player.removeAllItems()
-        let asset = AVURLAsset(url: videoUrl)
-        let keys: [String] = ["playable"]
-        
-        // swiftlint:disable closure_body_length
-        asset.loadValuesAsynchronously(forKeys: keys) {
-            var error: NSError? = nil
-            let status = asset.statusOfValue(forKey: "playable", error: &error)
-            switch status {
-            case .loaded:
-                DispatchQueue.main.async {
-                    let item = AVPlayerItem(asset: asset)
-                    self.player.insert(item, after: nil)
-                    self.playerLooper = AVPlayerLooper(player: self.player, templateItem: item)
-                }
-            case .failed:
+        storage?.async.entry(forKey: videoUrl.absoluteString) { result in
+            let playerItem: CachingPlayerItem
+            switch result {
+            case .failure:
+                // The track is not cached.
+                playerItem = CachingPlayerItem(url: videoUrl, customFileExtension: "mp4")
+            case .success(let entry):
+                // The track is cached.
+                playerItem = CachingPlayerItem(data: entry.object, url: videoUrl, mimeType: "video/mp4", fileExtension: "mp4")
+            }
+            playerItem.delegate = self
+            self.player.replaceCurrentItem(with: playerItem)
+            self.player.automaticallyWaitsToMinimizeStalling = false
+            DispatchQueue.main.async {
+                self.errorLabel.alpha = 0
                 self.activityIndicator.stopAnimating()
-                self.videoPlayerView.alpha = 0
-                self.player.removeAllItems()
-                self.errorLabel.alpha = 1
-                self.player.removeAllItems()
-            default:
-                break
+                self.videoPlayerView.alpha = 1
             }
         }
     }
@@ -158,5 +178,16 @@ extension VideoPlayerView: UIViewControllerTransitioningDelegate {
         self.player.volume = 0.0
         self.onCloseBigPlayer?()
         return nil
+    }
+}
+
+extension VideoPlayerView: CachingPlayerItemDelegate {
+    func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data) {
+        // A track is downloaded. Saving it to the cache asynchronously.
+        storage?.async.setObject(data, forKey: playerItem.url.absoluteString) { _ in }
+    }
+    
+    func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
+        print("\(bytesDownloaded) / \(bytesExpected)")
     }
 }

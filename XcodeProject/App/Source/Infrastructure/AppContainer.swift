@@ -12,9 +12,10 @@ import AVFoundation
 
 struct AppContainer {
     
-    private static var audioPlayer: AVQueuePlayer = {
-        let player = AVQueuePlayer()
+    private static var audioPlayer: AVPlayer = {
+        let player = AVPlayer()
         player.allowsExternalPlayback = true
+        player.actionAtItemEnd = .none
         return player
     }()
     
@@ -116,7 +117,7 @@ extension AppContainer {
 
     static func provideAppCoordinator() -> Coordinator { AppCoordinator() }
 
-    static func provideAudioPlayer() -> AVQueuePlayer { audioPlayer }
+    static func provideAudioPlayer() -> AVPlayer { audioPlayer }
     
     static func provideEnv() -> Env { env }
 

@@ -137,11 +137,19 @@ extension NewsViewController: UITableViewDataSource {
 extension NewsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? NewsCell else { return }
-        cell.startVideo()
+        switch viewModel.posts[indexPath.row].mediaContent {
+        case .Video:
+            cell.startVideo()
+        default: break
+        }
     }
     
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? NewsCell else { return }
-        cell.stopVideo()
+        switch viewModel.posts[indexPath.row].mediaContent {
+        case .Video:
+            cell.stopVideo()
+        default: break
+        }
     }
 }

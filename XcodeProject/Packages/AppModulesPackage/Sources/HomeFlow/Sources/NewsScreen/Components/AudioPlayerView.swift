@@ -3,13 +3,25 @@ import AVKit
 import UIKit
 import AVFoundation
 import AppDesignSystem
+import Utilities
+import Cache
 
 final class AudioPlayerView: UIView {
-    @objc var player: AVQueuePlayer?
+    @objc var player: AVPlayer?
     var audioURL: URL?
     private var token: NSKeyValueObservation?
     private var changeTrackToken: NSKeyValueObservation?
     private var timeObserver: Any?
+    private let diskConfig = DiskConfig(name: "DiskCache")
+    private let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 10)
+    
+    private lazy var storage: Cache.Storage<String, Data>? = {
+        return try? Cache.Storage(
+            diskConfig: diskConfig,
+            memoryConfig: memoryConfig,
+            transformer: TransformerFactory.forCodable(ofType: Data.self)
+        )
+    }()
     
     private let playButton: ActionButton = {
         let button = ActionButton()
@@ -66,9 +78,9 @@ final class AudioPlayerView: UIView {
     
     @objc
     private func sliderDidMoved() {
-        
         if let asset = player?.currentItem?.asset as? AVURLAsset,
-           asset.url == self.audioURL {
+           let audioURLLastPathComponent = self.audioURL?.lastPathComponent,
+           asset.url.lastPathComponent == audioURLLastPathComponent + ".mp3" {
             let time = CMTime(
                 seconds: Double(slider.value),
                 preferredTimescale: 1000
@@ -100,7 +112,7 @@ final class AudioPlayerView: UIView {
     private func setupTrackEndedObserver() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(audioDidEnded),
+            selector: #selector(audioDidEnded(notification:)),
             name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
             object: player?.currentItem
         )
@@ -123,7 +135,8 @@ final class AudioPlayerView: UIView {
     
     func setupPlayerData() {
         if let asset = player?.currentItem?.asset as? AVURLAsset {
-            if asset.url == self.audioURL {
+            if let audioURLLastPathComponent = self.audioURL?.lastPathComponent,
+            asset.url.lastPathComponent == audioURLLastPathComponent + ".mp3" {
                 removeSliderObserver()
                 slider.value = Float(player?.currentItem?.currentTime().seconds ?? 0)
                 setupSliderObserver()
@@ -147,7 +160,8 @@ final class AudioPlayerView: UIView {
         }
         changeTrackToken = player?.observe(\.currentItem) { (player, _) in
             if let asset = player.currentItem?.asset as? AVURLAsset,
-               asset.url != self.audioURL {
+               let audioURLLastPathComponent = self.audioURL?.lastPathComponent,
+               asset.url.lastPathComponent != audioURLLastPathComponent + ".mp3" {
                 self.changeTrack()
             }
         }
@@ -160,14 +174,15 @@ final class AudioPlayerView: UIView {
     }
     
     private func changeTrack() {
-        removeSliderObserver()
+        self.removeSliderObserver()
         self.slider.value = 0
-        self.playButton.setImage(playImage, for: .normal)
+        self.playButton.setImage(self.playImage, for: .normal)
     }
     
     @objc func playButtonTapped() {
         if let asset = player?.currentItem?.asset as? AVURLAsset,
-           asset.url == self.audioURL {
+           let audioURLLastPathComponent = self.audioURL?.lastPathComponent,
+           asset.url.lastPathComponent == audioURLLastPathComponent + ".mp3" {
             if player?.timeControlStatus == .playing {
                 pause()
             } else {
@@ -199,12 +214,25 @@ final class AudioPlayerView: UIView {
     }
     
     private func addAudioToPlayer(url: URL?) {
+        player?.replaceCurrentItem(with: nil)
         guard let url = url else { return }
-        player?.removeAllItems()
-        let asset = AVURLAsset(url: url)
-        let item = AVPlayerItem(asset: asset)
-        player?.insert(item, after: player?.items().last)
-        setupSliderObserver()
+        storage?.async.entry(forKey: url.absoluteString) { result in
+            let playerItem: CachingPlayerItem
+            switch result {
+            case .failure:
+                // The track is not cached.
+                playerItem = CachingPlayerItem(url: url, customFileExtension: "mp3")
+            case .success(let entry):
+                // The track is cached.
+                playerItem = CachingPlayerItem(data: entry.object, url: url, mimeType: "audio/mp3", fileExtension: "mp3")
+            }
+            playerItem.delegate = self
+            DispatchQueue.main.async {
+                self.player?.replaceCurrentItem(with: playerItem)
+                self.setupSliderObserver()
+//                self.setupTrackEndedObserver()
+            }
+        }
     }
     
     private func addGestureRecognizers() {
@@ -212,10 +240,27 @@ final class AudioPlayerView: UIView {
         playButton.addGestureRecognizer(tap)
     }
     
-    @objc private func audioDidEnded() {
-        removeSliderObserver()
-        self.slider.value = 0
-        self.playButton.setImage(playImage, for: .normal)
-        removeTrackEndedObserver()
+    @objc private func audioDidEnded(notification: Notification) {
+        if let item = notification.object as? AVPlayerItem {
+            if item == player?.currentItem {
+                removeSliderObserver()
+                self.slider.value = 0
+                self.playButton.setImage(playImage, for: .normal)
+                self.player?.replaceCurrentItem(with: nil)
+                self.player?.pause()
+                removeTrackEndedObserver()
+            }
+        }
+    }
+}
+
+extension AudioPlayerView: CachingPlayerItemDelegate {
+    func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data) {
+        // A track is downloaded. Saving it to the cache asynchronously.
+        storage?.async.setObject(data, forKey: playerItem.url.absoluteString) { _ in }
+    }
+    
+    func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
+        print("\(bytesDownloaded) / \(bytesExpected)")
     }
 }
