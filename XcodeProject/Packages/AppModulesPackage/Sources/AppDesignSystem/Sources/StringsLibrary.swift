@@ -100,6 +100,7 @@ extension StringsLibrary {
     
     public var profilePostsTitle: String { localized("profile_posts_title") }
     public var profileSignOut: String { localized("profile_sign_out") }
+    public var profileGetPro: String { localized("profile_get_pro") }
     public var profileEditProfile: String { localized("profile_edit_profile") }
     
     public var postScreenTitle: String { localized("post_screen_title") }

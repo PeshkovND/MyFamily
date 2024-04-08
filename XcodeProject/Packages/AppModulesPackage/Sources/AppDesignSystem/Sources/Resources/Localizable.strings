@@ -58,6 +58,7 @@
 "profile_posts_title" = "Posts";
 "profile_sign_out" = "Sign out";
 "profile_edit_profile" = "Edit profile";
+"profile_get_pro" = "Get Pro";
 
 "post_screen_title" = "Post";
 "post_screen_comment_placeholder" = "Type a comment...";

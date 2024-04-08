@@ -40,6 +40,11 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
     ) { _ in self.editProfileTapped() }
     
+    private lazy var getProAction = UIAction(
+        title: appDesignSystem.strings.profileGetPro,
+        image: UIImage(systemName: "crown")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+    ) { _ in self.viewModel.onViewEvent(.getProTapped) }
+    
     private lazy var signOutAction = UIAction(
         title: appDesignSystem.strings.profileSignOut,
         image: UIImage(systemName: "door.left.hand.open")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
@@ -82,7 +87,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         if viewModel.isCurrentUser() {
             let menu = UIMenu(
                 options: .displayInline,
-                children: [editProfileAction, signOutAction]
+                children: [editProfileAction, getProAction, signOutAction]
             )
             let barImage = UIImage(systemName: "gearshape")?.withTintColor(
                 colors.backgroundSecondaryVariant,

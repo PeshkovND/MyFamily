@@ -197,6 +197,15 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let repository = GetProRepository(
+                        firebaseClient: firebaseClient,
+                        authService: authService,
+                        swiftDataManager: swiftDataManager
+                    )
+                    let viewModel = GetProViewModel(repository: repository)
+                    let viewController = GetProViewController(viewModel: viewModel)
+                    self.tabBarController.present(viewController, animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -233,6 +242,15 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let repository = GetProRepository(
+                        firebaseClient: firebaseClient,
+                        authService: authService,
+                        swiftDataManager: swiftDataManager
+                    )
+                    let viewModel = GetProViewModel(repository: repository)
+                    let viewController = GetProViewController(viewModel: viewModel)
+                    self.tabBarController.present(viewController, animated: true)
                 }
             }
             .store(in: &setCancelable)
