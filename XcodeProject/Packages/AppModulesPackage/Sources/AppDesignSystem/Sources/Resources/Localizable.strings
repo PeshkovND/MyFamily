@@ -73,3 +73,8 @@
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
 "edit_profile_surname_title" = "Surname";
+
+"get_pro_header" = "Get Pro Status now";
+"get_pro_first_advantage" = "Pro status will allow you to stand out among your family. Your first and last name will be highlighted in gold.";
+"get_pro_second_advantage" = "Keep your family always in the know instead with Pro status. Each family member will receive a notification if you make a new post.";
+"get_pro_buy" = "Buy";

@@ -28,7 +28,7 @@ enum GetProViewState: Stubable {
 
     case initial
     case loading
-    case loaded(UserInfo)
+    case loaded
     case alreadyBuyed
     case failed
 

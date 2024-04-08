@@ -24,17 +24,14 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
         case .buyTapped:
             break
         case .viewDidLoad:
-            getProfile()
+            getIsPremiumInfo()
         case.deinit:
             break
         }
     }
     
-    
-    private func getProfile() {
-        self.userInfo = self.repository.getCurrentUserInfo()
-        guard let userInfo = self.userInfo else { return }
-        self.viewState = .loaded(userInfo)
+    private func getIsPremiumInfo() {
+        self.viewState = .loaded
     }
     
     private func makeScreenError(from appError: AppError) -> ProfileContext.ScreenError? {
