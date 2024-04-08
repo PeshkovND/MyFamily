@@ -28,7 +28,7 @@ enum GetProViewState: Stubable {
 
     case initial
     case loading
-    case loaded
+    case loaded(GetProModel)
     case alreadyBuyed
     case failed
 
@@ -47,4 +47,5 @@ enum GetProViewEvent {
     case viewDidLoad
     case `deinit`
     case buyTapped
+    case closeTapped
 }

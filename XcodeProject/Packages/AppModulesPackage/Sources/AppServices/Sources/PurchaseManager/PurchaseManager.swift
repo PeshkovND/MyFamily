@@ -12,7 +12,7 @@ public class PurchaseManager {
         return !self.purchasedProductIDs.isEmpty
     }
     
-    init() {
+    public init() {
         updates = observeTransactionUpdates()
     }
     

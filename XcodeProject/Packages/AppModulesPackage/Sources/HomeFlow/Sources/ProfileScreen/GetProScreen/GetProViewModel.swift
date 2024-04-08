@@ -1,4 +1,5 @@
 import UIKit
+import StoreKit
 import AVFoundation
 import Combine
 import AppEntities
@@ -13,25 +14,41 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
     private let strings = appDesignSystem.strings
     private let repository: GetProRepository
     private var userInfo: UserInfo?
+    private var product: Product?
     
     init(repository: GetProRepository) {
         self.repository = repository
         super.init()
+        self.viewState = .loading
     }
     
     override func onViewEvent(_ event: GetProViewEvent) {
         switch event {
         case .buyTapped:
-            break
+            Task {
+                guard let product = self.product else { return }
+                try await self.repository.purchase(product, completionHandler: {
+                    DispatchQueue.main.async {
+                        self.outputEventSubject.send(.finish(isSuccess: true))
+                    }
+                })
+            }
         case .viewDidLoad:
-            getIsPremiumInfo()
+            getInfo()
         case.deinit:
             break
+        case .closeTapped:
+            self.outputEventSubject.send(.finish(isSuccess: false))
         }
     }
     
-    private func getIsPremiumInfo() {
-        self.viewState = .loaded
+    private func getInfo() {
+        Task {
+            self.product = try await self.repository.getProduct()
+            await MainActor.run {
+                self.viewState = .loaded(.init(cost: product?.displayPrice ?? ""))
+            }
+        }
     }
     
     private func makeScreenError(from appError: AppError) -> ProfileContext.ScreenError? {

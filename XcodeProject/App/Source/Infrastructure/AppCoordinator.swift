@@ -31,6 +31,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private var accountHolder: AccountHolder { authService }
     private let firebaseClient = AppContainer.provideFirebaseClinet()
     private let swiftDataManager = AppContainer.provideSwiftDataManager()
+    private let purchaseManager = AppContainer.providePurchaseManager()
     private var timer: DispatchSourceTimer?
 
     // Debug panel for testing
@@ -139,7 +140,8 @@ private extension AppCoordinator {
             debugTogglesHolder: debugTogglesHolder,
             audioPlayer: audioPlayer,
             firebaseClient: firebaseClient, 
-            swiftDataManager: swiftDataManager
+            swiftDataManager: swiftDataManager,
+            purchaseManager: purchaseManager
         )
         let token = coordinator.events.sink { event in
             switch event {

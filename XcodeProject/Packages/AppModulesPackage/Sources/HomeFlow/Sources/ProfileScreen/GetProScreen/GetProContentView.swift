@@ -72,10 +72,19 @@ extension GetProViewController {
             view.setImage(image, for: .normal)
             return view
         }()
+        
+        private(set) lazy var activityIndicator: UIActivityIndicatorView = {
+            let activityIndicator = UIActivityIndicatorView(style: .medium)
+            activityIndicator.color = appDesignSystem.colors.labelPrimary
+            activityIndicator.startAnimating()
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            return activityIndicator
+        }()
 
         override func setLayout() {
             addSubview(stackView)
             addSubview(closeButton)
+            addSubview(activityIndicator)
             
             stackView.addArrangedSubview(header)
             stackView.addArrangedSubview(firstAdvantageLabel)
@@ -101,6 +110,10 @@ extension GetProViewController {
                 $0.top.equalToSuperview()
                 $0.height.equalTo(48)
                 $0.width.equalTo(48)
+            }
+            
+            activityIndicator.snp.makeConstraints {
+                $0.edges.equalToSuperview()
             }
         }
     }

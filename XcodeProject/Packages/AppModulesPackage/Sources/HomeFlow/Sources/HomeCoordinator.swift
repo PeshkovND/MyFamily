@@ -34,6 +34,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let audioPlayer: AVPlayer
     private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
+    private let purchaseManager: PurchaseManager
     
     public init(
         navigationController: UINavigationController,
@@ -41,7 +42,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
-        swiftDataManager: SwiftDataManager
+        swiftDataManager: SwiftDataManager,
+        purchaseManager: PurchaseManager
     ) {
         self.navigationController = navigationController
         self.authService = authService
@@ -49,6 +51,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
         self.swiftDataManager = swiftDataManager
+        self.purchaseManager = purchaseManager
     }
     
     public func start() {
@@ -198,14 +201,14 @@ private extension HomeCoordinator {
                 case .editProfile:
                     openEditProfileScreen()
                 case .getPro:
-                    let repository = GetProRepository(
-                        firebaseClient: firebaseClient,
-                        authService: authService,
-                        swiftDataManager: swiftDataManager
-                    )
-                    let viewModel = GetProViewModel(repository: repository)
-                    let viewController = GetProViewController(viewModel: viewModel)
-                    self.tabBarController.present(viewController, animated: true)
+                    let (vc, vm) = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
+                    vm.outputEventPublisher.sink { event in
+                        switch event {
+                        case .finish(isSuccess: let isSuccess):
+                            vc.dismiss(animated: true, completion: nil)
+                        }
+                    }.store(in: &setCancelable)
                 }
             }
             .store(in: &setCancelable)
@@ -215,6 +218,18 @@ private extension HomeCoordinator {
         viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return nvc
+    }
+    
+    private func makeGetProScreen() -> (GetProViewController, GetProViewModel) {
+        let repository = GetProRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager,
+            purchaseManager: purchaseManager
+        )
+        let viewModel = GetProViewModel(repository: repository)
+        let viewController = GetProViewController(viewModel: viewModel)
+        return (viewController, viewModel)
     }
     
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
@@ -243,14 +258,14 @@ private extension HomeCoordinator {
                 case .editProfile:
                     openEditProfileScreen()
                 case .getPro:
-                    let repository = GetProRepository(
-                        firebaseClient: firebaseClient,
-                        authService: authService,
-                        swiftDataManager: swiftDataManager
-                    )
-                    let viewModel = GetProViewModel(repository: repository)
-                    let viewController = GetProViewController(viewModel: viewModel)
-                    self.tabBarController.present(viewController, animated: true)
+                    let (vc, vm) = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
+                    vm.outputEventPublisher.sink { event in
+                        switch event {
+                        case .finish(isSuccess: let isSuccess):
+                            vc.dismiss(animated: true, completion: nil)
+                        }
+                    }.store(in: &setCancelable)
                 }
             }
             .store(in: &setCancelable)
