@@ -206,11 +206,11 @@ public class FirebaseClient {
         }
     }
     
-    public func setProStatus(userId: Int) async throws {
+    public func setProStatus(userId: Int, status: Bool) async throws {
         var result = try await getUser(userId)
         switch result {
         case .success(var user):
-            user.pro = true
+            user.pro = status
             try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
         case .failure(let e):
             throw e

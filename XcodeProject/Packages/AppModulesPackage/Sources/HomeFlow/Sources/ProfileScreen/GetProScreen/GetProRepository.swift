@@ -54,7 +54,7 @@ final class GetProRepository {
     
     func setPro() async throws {
         guard let userId = authService.account?.id else { return }
-        try await firebaseClient.setProStatus(userId: userId)
+        try await firebaseClient.setProStatus(userId: userId, status: true)
         defaultsStorage.add(object: true, forKey: "isPro")
     }
 }

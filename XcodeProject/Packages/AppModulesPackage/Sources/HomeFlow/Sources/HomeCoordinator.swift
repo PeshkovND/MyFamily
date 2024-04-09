@@ -105,6 +105,22 @@ private extension HomeCoordinator {
         
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        Task {
+            do {
+                guard let user = authService.account else { return }
+                await purchaseManager.updatePurchasedProducts()
+                if purchaseManager.hasUnlockedPro {
+                    try await firebaseClient.setProStatus(userId: user.id, status: true)
+                    defaultsStorage.add(object: true, forKey: "isPro")
+                } else {
+                    try await firebaseClient.setProStatus(userId: user.id, status: false)
+                    defaultsStorage.add(object: false, forKey: "isPro")
+                }
+            } catch {
+                print("error")
+            }
+        }
     }
     
     func makeNewsViewController() -> UINavigationController {

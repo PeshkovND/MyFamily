@@ -8,7 +8,7 @@ public class PurchaseManager {
     private var updates: Task<Void, Never>? = nil
     private(set) var purchasedProductIDs = Set<String>()
     
-    var hasUnlockedPro: Bool {
+    public var hasUnlockedPro: Bool {
         return !self.purchasedProductIDs.isEmpty
     }
     
@@ -65,7 +65,7 @@ public class PurchaseManager {
         }
     }
     
-    func updatePurchasedProducts() async {
+    public func updatePurchasedProducts() async {
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else {
                 continue
