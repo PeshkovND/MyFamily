@@ -5,6 +5,7 @@ import Utilities
 import AppServices
 import FirebaseCore
 import AVFoundation
+import FirebaseMessaging
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,10 +20,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
 
         initializeStartupServices()
+        configureFirebaseMessaging(application: application)
         appCoordinator.start()
 
         logApplicationStartedEvent()
-
         return true
     }
 
@@ -59,5 +60,24 @@ private extension AppDelegate {
         Self.logger.info(
             message: "Application started! Environment: \(AppContainer.provideEnv())"
         )
+    }
+}
+
+extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
+    
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("PUSH TOKEN: \(fcmToken)")
+        Messaging.messaging().subscribe(toTopic: "newPost") { _ in
+          print("Subscribing error")
+        }
+    }
+        
+    func configureFirebaseMessaging(application: UIApplication) {
+        UNUserNotificationCenter.current().delegate = self
+        Messaging.messaging().delegate = self
+        let authOptions: UNAuthorizationOptions = [ .alert, .badge, .sound ]
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
+        
+        application.registerForRemoteNotifications()
     }
 }
