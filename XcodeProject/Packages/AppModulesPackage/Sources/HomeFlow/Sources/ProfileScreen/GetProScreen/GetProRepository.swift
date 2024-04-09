@@ -34,8 +34,22 @@ final class GetProRepository {
         try await purchaseManager.getProducts(names: ["premiumstatus"]).first
     }
     
-    func purchase(_ product: Product, completionHandler: () -> Void) async throws {
-        try await purchaseManager.purchase(product, completionHandler: completionHandler)
+    func purchase(
+        _ product: Product,
+        completionHandler: () -> Void,
+        onFailure: () -> Void,
+        onClose: () -> Void
+    ) async throws {
+        try await purchaseManager.purchase(
+            product,
+            completionHandler: completionHandler,
+            onFailure: onFailure,
+            onClose: onClose
+        )
+    }
+    
+    func restorePurchases(completionHandler: () async throws -> Void) async throws {
+        try await purchaseManager.restorePurchases(completition: completionHandler)
     }
     
     func setPro() async throws {

@@ -25,23 +25,38 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
     override func onViewEvent(_ event: GetProViewEvent) {
         switch event {
         case .buyTapped:
-            Task {
-                guard let product = self.product else { return }
-                try await self.repository.purchase(product, completionHandler: {
-                    Task {
-                        try await self.repository.setPro()
-                        await MainActor.run {
-                            self.outputEventSubject.send(.finish(isSuccess: true))
-                        }
-                    }
-                })
-            }
+            buy()
         case .viewDidLoad:
             getInfo()
         case.deinit:
             break
         case .closeTapped:
             self.outputEventSubject.send(.finish(isSuccess: false))
+        case .restorePurchasesTapped:
+            restorePurchases()
+        }
+    }
+    
+    private func buy() {
+        self.viewState = .purchaseInProgress
+        Task {
+            guard let product = self.product else { return }
+            try await self.repository.purchase(
+                product,
+                completionHandler: {
+                    Task {
+                        try await self.repository.setPro()
+                        await MainActor.run {
+                            self.outputEventSubject.send(.finish(isSuccess: true))
+                        }
+                    }
+                },
+                onFailure: { print("failed") },
+                onClose: {
+                    DispatchQueue.main.async {
+                        self.viewState = .loaded(.init(cost: product.displayPrice)) }
+                }
+            )
         }
     }
     
@@ -50,6 +65,17 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
             self.product = try await self.repository.getProduct()
             await MainActor.run {
                 self.viewState = .loaded(.init(cost: product?.displayPrice ?? ""))
+            }
+        }
+    }
+    
+    private func restorePurchases() {
+        Task {
+            try await self.repository.restorePurchases {
+                try await self.repository.setPro()
+                await MainActor.run {
+                    self.outputEventSubject.send(.finish(isSuccess: true))
+                }
             }
         }
     }

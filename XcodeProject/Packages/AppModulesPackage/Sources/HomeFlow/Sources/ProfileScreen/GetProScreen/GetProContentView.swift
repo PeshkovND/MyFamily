@@ -73,6 +73,13 @@ extension GetProViewController {
             return view
         }()
         
+        private(set) lazy var restorePurchaseButton: ActionButton = {
+            let view = ActionButton()
+            view.setTitle(appDesignSystem.strings.getProRestorePurchases, for: .normal)
+            view.setTitleColor(.black, for: .normal)
+            return view
+        }()
+        
         private(set) lazy var activityIndicator: UIActivityIndicatorView = {
             let activityIndicator = UIActivityIndicatorView(style: .medium)
             activityIndicator.color = appDesignSystem.colors.labelPrimary
@@ -80,6 +87,15 @@ extension GetProViewController {
             activityIndicator.translatesAutoresizingMaskIntoConstraints = false
             return activityIndicator
         }()
+        
+        private(set) lazy var purchaseProgressActivityIndicator: UIActivityIndicatorView = {
+            let activityIndicator = UIActivityIndicatorView(style: .medium)
+            activityIndicator.color = appDesignSystem.colors.backgroundPrimary
+            activityIndicator.stopAnimating()
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            return activityIndicator
+        }()
+
 
         override func setLayout() {
             addSubview(stackView)
@@ -90,7 +106,9 @@ extension GetProViewController {
             stackView.addArrangedSubview(firstAdvantageLabel)
             stackView.addArrangedSubview(secondAdvantageLabel)
             stackView.addArrangedSubview(buyButton)
+            stackView.addArrangedSubview(restorePurchaseButton)
             
+            buyButton.addSubview(purchaseProgressActivityIndicator)
             setupConstraints()
         }
         
@@ -113,6 +131,10 @@ extension GetProViewController {
             }
             
             activityIndicator.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+            
+            purchaseProgressActivityIndicator.snp.makeConstraints {
                 $0.edges.equalToSuperview()
             }
         }

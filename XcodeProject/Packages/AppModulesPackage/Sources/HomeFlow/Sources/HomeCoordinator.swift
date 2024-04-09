@@ -191,6 +191,7 @@ private extension HomeCoordinator {
         let nvc = UINavigationController(rootViewController: viewController)
         
         viewModel.outputEventPublisher
+        // swiftlint:disable closure_body_length
             .sink { [weak self] event in
                 guard let self = self else { return }
                 
@@ -210,6 +211,7 @@ private extension HomeCoordinator {
                         switch event {
                         case .finish(isSuccess: let isSuccess):
                             vc.dismiss(animated: true, completion: nil)
+                            self.start()
                         }
                     }.store(in: &setCancelable)
                 }

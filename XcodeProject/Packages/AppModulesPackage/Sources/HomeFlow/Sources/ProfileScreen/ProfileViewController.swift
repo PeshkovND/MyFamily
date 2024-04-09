@@ -85,10 +85,13 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     }
     
     private func setupEditProfileButton() {
+        guard let profile = viewModel.profile else { return }
         if viewModel.isCurrentUser() {
             let menu = UIMenu(
                 options: .displayInline,
-                children: [editProfileAction, getProAction, signOutAction]
+                children: profile.isPremium
+                ? [editProfileAction, signOutAction]
+                : [editProfileAction, getProAction, signOutAction]
             )
             let barImage = UIImage(systemName: "gearshape")?.withTintColor(
                 colors.backgroundSecondaryVariant,

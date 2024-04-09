@@ -24,7 +24,12 @@ public class PurchaseManager {
         return try await Product.products(for: names)
     }
     
-    public func purchase(_ product: Product, completionHandler: () -> Void) async throws {
+    public func purchase(
+        _ product: Product,
+        completionHandler: () -> Void,
+        onFailure: () -> Void,
+        onClose: () -> Void
+    ) async throws {
         let result = try await product.purchase()
         
         switch result {
@@ -36,16 +41,27 @@ public class PurchaseManager {
         case let .success(.unverified(_, error)):
             // Successful purchase but transaction/receipt can't be verified
             // Could be a jailbroken phone
+            onFailure()
             break
         case .pending:
             // Transaction waiting on SCA (Strong Customer Authentication) or
             // approval from Ask to Buy
+            onFailure()
             break
         case .userCancelled:
-            // ^^^
+            onClose()
             break
         @unknown default:
             break
+        }
+    }
+    
+    public func restorePurchases(completition: () async throws -> Void) async throws {
+        try await AppStore.sync()
+        try await updatePurchasedProducts()
+        print(purchasedProductIDs)
+        if hasUnlockedPro {
+            try await completition()
         }
     }
     
