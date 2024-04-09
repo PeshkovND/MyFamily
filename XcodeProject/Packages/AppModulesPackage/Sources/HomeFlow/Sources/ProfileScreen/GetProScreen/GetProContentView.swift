@@ -95,18 +95,57 @@ extension GetProViewController {
             activityIndicator.translatesAutoresizingMaskIntoConstraints = false
             return activityIndicator
         }()
-
+        
+        private(set) lazy var failedStackView: UIStackView = {
+            let view = UIStackView()
+            view.axis = .vertical
+            view.alignment = .center
+            view.spacing = 24
+            view.distribution = .equalSpacing
+            view.alpha = 0
+            return view
+        }()
+        
+        private(set) lazy var productLoadingError: UILabel = {
+            let view = UILabel()
+            view.font = appDesignSystem.typography.headline
+            view.text = appDesignSystem.strings.getProHeader
+            view.numberOfLines = 0
+            view.textAlignment = .center
+            
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.image = UIImage(systemName: "exclamationmark.triangle")?.withTintColor(.red)
+            
+            let text = NSMutableAttributedString(string: appDesignSystem.strings.getProContentLoadingError + " ")
+            text.append(NSAttributedString(attachment: imageAttachment))
+            view.attributedText = text
+            
+            return view
+        }()
+        
+        private(set) lazy var retryButton: ActionButton = {
+            let view = ActionButton()
+            view.titleFont = appDesignSystem.typography.body
+            view.setTitle(appDesignSystem.strings.getProRetry, for: .normal)
+            view.backgroundColor = appDesignSystem.colors.backgroundSecondaryVariant
+            view.layer.cornerRadius = 24
+            return view
+        }()
 
         override func setLayout() {
             addSubview(stackView)
             addSubview(closeButton)
             addSubview(activityIndicator)
+            addSubview(failedStackView)
             
             stackView.addArrangedSubview(header)
             stackView.addArrangedSubview(firstAdvantageLabel)
             stackView.addArrangedSubview(secondAdvantageLabel)
             stackView.addArrangedSubview(buyButton)
             stackView.addArrangedSubview(restorePurchaseButton)
+            
+            failedStackView.addArrangedSubview(productLoadingError)
+            failedStackView.addArrangedSubview(retryButton)
             
             buyButton.addSubview(purchaseProgressActivityIndicator)
             setupConstraints()
@@ -118,7 +157,17 @@ extension GetProViewController {
                 $0.center.equalToSuperview()
             }
             
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalToSuperview()
+            }
+            
             buyButton.snp.makeConstraints {
+                $0.width.equalToSuperview()
+                $0.height.equalTo(64)
+            }
+            
+            retryButton.snp.makeConstraints {
                 $0.width.equalToSuperview()
                 $0.height.equalTo(64)
             }

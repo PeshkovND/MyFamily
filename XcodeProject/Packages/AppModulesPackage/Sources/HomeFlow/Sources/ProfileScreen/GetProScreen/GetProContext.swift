@@ -30,8 +30,8 @@ enum GetProViewState: Stubable {
     case loading
     case purchaseInProgress
     case loaded(GetProModel)
-    case alreadyBuyed
     case failed
+    case purchaseFailed
 
     static var stub: GetProViewState { .initial }
 }
@@ -50,4 +50,5 @@ enum GetProViewEvent {
     case buyTapped
     case closeTapped
     case restorePurchasesTapped
+    case retryTapped
 }

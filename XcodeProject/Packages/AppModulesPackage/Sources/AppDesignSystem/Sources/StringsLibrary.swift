@@ -108,6 +108,10 @@ extension StringsLibrary {
     public var getProSecondAdvantage: String { localized("get_pro_second_advantage") }
     public var getProBuy: String { localized("get_pro_buy") }
     public var getProRestorePurchases: String { localized("get_pro_restore_purchases") }
+    public var getProPurchaseFailedTitle: String { localized("get_pro_purchase_failed_title") }
+    public var getProPurchaseFailedDescription: String { localized("get_pro_purchase_failed_description") }
+    public var getProContentLoadingError: String { localized("get_pro_content_loading_error") }
+    public var getProRetry: String { localized("get_pro_retry") }
     
     public var postScreenTitle: String { localized("post_screen_title") }
     public var postScreenCommentPlaceholder: String { localized("post_screen_comment_placeholder") }

@@ -191,7 +191,6 @@ private extension HomeCoordinator {
         let nvc = UINavigationController(rootViewController: viewController)
         
         viewModel.outputEventPublisher
-        // swiftlint:disable closure_body_length
             .sink { [weak self] event in
                 guard let self = self else { return }
                 
@@ -205,15 +204,8 @@ private extension HomeCoordinator {
                 case .editProfile:
                     openEditProfileScreen()
                 case .getPro:
-                    let (vc, vm) = makeGetProScreen()
+                    let vc = makeGetProScreen()
                     self.tabBarController.present(vc, animated: true)
-                    vm.outputEventPublisher.sink { event in
-                        switch event {
-                        case .finish(isSuccess: let isSuccess):
-                            vc.dismiss(animated: true, completion: nil)
-                            self.start()
-                        }
-                    }.store(in: &setCancelable)
                 }
             }
             .store(in: &setCancelable)
@@ -225,7 +217,7 @@ private extension HomeCoordinator {
         return nvc
     }
     
-    private func makeGetProScreen() -> (GetProViewController, GetProViewModel) {
+    private func makeGetProScreen() -> GetProViewController {
         let repository = GetProRepository(
             firebaseClient: firebaseClient,
             authService: authService,
@@ -235,7 +227,14 @@ private extension HomeCoordinator {
         )
         let viewModel = GetProViewModel(repository: repository)
         let viewController = GetProViewController(viewModel: viewModel)
-        return (viewController, viewModel)
+        viewModel.outputEventPublisher.sink { event in
+            switch event {
+            case .finish(isSuccess: let isSuccess):
+                viewController.dismiss(animated: true, completion: nil)
+                if isSuccess { self.start() }
+            }
+        }.store(in: &setCancelable)
+        return viewController
     }
     
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
@@ -255,7 +254,7 @@ private extension HomeCoordinator {
                 guard let self = self else { return }
                 
                 switch event {
-                case .commentTapped(id: let id) :
+                case .commentTapped(id: let id):
                     openPostScreen(id: id, nvc: nvc, animated: true)
                 case .shareTapped(id: let id):
                     showSharePostViewController(id: id)
@@ -264,14 +263,8 @@ private extension HomeCoordinator {
                 case .editProfile:
                     openEditProfileScreen()
                 case .getPro:
-                    let (vc, vm) = makeGetProScreen()
+                    let vc = makeGetProScreen()
                     self.tabBarController.present(vc, animated: true)
-                    vm.outputEventPublisher.sink { event in
-                        switch event {
-                        case .finish(isSuccess: let isSuccess):
-                            vc.dismiss(animated: true, completion: nil)
-                        }
-                    }.store(in: &setCancelable)
                 }
             }
             .store(in: &setCancelable)

@@ -21,6 +21,8 @@ final class GetProViewController: BaseViewController<GetProViewModel,
     private var closeButton: ActionButton { contentView.closeButton }
     private var buyButton: ActionButton { contentView.buyButton }
     private var restorePurchaseButton: ActionButton { contentView.restorePurchaseButton }
+    private var failedStackView: UIStackView { contentView.failedStackView }
+    private var retryButton: ActionButton { contentView.retryButton }
     
     deinit {
         viewModel.onViewEvent(.deinit)
@@ -44,19 +46,27 @@ final class GetProViewController: BaseViewController<GetProViewModel,
             purchaseProgressActivityIndicator.stopAnimating()
             closeButton.isEnabled = true
         case .loading:
+            failedStackView.alpha = 0
             self.activityIndicator.startAnimating()
             stackView.alpha = 0
         case .initial:
             break
-        case .alreadyBuyed:
-            break
         case .failed:
-            break
+            failedStackView.alpha = 1
+            self.activityIndicator.stopAnimating()
         case .purchaseInProgress:
             buyButton.setTitle("", for: .normal)
             purchaseProgressActivityIndicator.startAnimating()
             isModalInPresentation = true
             closeButton.isEnabled = false
+        case .purchaseFailed:
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.getProPurchaseFailedTitle,
+                message: appDesignSystem.strings.getProPurchaseFailedDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(.okAction())
+            self.present(alert, animated: true)
         }
     }
     
@@ -73,6 +83,10 @@ final class GetProViewController: BaseViewController<GetProViewModel,
         
         restorePurchaseButton.onTap = {
             self.viewModel.onViewEvent(.restorePurchasesTapped)
+        }
+        
+        retryButton.onTap = {
+            self.viewModel.onViewEvent(.retryTapped)
         }
     }
 }

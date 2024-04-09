@@ -19,7 +19,6 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
     init(repository: GetProRepository) {
         self.repository = repository
         super.init()
-        self.viewState = .loading
     }
     
     override func onViewEvent(_ event: GetProViewEvent) {
@@ -34,6 +33,8 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
             self.outputEventSubject.send(.finish(isSuccess: false))
         case .restorePurchasesTapped:
             restorePurchases()
+        case .retryTapped:
+            getInfo()
         }
     }
     
@@ -43,28 +44,43 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
             guard let product = self.product else { return }
             try await self.repository.purchase(
                 product,
-                completionHandler: {
-                    Task {
-                        try await self.repository.setPro()
-                        await MainActor.run {
-                            self.outputEventSubject.send(.finish(isSuccess: true))
-                        }
+                completionHandler: setPro,
+                onFailure: {
+                    DispatchQueue.main.async {
+                        self.viewState = .purchaseFailed
+                        self.viewState = .loaded(.init(cost: product.displayPrice))
                     }
                 },
-                onFailure: { print("failed") },
                 onClose: {
                     DispatchQueue.main.async {
-                        self.viewState = .loaded(.init(cost: product.displayPrice)) }
+                        self.viewState = .loaded(.init(cost: product.displayPrice))
+                    }
                 }
             )
         }
     }
     
-    private func getInfo() {
+    private func setPro() {
         Task {
-            self.product = try await self.repository.getProduct()
+            try await self.repository.setPro()
             await MainActor.run {
-                self.viewState = .loaded(.init(cost: product?.displayPrice ?? ""))
+                self.outputEventSubject.send(.finish(isSuccess: true))
+            }
+        }
+    }
+    
+    private func getInfo() {
+        self.viewState = .loading
+        Task {
+            do {
+                self.product = try await self.repository.getProduct()
+                await MainActor.run {
+                    self.viewState = .loaded(.init(cost: product?.displayPrice ?? ""))
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed
+                }
             }
         }
     }
