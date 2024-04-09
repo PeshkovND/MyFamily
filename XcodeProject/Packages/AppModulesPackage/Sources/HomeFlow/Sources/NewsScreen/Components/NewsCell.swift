@@ -16,7 +16,7 @@ final class NewsCell: UITableViewCell {
         let profileTapAction: () -> Void
         let commentButtonTapAction: () -> Void
         let shareButtonTapAction: () -> Void
-        
+        let isPremium: Bool
         let likesModel: LikesModel
         let audioPlayer: AVPlayer
     }
@@ -142,7 +142,7 @@ final class NewsCell: UITableViewCell {
         
     }
     
-    private func setupLayout(model: Model) {
+    public func setup(_ model: Model) {
         setupContentConstraints(model: model)
         setupData(model: model)
     }
@@ -311,12 +311,18 @@ final class NewsCell: UITableViewCell {
         let commentsCount = String(model.commentsCount)
         self.commentButton.setTitle(commentsCount, for: .normal)
         
-        self.usernameLabel.text = model.name
+        let text = NSMutableAttributedString(string: model.name + " ")
+        if model.isPremium {
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            text.append(NSAttributedString(attachment: imageAttachment))
+        }
+        usernameLabel.attributedText = text
+        usernameLabel.textColor = model.isPremium
+        ? appDesignSystem.colors.premiumColor
+        : appDesignSystem.colors.labelPrimary
+        
         self.userImageView.setImageUrl(url: model.userImageURL)
-    }
-
-    func setup(_ model: Model) {
-        setupLayout(model: model)
     }
     
     func setupLikes(_ model: LikesModel) {

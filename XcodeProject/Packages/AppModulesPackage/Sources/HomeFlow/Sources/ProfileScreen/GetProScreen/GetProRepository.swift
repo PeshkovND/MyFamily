@@ -10,17 +10,20 @@ final class GetProRepository {
     private let authService: AuthService
     private let swiftDataManager: SwiftDataManager
     private let purchaseManager: PurchaseManager
+    private let defaultsStorage: DefaultsStorage
     
     init(
         firebaseClient: FirebaseClient,
         authService: AuthService,
         swiftDataManager: SwiftDataManager,
-        purchaseManager: PurchaseManager
+        purchaseManager: PurchaseManager,
+        defaultsStorage: DefaultsStorage
     ) {
         self.firebaseClient = firebaseClient
         self.authService = authService
         self.swiftDataManager = swiftDataManager
         self.purchaseManager = purchaseManager
+        self.defaultsStorage = defaultsStorage
     }
     
     func getCurrentUserInfo() -> UserInfo? {
@@ -33,5 +36,11 @@ final class GetProRepository {
     
     func purchase(_ product: Product, completionHandler: () -> Void) async throws {
         try await purchaseManager.purchase(product, completionHandler: completionHandler)
+    }
+    
+    func setPro() async throws {
+        guard let userId = authService.account?.id else { return }
+        try await firebaseClient.setProStatus(userId: userId)
+        defaultsStorage.add(object: true, forKey: "isPro")
     }
 }

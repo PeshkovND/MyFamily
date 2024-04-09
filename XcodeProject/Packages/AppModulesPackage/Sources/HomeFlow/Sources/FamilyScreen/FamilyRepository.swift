@@ -29,7 +29,8 @@ final class FamilyRepository {
                 id: user.id,
                 userImageURL: user.photoURL,
                 name: user.firstName + " " + user.lastName,
-                status: personStatus
+                status: personStatus,
+                isPro: user.pro
             )
             result.append(userData)
         }

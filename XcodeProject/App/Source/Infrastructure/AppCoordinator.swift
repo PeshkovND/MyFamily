@@ -141,7 +141,8 @@ private extension AppCoordinator {
             audioPlayer: audioPlayer,
             firebaseClient: firebaseClient, 
             swiftDataManager: swiftDataManager,
-            purchaseManager: purchaseManager
+            purchaseManager: purchaseManager, 
+            defaultsStorage: defaultsStorage
         )
         let token = coordinator.events.sink { event in
             switch event {

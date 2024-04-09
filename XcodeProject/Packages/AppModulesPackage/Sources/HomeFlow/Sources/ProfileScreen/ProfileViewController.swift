@@ -10,6 +10,7 @@ struct Profile {
     let name: String
     let status: PersonStatus
     var posts: [NewsViewPost]
+    let isPremium: Bool
 }
 
 final class ProfileViewController: BaseViewController<ProfileViewModel,
@@ -129,7 +130,8 @@ extension ProfileViewController: UITableViewDataSource {
         let model = ProfileCell.Model(
             userImageURL: profile.userImageURL,
             name: profile.name,
-            status: profile.status
+            status: profile.status, 
+            isPro: profile.isPremium
         )
         cell.setup(model)
         return cell
@@ -154,7 +156,8 @@ extension ProfileViewController: UITableViewDataSource {
             },
             profileTapAction: { },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked

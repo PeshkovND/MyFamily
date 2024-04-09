@@ -35,6 +35,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
     private let purchaseManager: PurchaseManager
+    private let defaultsStorage: DefaultsStorage
     
     public init(
         navigationController: UINavigationController,
@@ -43,7 +44,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
         swiftDataManager: SwiftDataManager,
-        purchaseManager: PurchaseManager
+        purchaseManager: PurchaseManager,
+        defaultsStorage: DefaultsStorage
     ) {
         self.navigationController = navigationController
         self.authService = authService
@@ -52,6 +54,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.firebaseClient = firebaseClient
         self.swiftDataManager = swiftDataManager
         self.purchaseManager = purchaseManager
+        self.defaultsStorage = defaultsStorage
     }
     
     public func start() {
@@ -225,7 +228,8 @@ private extension HomeCoordinator {
             firebaseClient: firebaseClient,
             authService: authService,
             swiftDataManager: swiftDataManager,
-            purchaseManager: purchaseManager
+            purchaseManager: purchaseManager,
+            defaultsStorage: defaultsStorage
         )
         let viewModel = GetProViewModel(repository: repository)
         let viewController = GetProViewController(viewModel: viewModel)

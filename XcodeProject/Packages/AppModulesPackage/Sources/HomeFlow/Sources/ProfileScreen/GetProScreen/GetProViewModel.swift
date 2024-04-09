@@ -28,8 +28,11 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
             Task {
                 guard let product = self.product else { return }
                 try await self.repository.purchase(product, completionHandler: {
-                    DispatchQueue.main.async {
-                        self.outputEventSubject.send(.finish(isSuccess: true))
+                    Task {
+                        try await self.repository.setPro()
+                        await MainActor.run {
+                            self.outputEventSubject.send(.finish(isSuccess: true))
+                        }
                     }
                 })
             }

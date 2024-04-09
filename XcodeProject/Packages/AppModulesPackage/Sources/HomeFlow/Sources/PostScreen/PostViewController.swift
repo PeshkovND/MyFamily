@@ -178,7 +178,8 @@ extension PostViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.profileTapped(id: post.userId)) },
             commentButtonTapAction: { },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
