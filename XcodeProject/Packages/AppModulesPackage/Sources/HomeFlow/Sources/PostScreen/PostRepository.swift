@@ -80,7 +80,8 @@ final class PostRepository {
             mediaContent: mediaContent,
             likesCount: post.likes.count,
             commentsCount: commentCount,
-            isLiked: isLiked
+            isLiked: isLiked,
+            isPremium: user.pro
         )
     }
     

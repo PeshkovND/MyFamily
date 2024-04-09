@@ -34,6 +34,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let audioPlayer: AVPlayer
     private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
+    private let purchaseManager: PurchaseManager
+    private let defaultsStorage: DefaultsStorage
     
     public init(
         navigationController: UINavigationController,
@@ -41,7 +43,9 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
-        swiftDataManager: SwiftDataManager
+        swiftDataManager: SwiftDataManager,
+        purchaseManager: PurchaseManager,
+        defaultsStorage: DefaultsStorage
     ) {
         self.navigationController = navigationController
         self.authService = authService
@@ -49,6 +53,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
         self.swiftDataManager = swiftDataManager
+        self.purchaseManager = purchaseManager
+        self.defaultsStorage = defaultsStorage
     }
     
     public func start() {
@@ -99,6 +105,22 @@ private extension HomeCoordinator {
         
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        Task {
+            do {
+                guard let user = authService.account else { return }
+                await purchaseManager.updatePurchasedProducts()
+                if purchaseManager.hasUnlockedPro {
+                    try await firebaseClient.setProStatus(userId: user.id, status: true)
+                    defaultsStorage.add(object: true, forKey: "isPro")
+                } else {
+                    try await firebaseClient.setProStatus(userId: user.id, status: false)
+                    defaultsStorage.add(object: false, forKey: "isPro")
+                }
+            } catch {
+                print("error")
+            }
+        }
     }
     
     func makeNewsViewController() -> UINavigationController {
@@ -197,6 +219,9 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let vc = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -206,6 +231,26 @@ private extension HomeCoordinator {
         viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return nvc
+    }
+    
+    private func makeGetProScreen() -> GetProViewController {
+        let repository = GetProRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager,
+            purchaseManager: purchaseManager,
+            defaultsStorage: defaultsStorage
+        )
+        let viewModel = GetProViewModel(repository: repository)
+        let viewController = GetProViewController(viewModel: viewModel)
+        viewModel.outputEventPublisher.sink { event in
+            switch event {
+            case .finish(isSuccess: let isSuccess):
+                viewController.dismiss(animated: true, completion: nil)
+                if isSuccess { self.start() }
+            }
+        }.store(in: &setCancelable)
+        return viewController
     }
     
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
@@ -225,7 +270,7 @@ private extension HomeCoordinator {
                 guard let self = self else { return }
                 
                 switch event {
-                case .commentTapped(id: let id) :
+                case .commentTapped(id: let id):
                     openPostScreen(id: id, nvc: nvc, animated: true)
                 case .shareTapped(id: let id):
                     showSharePostViewController(id: id)
@@ -233,6 +278,9 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let vc = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
                 }
             }
             .store(in: &setCancelable)

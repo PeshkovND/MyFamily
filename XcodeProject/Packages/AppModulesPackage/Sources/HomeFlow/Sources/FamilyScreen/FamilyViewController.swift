@@ -15,6 +15,7 @@ struct FamilyViewData {
     let userImageURL: URL?
     let name: String
     let status: PersonStatus
+    let isPro: Bool
 }
 
 final class FamilyViewController: BaseViewController<FamilyViewModel,
@@ -86,7 +87,8 @@ extension FamilyViewController: UITableViewDataSource {
         let model = PersonCell.Model(
             userImageURL: person.userImageURL,
             name: person.name,
-            status: person.status
+            status: person.status,
+            isPro: person.isPro
         )
         cell.setup(model)
         return cell

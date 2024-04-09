@@ -206,6 +206,17 @@ public class FirebaseClient {
         }
     }
     
+    public func setProStatus(userId: Int, status: Bool) async throws {
+        var result = try await getUser(userId)
+        switch result {
+        case .success(var user):
+            user.pro = status
+            try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        case .failure(let e):
+            throw e
+        }
+    }
+    
     public func updateUser(_ user: UserInfo) async throws {
         let document = try await fs.collection(Collections.users).document(String(user.id)).getDocument(as: UserPayload.self)
         

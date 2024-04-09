@@ -78,7 +78,8 @@ final class ProfileRepository {
             userImageURL: user.photoURL,
             name: user.firstName + " " + user.lastName,
             status: personStatus,
-            posts: newsPosts
+            posts: newsPosts,
+            isPremium: user.pro
         )
         
         return profile
@@ -135,7 +136,8 @@ final class ProfileRepository {
                 mediaContent: mediaContent,
                 likesCount: post.likes.count,
                 commentsCount: commentCount,
-                isLiked: isLiked
+                isLiked: isLiked,
+                isPremium: user.pro
             )
             
             newsPosts.append(newsPost)

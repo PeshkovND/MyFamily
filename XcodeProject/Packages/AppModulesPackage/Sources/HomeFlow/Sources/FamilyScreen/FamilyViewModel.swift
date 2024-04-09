@@ -62,33 +62,4 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             return NewsContext.ScreenError.defaultUIError(from: appError)
         }
     }
-    
-    private let mockData: [FamilyViewData] = [
-        FamilyViewData(
-            id: 0,
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Виталий Виталиев",
-            status: .atHome
-        ),
-        FamilyViewData(
-            id: 1, userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Иванов Иван",
-            status: .offline(lastOnline: "11 march, 11:37")
-        ),
-        FamilyViewData(
-            id: 2,
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Генадий Генадиев",
-            status: .online
-        )
-    ]
 }

@@ -100,7 +100,18 @@ extension StringsLibrary {
     
     public var profilePostsTitle: String { localized("profile_posts_title") }
     public var profileSignOut: String { localized("profile_sign_out") }
+    public var profileGetPro: String { localized("profile_get_pro") }
     public var profileEditProfile: String { localized("profile_edit_profile") }
+    
+    public var getProHeader: String { localized("get_pro_header") }
+    public var getProFirstAdvantage: String { localized("get_pro_first_advantage") }
+    public var getProSecondAdvantage: String { localized("get_pro_second_advantage") }
+    public var getProBuy: String { localized("get_pro_buy") }
+    public var getProRestorePurchases: String { localized("get_pro_restore_purchases") }
+    public var getProPurchaseFailedTitle: String { localized("get_pro_purchase_failed_title") }
+    public var getProPurchaseFailedDescription: String { localized("get_pro_purchase_failed_description") }
+    public var getProContentLoadingError: String { localized("get_pro_content_loading_error") }
+    public var getProRetry: String { localized("get_pro_retry") }
     
     public var postScreenTitle: String { localized("post_screen_title") }
     public var postScreenCommentPlaceholder: String { localized("post_screen_comment_placeholder") }
