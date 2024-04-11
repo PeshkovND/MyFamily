@@ -121,6 +121,6 @@ extension StringsLibrary {
     
     public var postAudioLoadingError: String { localized("post_audio_loading_error") }
     
-    public var familyLoadingErrorTitle: String { localized("family_loading_error_title") }
-    public var familyLoadingErrorSubitle: String { localized("family_loading_error_subtitle") }
+    public var contentLoadingErrorTitle: String { localized("content_loading_error_title") }
+    public var contentLoadingErrorSubitle: String { localized("content_loading_error_subtitle") }
 }

@@ -39,6 +39,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -63,11 +64,19 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
         case .loaded:
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
-        default: break
+        case .failed:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            failedStackView.alpha = 1
+        case .initial:
+            break
+        case .loading:
+            break
         }
     }
     

@@ -45,8 +45,8 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
                     self.viewState = .failed(
                         error: self.makeScreenError(
                             from: .custom(
-                                title: self.strings.familyLoadingErrorTitle,
-                                message: self.strings.familyLoadingErrorSubitle
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
                             )
                         )
                     )

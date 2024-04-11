@@ -77,5 +77,5 @@
 
 "post_audio_loading_error" = "Audio loading error";
 
-"family_loading_error_title" = "Data loading error";
-"family_loading_error_subtitle" = "Please, check your internet connection";
+"content_loading_error_title" = "Data loading error";
+"content_loading_error_subtitle" = "Please, check your internet connection";

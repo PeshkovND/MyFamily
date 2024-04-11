@@ -46,7 +46,7 @@ extension FamilyViewController {
             let imageAttachment = NSTextAttachment()
             imageAttachment.image = UIImage(systemName: "exclamationmark.triangle")?.withTintColor(.red)
             
-            let text = NSMutableAttributedString(string: appDesignSystem.strings.familyLoadingErrorTitle + " ")
+            let text = NSMutableAttributedString(string: appDesignSystem.strings.contentLoadingErrorTitle + " ")
             text.append(NSAttributedString(attachment: imageAttachment))
             view.attributedText = text
             
@@ -55,10 +55,10 @@ extension FamilyViewController {
         
         private(set) lazy var loadingErrorSubtitle: UILabel = {
             let view = UILabel()
-            view.font = appDesignSystem.typography.headline
+            view.font = appDesignSystem.typography.body
             view.numberOfLines = 0
             view.textAlignment = .center
-            view.text = appDesignSystem.strings.familyLoadingErrorSubitle
+            view.text = appDesignSystem.strings.contentLoadingErrorSubitle
             
             return view
         }()
