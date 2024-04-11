@@ -133,11 +133,6 @@ final class VideoPlayerView: UIView {
             playerItem.delegate = self
             self.player.replaceCurrentItem(with: playerItem)
             self.player.automaticallyWaitsToMinimizeStalling = false
-            DispatchQueue.main.async {
-                self.errorLabel.alpha = 0
-                self.activityIndicator.stopAnimating()
-                self.videoPlayerView.alpha = 1
-            }
         }
     }
     
@@ -197,6 +192,14 @@ extension VideoPlayerView: CachingPlayerItemDelegate {
             self.videoPlayerView.alpha = 0
             self.player.replaceCurrentItem(with: nil)
             self.errorLabel.alpha = 1
+        }
+    }
+    
+    func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
+        DispatchQueue.main.async {
+            self.errorLabel.alpha = 0
+            self.activityIndicator.stopAnimating()
+            self.videoPlayerView.alpha = 1
         }
     }
 }

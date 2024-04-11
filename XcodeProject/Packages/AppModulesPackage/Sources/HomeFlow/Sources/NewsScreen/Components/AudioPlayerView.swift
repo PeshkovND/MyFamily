@@ -190,7 +190,6 @@ final class AudioPlayerView: UIView {
             }
         } else {
             addAudioToPlayer(url: audioURL)
-            play()
         }
     }
     
@@ -262,5 +261,13 @@ extension AudioPlayerView: CachingPlayerItemDelegate {
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
         print("\(bytesDownloaded) / \(bytesExpected)")
+    }
+    
+    func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
+        self.play()
+    }
+    
+    func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
+        self.player?.replaceCurrentItem(with: nil)
     }
 }

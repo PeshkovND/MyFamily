@@ -1,6 +1,10 @@
 import Foundation
 import AVFoundation
 
+enum LoadingError: Error {
+    case loadingError
+}
+
 fileprivate extension URL {
     
     func withScheme(_ scheme: String) -> URL? {
@@ -102,6 +106,9 @@ open class CachingPlayerItem: AVPlayerItem {
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
             if let errorUnwrapped = error {
                 owner?.delegate?.playerItem?(owner!, downloadingFailedWith: errorUnwrapped)
+                self.pendingRequests.forEach { elem in
+                    elem.finishLoading(with: LoadingError.loadingError)
+                }
                 return
             }
             processPendingRequests()
