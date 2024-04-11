@@ -120,6 +120,9 @@ final class VideoPlayerView: UIView {
     }
     
     public func addVideoToPlayer(videoUrl: URL) {
+        self.errorLabel.alpha = 0
+        self.activityIndicator.startAnimating()
+        self.videoPlayerView.alpha = 0
         storage?.async.entry(forKey: videoUrl.absoluteString) { result in
             let playerItem: CachingPlayerItem
             switch result {
@@ -187,6 +190,7 @@ extension VideoPlayerView: CachingPlayerItemDelegate {
     }
     
     func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
+        player.replaceCurrentItem(with: nil)
         DispatchQueue.main.async {
             self.activityIndicator.stopAnimating()
             self.videoPlayerView.alpha = 0
@@ -196,7 +200,7 @@ extension VideoPlayerView: CachingPlayerItemDelegate {
     }
     
     func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
-        DispatchQueue.main.async {
+        if player.currentItem != nil {
             self.errorLabel.alpha = 0
             self.activityIndicator.stopAnimating()
             self.videoPlayerView.alpha = 1
