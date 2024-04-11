@@ -29,7 +29,7 @@ enum ProfileViewState: Stubable {
     case initial
     case loading
     case loaded
-    case failed(error: ProfileContext.ScreenError)
+    case failed(error: ProfileContext.ScreenError?)
 
     static var stub: ProfileViewState { .initial }
 }
