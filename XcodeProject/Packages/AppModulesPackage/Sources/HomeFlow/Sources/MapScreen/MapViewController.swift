@@ -29,6 +29,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     private let mapDefaultZoom = 1000.0
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private var tableView: UITableView { contentView.tableView }
     private var meButton: ActionButton { contentView.meButton }
     private var homeButton: ActionButton { contentView.homeButton }
@@ -71,40 +72,49 @@ final class MapViewController: BaseViewController<MapViewModel,
     override func onViewState(_ viewState: MapViewState) {
         switch viewState {
         case .loaded:
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
-            tableView.reloadData()
-            viewModel.personsNotAtHome.forEach { elem in
-                let annotation = MapQuickEventUserAnnotation(
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: elem.coordinate.latitude,
-                        longitude: elem.coordinate.longitude
-                    ),
-                    photo: elem.userImageURL,
-                    title: elem.name,
-                    status: elem.status
-                )
-                
-                mapView.addAnnotation(annotation)
-            }
-            
-            guard let coordinate = viewModel.homeCoordinate else { return }
-            
-            let annotation = MapHomeAnnotation(
-                coordinate: CLLocationCoordinate2D(
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude
-                ),
-                persons: viewModel.personsAtHome
-            )
-            homeButton.alpha = 1
-            mapView.addAnnotation(annotation)
+            showContent()
         case .loading:
             homeButton.alpha = 0
             meButton.alpha = 0
-        default:
+        case .failed:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            failedStackView.alpha = 1
+        case .initial:
             break
         }
+    }
+    
+    private func showContent() {
+        tableView.reloadData()
+        viewModel.personsNotAtHome.forEach { elem in
+            let annotation = MapQuickEventUserAnnotation(
+                coordinate: CLLocationCoordinate2D(
+                    latitude: elem.coordinate.latitude,
+                    longitude: elem.coordinate.longitude
+                ),
+                photo: elem.userImageURL,
+                title: elem.name,
+                status: elem.status
+            )
+            
+            mapView.addAnnotation(annotation)
+        }
+        
+        guard let coordinate = viewModel.homeCoordinate else { return }
+        
+        let annotation = MapHomeAnnotation(
+            coordinate: CLLocationCoordinate2D(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            ),
+            persons: viewModel.personsAtHome
+        )
+        homeButton.alpha = 1
+        mapView.addAnnotation(annotation)
     }
     
     private func configureView() {
