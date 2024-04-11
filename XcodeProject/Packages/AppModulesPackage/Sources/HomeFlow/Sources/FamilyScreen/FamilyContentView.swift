@@ -28,48 +28,17 @@ extension FamilyViewController {
         }()
         
         private(set) lazy var failedStackView: UIStackView = {
-                    let view = UIStackView()
-                    view.axis = .vertical
-                    view.alignment = .center
-                    view.spacing = 24
-                    view.distribution = .equalSpacing
-                    view.alpha = 0
-                    return view
-                }()
-                
-        private(set) lazy var loadingErrorTitle: UILabel = {
-            let view = UILabel()
-            view.font = appDesignSystem.typography.headline
-            view.numberOfLines = 0
-            view.textAlignment = .center
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "exclamationmark.triangle")?.withTintColor(.red)
-            
-            let text = NSMutableAttributedString(string: appDesignSystem.strings.contentLoadingErrorTitle + " ")
-            text.append(NSAttributedString(attachment: imageAttachment))
-            view.attributedText = text
-            
-            return view
-        }()
-        
-        private(set) lazy var loadingErrorSubtitle: UILabel = {
-            let view = UILabel()
-            view.font = appDesignSystem.typography.body
-            view.numberOfLines = 0
-            view.textAlignment = .center
-            view.text = appDesignSystem.strings.contentLoadingErrorSubitle
-            
-            return view
+            return FailedStackView(
+                title: appDesignSystem.strings.contentLoadingErrorTitle,
+                subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
+            )
         }()
         
         override func setLayout() {
             addSubview(tableView)
             addSubview(activityIndicator)
             addSubview(failedStackView)
-            failedStackView.addArrangedSubview(loadingErrorTitle)
-            failedStackView.addArrangedSubview(loadingErrorSubtitle)
-            
+          
             tableView.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalToSuperview()
