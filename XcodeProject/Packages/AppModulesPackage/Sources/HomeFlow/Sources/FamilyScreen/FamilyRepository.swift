@@ -38,30 +38,34 @@ final class FamilyRepository {
     }
     
     func getUsers() async throws -> [FamilyViewData] {
-        async let usersTask = firebaseClient.getAllUsers()
-        async let statusesTask = firebaseClient.getAllUsersStatuses()
-        
-        let usersResult = try await usersTask
-        let statusesResult = try await statusesTask
-        
-        guard let users = try await firebaseClient.unwrapResult(
-            result: usersResult,
-            successAction: { users in try await swiftDataManager.setAllUsers(users: users) },
-            failureAction: { try await swiftDataManager.getAllUsers() }
-        ) else {
-            return []
+        do {
+            async let usersTask = firebaseClient.getAllUsers()
+            async let statusesTask = firebaseClient.getAllUsersStatuses()
+            
+            let usersResult = try await usersTask
+            let statusesResult = try await statusesTask
+            
+            guard let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { users in try await swiftDataManager.setAllUsers(users: users) },
+                failureAction: { try await swiftDataManager.getAllUsers() }
+            ) else {
+                return []
+            }
+            guard let statuses = try await firebaseClient.unwrapResult(
+                result: statusesResult,
+                successAction: { statusesPayload in
+                    try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
+                },
+                failureAction: { try await swiftDataManager.getAllStatuses() }
+            ) else {
+                return []
+            }
+            
+            return parseUsers(users: users, statuses: statuses)
+        } catch let e {
+            throw e
         }
-        guard let statuses = try await firebaseClient.unwrapResult(
-            result: statusesResult,
-            successAction: { statusesPayload in
-                try await swiftDataManager.setAllStatuses(statuses: statusesPayload)
-            },
-            failureAction: { try await swiftDataManager.getAllStatuses() }
-        ) else {
-            return []
-        }
-
-        return parseUsers(users: users, statuses: statuses)
     }
     
     private func makeStatus(lastOnlineString: String, position: Position) -> PersonStatus? {

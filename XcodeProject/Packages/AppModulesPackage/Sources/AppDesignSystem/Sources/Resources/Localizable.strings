@@ -76,3 +76,6 @@
 "edit_profile_surname_title" = "Surname";
 
 "post_audio_loading_error" = "Audio loading error";
+
+"family_loading_error_title" = "Data loading error";
+"family_loading_error_subtitle" = "Please, check your internet connection";
