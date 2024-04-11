@@ -67,6 +67,10 @@ extension PostViewController {
             return activityIndicator
         }()
         
+        private(set) lazy var audioLoadingErrorSnackBar: AppSnackBar = {
+            return AppSnackBar(text: appDesignSystem.strings.postAudioLoadingError)
+        }()
+        
         override func setLayout() {
             addSubview(textContainer)
             textContainer.addSubview(textView)

@@ -118,4 +118,6 @@ extension StringsLibrary {
     public var editProfileScreenTitle: String { localized("edit_profile_screen_title") }
     public var editProfileNameTitle: String { localized("edit_profile_name_title") }
     public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }
+    
+    public var postAudioLoadingError: String { localized("post_audio_loading_error") }
 }

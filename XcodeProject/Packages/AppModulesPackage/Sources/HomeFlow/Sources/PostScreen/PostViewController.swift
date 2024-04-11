@@ -28,6 +28,7 @@ final class PostViewController: BaseViewController<PostViewModel,
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var textView: UITextView { contentView.textView }
     private var textContainer: UIView { contentView.textContainer }
+    private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
     private var sendButton: ActionButton { contentView.sendButton }
     
     private lazy var refreshControl: UIRefreshControl = {
@@ -179,6 +180,7 @@ extension PostViewController: UITableViewDataSource {
             profileTapAction: { self.viewModel.onViewEvent(.profileTapped(id: post.userId)) },
             commentButtonTapAction: { },
             shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked

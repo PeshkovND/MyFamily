@@ -38,7 +38,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
-    
+    private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -114,7 +114,10 @@ extension NewsViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            onAudioLoadingError: {
+                self.audioLoadingErrorSnackBar.showIn(view: self.view)
+            },
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked

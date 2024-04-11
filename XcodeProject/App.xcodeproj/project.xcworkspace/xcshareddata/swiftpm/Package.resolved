@@ -181,15 +181,6 @@
       }
     },
     {
-      "identity" : "snackbar.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ahmedAlmasri/SnackBar.swift.git",
-      "state" : {
-        "revision" : "9efa0f9d2a6ae35384a878a0d74dbafd5001a672",
-        "version" : "0.1.2"
-      }
-    },
-    {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SnapKit/SnapKit.git",
@@ -205,6 +196,15 @@
       "state" : {
         "revision" : "65e8f29b2d63c4e38e736b25c27b83e012159be8",
         "version" : "1.25.2"
+      }
+    },
+    {
+      "identity" : "swiftmessages",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftKickMobile/SwiftMessages.git",
+      "state" : {
+        "revision" : "b899be48a61ddb209695a8d5e411189b704a7fa3",
+        "version" : "10.0.0"
       }
     },
     {
