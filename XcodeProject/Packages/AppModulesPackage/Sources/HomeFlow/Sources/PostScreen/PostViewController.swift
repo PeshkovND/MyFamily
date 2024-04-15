@@ -29,6 +29,7 @@ final class PostViewController: BaseViewController<PostViewModel,
     private var textView: UITextView { contentView.textView }
     private var textContainer: UIView { contentView.textContainer }
     private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private var sendButton: ActionButton { contentView.sendButton }
     
     private lazy var refreshControl: UIRefreshControl = {
@@ -92,6 +93,7 @@ final class PostViewController: BaseViewController<PostViewModel,
     override func onViewState(_ viewState: PostViewState) {
         switch viewState {
         case .loaded:
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
@@ -99,7 +101,11 @@ final class PostViewController: BaseViewController<PostViewModel,
             textContainer.alpha = 1
         case .loading:
             textContainer.alpha = 0
-        default:
+        case .failed:
+            failedStackView.alpha = 1
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+        case .initial:
             break
         }
     }

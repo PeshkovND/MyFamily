@@ -62,7 +62,7 @@ public class SwiftDataManager {
         let predicate = #Predicate<PostModel> { $0.userId == id }
         let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
         
-        guard 
+        guard
             let postModels = try context?.fetch(descriptor),
             !postModels.isEmpty
         else { throw SwiftDataManagerError.dataNotFound }

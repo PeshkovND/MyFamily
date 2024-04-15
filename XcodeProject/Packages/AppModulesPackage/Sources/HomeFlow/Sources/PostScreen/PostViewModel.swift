@@ -59,13 +59,24 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
     
     private func getPostData() {
         Task {
-            guard let postId = UUID(uuidString: postId) else { return }
-            let (post, comments) = try await repository.getPostData(id: postId)
-            self.post = post
-            self.comments = comments
-            
-            await MainActor.run {
-                self.viewState = .loaded
+            do {
+                guard let postId = UUID(uuidString: postId) else {
+                    await MainActor.run {
+                        self.viewState = .failed
+                    }
+                    return
+                }
+                let (post, comments) = try await repository.getPostData(id: postId)
+                self.post = post
+                self.comments = comments
+                
+                await MainActor.run {
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed
+                }
             }
         }
     }

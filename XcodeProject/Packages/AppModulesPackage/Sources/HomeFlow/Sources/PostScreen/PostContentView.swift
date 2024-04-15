@@ -71,8 +71,16 @@ extension PostViewController {
             return AppSnackBar(text: appDesignSystem.strings.postAudioLoadingError)
         }()
         
+        private(set) lazy var failedStackView: UIStackView = {
+            return FailedStackView(
+                title: appDesignSystem.strings.contentLoadingErrorTitle,
+                subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
+            )
+        }()
+        
         override func setLayout() {
             addSubview(textContainer)
+            addSubview(failedStackView)
             textContainer.addSubview(textView)
             textContainer.addSubview(sendButton)
             addSubview(tableView)
@@ -113,6 +121,10 @@ extension PostViewController {
                 $0.trailing.equalTo(sendButton.snp.leading).inset(-16)
             }
             
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalToSuperview()
+            }
         }
     }
 }
