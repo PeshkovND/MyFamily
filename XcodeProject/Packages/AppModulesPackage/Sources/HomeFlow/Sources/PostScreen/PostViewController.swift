@@ -31,6 +31,7 @@ final class PostViewController: BaseViewController<PostViewModel,
     private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
     private var failedStackView: UIStackView { contentView.failedStackView }
     private var sendButton: ActionButton { contentView.sendButton }
+    private var addCommentActivityIndicator: UIActivityIndicatorView { contentView.addCommentActivityIndicator }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -99,6 +100,8 @@ final class PostViewController: BaseViewController<PostViewModel,
             tableView.reloadData()
             tableView.layoutIfNeeded()
             textContainer.alpha = 1
+            sendButton.alpha = 1
+            addCommentActivityIndicator.stopAnimating()
         case .loading:
             textContainer.alpha = 0
         case .failed:
@@ -107,6 +110,19 @@ final class PostViewController: BaseViewController<PostViewModel,
             refreshControl.endRefreshing()
         case .initial:
             break
+        case .addCommentLoading:
+            addCommentActivityIndicator.startAnimating()
+            sendButton.alpha = 0
+        case .addCommentFailed:
+            sendButton.alpha = 1
+            addCommentActivityIndicator.stopAnimating()
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.postAddCommentErrorTitle,
+                message: appDesignSystem.strings.postAddCommentErrorSubtitle,
+                preferredStyle: .alert
+            )
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
     }
     

@@ -120,6 +120,8 @@ extension StringsLibrary {
     public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }
     
     public var postAudioLoadingError: String { localized("post_audio_loading_error") }
+    public var postAddCommentErrorTitle: String { localized("post_add_comment_error_title") }
+    public var postAddCommentErrorSubtitle: String { localized("post_add_comment_error_subtitle") }
     
     public var contentLoadingErrorTitle: String { localized("content_loading_error_title") }
     public var contentLoadingErrorSubitle: String { localized("content_loading_error_subtitle") }

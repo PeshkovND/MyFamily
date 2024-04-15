@@ -30,6 +30,8 @@ enum PostViewState: Stubable {
     case loading
     case loaded
     case failed
+    case addCommentLoading
+    case addCommentFailed
 
     static var stub: PostViewState { .initial }
 }

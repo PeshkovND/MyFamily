@@ -78,6 +78,14 @@ extension PostViewController {
             )
         }()
         
+        private(set) lazy var addCommentActivityIndicator: UIActivityIndicatorView = {
+            let activityIndicator = UIActivityIndicatorView(style: .medium)
+            activityIndicator.color = .black
+            activityIndicator.startAnimating()
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            return activityIndicator
+        }()
+        
         override func setLayout() {
             addSubview(textContainer)
             addSubview(failedStackView)
@@ -85,7 +93,12 @@ extension PostViewController {
             textContainer.addSubview(sendButton)
             addSubview(tableView)
             addSubview(activityIndicator)
+            textContainer.addSubview(addCommentActivityIndicator)
             
+            setupConstraints()
+        }
+        
+        private func setupConstraints() {
             tableView.snp.makeConstraints {
                 $0.top.equalTo(safeAreaLayoutGuide.snp.top)
                 $0.bottom.equalTo(textContainer.snp.top)
@@ -100,7 +113,7 @@ extension PostViewController {
                 $0.trailing.equalToSuperview()
             }
             
-            textContainer.snp.makeConstraints{
+            textContainer.snp.makeConstraints {
                 $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(-1)
                 $0.leading.equalToSuperview().inset(-1)
                 $0.trailing.equalToSuperview().inset(-1)
@@ -108,6 +121,13 @@ extension PostViewController {
             }
             
             sendButton.snp.makeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalToSuperview().inset(4)
+                $0.height.equalTo(54)
+                $0.width.equalTo(54)
+            }
+            
+            addCommentActivityIndicator.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.trailing.equalToSuperview().inset(4)
                 $0.height.equalTo(54)

@@ -42,17 +42,24 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
     }
     
     func addComment(text: String, onSuccess: @escaping () -> Void) {
+        viewState = .addCommentLoading
         Task {
-            let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
-            guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
-                return
-            }
-            self.comments.append(comment)
-            
-            await MainActor.run {
-                self.viewState = .loaded
-                onSuccess()
+            do {
+                let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
+                guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
+                    return
+                }
+                self.comments.append(comment)
+                
+                await MainActor.run {
+                    self.viewState = .loaded
+                    onSuccess()
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .addCommentFailed
+                }
             }
         }
     }
