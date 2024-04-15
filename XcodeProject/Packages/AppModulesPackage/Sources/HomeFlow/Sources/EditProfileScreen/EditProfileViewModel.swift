@@ -42,12 +42,15 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
                 photoUrl: userPhotoUrl
             )
         case .saveButtonDidTapped:
+            self.viewState = .loading
             editUser()
         case .usernameDidChanged(let firstName, let lastName):
             self.userName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
             self.userSurname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
         case .viewWillDisapear:
             outputEventSubject.send(.viewWillDisapear)
+        case .onBack:
+            outputEventSubject.send(.onBack)
         }
     }
     
