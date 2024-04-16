@@ -57,6 +57,15 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         print("Registered for Apple Remote Notifications")
         Messaging.messaging().setAPNSToken(deviceToken, type: .unknown)
     }
+    
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult
+        ) -> Void
+    ) {
+        Deeplinker.handleRemoteNotification(userInfo)
+    }
 }
 
 private extension AppDelegate {

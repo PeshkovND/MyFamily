@@ -12,7 +12,7 @@ enum DeeplinkType {
 
 let Deeplinker = DeepLinkManager()
 
-class DeepLinkManager {
+final class DeepLinkManager {
     fileprivate init() {}
     var deeplinkType: DeeplinkType?
     // check existing deepling and perform action
@@ -34,9 +34,13 @@ class DeepLinkManager {
         deeplinkType = ShortcutParser.shared.handleShortcut(item)
         return deeplinkType != nil
     }
+    
+    func handleRemoteNotification(_ notification: [AnyHashable: Any]) {
+       deeplinkType = NotificationParser.shared.handleNotification(notification)
+    }
 }
 
-class DeeplinkNavigator {
+final class DeeplinkNavigator {
     static let shared = DeeplinkNavigator()
     private let appCoordinator = AppContainer.provideAppCoordinator()
     private init() { }
@@ -49,7 +53,7 @@ class DeeplinkNavigator {
     }
 }
 
-class DeeplinkParser {
+final class DeeplinkParser {
     static let shared = DeeplinkParser()
     private init() { }
     
@@ -72,7 +76,7 @@ class DeeplinkParser {
     }
 }
 
-class ShortcutParser {
+final class ShortcutParser {
     static let shared = ShortcutParser()
     private init() { }
     
@@ -89,6 +93,21 @@ class ShortcutParser {
        default:
           return nil
        }
+    }
+}
+
+final class NotificationParser {
+   static let shared = NotificationParser()
+    
+   private init() { }
+    
+    func handleNotification(_ userInfo: [AnyHashable : Any]) -> DeeplinkType? {
+       if let data = userInfo["data"] as? [String: Any] {
+          if let postId = data["postId"] as? String {
+              return DeeplinkType.post(id: postId)
+          }
+       }
+       return nil
     }
 }
 
