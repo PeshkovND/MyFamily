@@ -83,7 +83,8 @@ final class NewsRepository {
                 mediaContent: mediaContent,
                 likesCount: post.likes.count,
                 commentsCount: commentCount,
-                isLiked: isLiked
+                isLiked: isLiked,
+                isPremium: user.pro
             )
             
             result.append(newsPost)

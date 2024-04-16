@@ -56,6 +56,8 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             outputEventSubject.send(.signOut)
         case .editProfileTapped:
             outputEventSubject.send(.editProfile)
+        case .getProTapped:
+            outputEventSubject.send(.getPro)
         }
     }
     

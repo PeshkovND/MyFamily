@@ -10,6 +10,7 @@ struct Profile {
     let name: String
     let status: PersonStatus
     var posts: [NewsViewPost]
+    let isPremium: Bool
 }
 
 final class ProfileViewController: BaseViewController<ProfileViewModel,
@@ -41,6 +42,11 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         title: appDesignSystem.strings.profileEditProfile,
         image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
     ) { _ in self.editProfileTapped() }
+    
+    private lazy var getProAction = UIAction(
+        title: appDesignSystem.strings.profileGetPro,
+        image: UIImage(systemName: "crown")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+    ) { _ in self.viewModel.onViewEvent(.getProTapped) }
     
     private lazy var signOutAction = UIAction(
         title: appDesignSystem.strings.profileSignOut,
@@ -89,10 +95,13 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     }
     
     private func setupEditProfileButton() {
+        guard let profile = viewModel.profile else { return }
         if viewModel.isCurrentUser() {
             let menu = UIMenu(
                 options: .displayInline,
-                children: [editProfileAction, signOutAction]
+                children: profile.isPremium
+                ? [editProfileAction, signOutAction]
+                : [editProfileAction, getProAction, signOutAction]
             )
             let barImage = UIImage(systemName: "gearshape")?.withTintColor(
                 colors.backgroundSecondaryVariant,
@@ -134,7 +143,8 @@ extension ProfileViewController: UITableViewDataSource {
         let model = ProfileCell.Model(
             userImageURL: profile.userImageURL,
             name: profile.name,
-            status: profile.status
+            status: profile.status, 
+            isPro: profile.isPremium
         )
         cell.setup(model)
         return cell
@@ -161,6 +171,7 @@ extension ProfileViewController: UITableViewDataSource {
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
             shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
             onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
+            isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked

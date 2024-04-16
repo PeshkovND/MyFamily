@@ -54,7 +54,7 @@ final class MapRepository {
                 userImageURL: user.photoURL,
                 name: user.firstName + " " + user.lastName,
                 status: personStatus,
-                coordinate: Coordinate(latitude: status.position.lat, longitude: status.position.lng)
+                coordinate: Coordinate(latitude: status.position.lat, longitude: status.position.lng), isPro: user.pro
             )
             result.append(userData)
         }

@@ -16,6 +16,7 @@ struct MapViewData {
     let name: String
     let status: PersonStatus
     let coordinate: Coordinate
+    let isPro: Bool
 }
 
 final class MapViewController: BaseViewController<MapViewModel,
@@ -259,7 +260,8 @@ extension MapViewController: UITableViewDataSource {
         let model = PersonCell.Model(
             userImageURL: person.userImageURL,
             name: person.name,
-            status: person.status
+            status: person.status,
+            isPro: person.isPro
         )
         cell.setup(model)
         return cell

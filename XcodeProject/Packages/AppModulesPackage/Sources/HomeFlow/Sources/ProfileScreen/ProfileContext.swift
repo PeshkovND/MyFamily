@@ -41,6 +41,7 @@ enum ProfileOutputEvent {
     case shareTapped(id: String)
     case signOut
     case editProfile
+    case getPro
 }
 
 // MARK: - View Event
@@ -52,5 +53,6 @@ enum ProfileViewEvent {
     case commentTapped(id: String)
     case shareTapped(id: String)
     case signOut
+    case getProTapped
     case editProfileTapped
 }

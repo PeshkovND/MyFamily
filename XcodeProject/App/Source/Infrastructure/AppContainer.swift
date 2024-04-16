@@ -34,6 +34,7 @@ struct AppContainer {
     private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient)
     private static let firebaseClient = FirebaseClient()
     private static let swiftDataManager = SwiftDataManager()
+    private static let purchaseManager = PurchaseManager()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -131,6 +132,7 @@ extension AppContainer {
     static func provideAuthService() -> AuthService { authService }
     static func provideFirebaseClinet() -> FirebaseClient { firebaseClient }
     static func provideSwiftDataManager() -> SwiftDataManager { swiftDataManager }
+    static func providePurchaseManager() -> PurchaseManager { purchaseManager }
 }
 
 // MARK: - Providing Loggers

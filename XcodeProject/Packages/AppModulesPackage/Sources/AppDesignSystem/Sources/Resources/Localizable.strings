@@ -60,6 +60,7 @@
 "profile_posts_title" = "Posts";
 "profile_sign_out" = "Sign out";
 "profile_edit_profile" = "Edit profile";
+"profile_get_pro" = "Get Pro";
 
 "post_screen_title" = "Post";
 "post_screen_comment_placeholder" = "Type a comment...";
@@ -76,6 +77,7 @@
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
 "edit_profile_surname_title" = "Surname";
+
 "edit_profile_error_title" = "Error";
 "edit_profile_error_subtitle" = "Please check your internet connection";
 
@@ -85,3 +87,13 @@
 
 "content_loading_error_title" = "Data loading error";
 "content_loading_error_subtitle" = "Please, check your internet connection";
+
+"get_pro_header" = "Get Pro Status now";
+"get_pro_first_advantage" = "Pro status will allow you to stand out among your family. Your first and last name will be highlighted in gold.";
+"get_pro_second_advantage" = "Keep your family always in the know instead with Pro status. Each family member will receive a notification if you make a new post.";
+"get_pro_buy" = "Buy";
+"get_pro_restore_purchases" = "Restore porchases";
+"get_pro_purchase_failed_title" = "Purchase Failed";
+"get_pro_purchase_failed_description" = "Something went wrong. Something went wrong. Please try again, or try to restore your purchase.";
+"get_pro_content_loading_error" = "Product loading error";
+"get_pro_retry" = "Retry";

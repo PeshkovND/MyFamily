@@ -21,6 +21,7 @@ struct NewsViewPost {
     var likesCount: Int
     let commentsCount: Int
     var isLiked: Bool
+    let isPremium: Bool
 }
 
 final class NewsViewController: BaseViewController<NewsViewModel,
@@ -124,9 +125,8 @@ extension NewsViewController: UITableViewDataSource {
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
             shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
-            onAudioLoadingError: {
-                self.audioLoadingErrorSnackBar.showIn(view: self.view)
-            },
+            onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
+            isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
