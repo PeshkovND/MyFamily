@@ -38,6 +38,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("AVAudioSessionCategoryPlayback not work")
         }
+        UNUserNotificationCenter.current().setBadgeCount(0, withCompletionHandler: nil)
         Deeplinker.checkDeepLink()
     }
     
@@ -81,9 +82,7 @@ extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("PUSH TOKEN: \(fcmToken)")
-        Messaging.messaging().subscribe(toTopic: "newPost") { status in
-            print(status)
-        }
+        Messaging.messaging().subscribe(toTopic: "newPost") { _ in }
     }
         
     func configureFirebaseMessaging(application: UIApplication) {
