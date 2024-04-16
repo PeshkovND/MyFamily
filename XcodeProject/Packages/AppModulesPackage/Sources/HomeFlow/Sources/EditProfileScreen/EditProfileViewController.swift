@@ -107,6 +107,13 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
             isLoadingShowing = true
         case .failure:
             isLoadingShowing = false
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.editProfileErrorTitle,
+                message: appDesignSystem.strings.editProfileErrorSubtitle,
+                preferredStyle: .alert
+            )
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
     }
     

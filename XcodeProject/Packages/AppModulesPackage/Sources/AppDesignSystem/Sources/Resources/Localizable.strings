@@ -74,6 +74,8 @@
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
 "edit_profile_surname_title" = "Surname";
+"edit_profile_error_title" = "Error";
+"edit_profile_error_subtitle" = "Please check your internet connection";
 
 "post_audio_loading_error" = "Audio loading error";
 "post_add_comment_error_title" = "Error adding comment";

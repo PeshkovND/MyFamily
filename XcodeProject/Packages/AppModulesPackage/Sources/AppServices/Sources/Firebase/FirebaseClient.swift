@@ -66,17 +66,21 @@ public class FirebaseClient {
     }
     
     public func updateUser(_ user: UserInfo) async throws {
-        let document = try await fs.collection(Collections.users).document(String(user.id)).getDocument(as: UserPayload.self)
-        
-        let user = UserPayload(
-            id: user.id,
-            photoURL: user.photoURL,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: document.role,
-            pro: document.pro
-        )
-        try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        let result = try await getUser(user.id)
+        switch result {
+        case .success(let document):
+            let user = UserPayload(
+                id: user.id,
+                photoURL: user.photoURL,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: document.role,
+                pro: document.pro
+            )
+            try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        case .failure(let e):
+            throw e
+        }
     }
     
     public func getUser(_ id: Int) async throws -> Result<UserPayload, FirebaseClientError> {

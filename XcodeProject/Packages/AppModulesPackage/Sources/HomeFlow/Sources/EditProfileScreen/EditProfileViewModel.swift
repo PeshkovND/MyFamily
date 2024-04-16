@@ -56,14 +56,20 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
     
     private func editUser() {
         Task {
-            guard let url = self.linkToMediaContent else { return }
-            try await self.repository.editUser(
-                name: self.userName,
-                surname: self.userSurname,
-                imageURL: url
-            )
-            await MainActor.run {
-                outputEventSubject.send(.saveTapped)
+            do {
+                guard let url = self.linkToMediaContent else { return }
+                try await self.repository.editUser(
+                    name: self.userName,
+                    surname: self.userSurname,
+                    imageURL: url
+                )
+                await MainActor.run {
+                    outputEventSubject.send(.saveTapped)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failure
+                }
             }
         }
     }
