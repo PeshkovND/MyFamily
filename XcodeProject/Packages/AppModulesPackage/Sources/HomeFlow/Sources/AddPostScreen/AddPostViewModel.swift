@@ -53,7 +53,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
             self.contentType = nil
             uploadDataTask?.cancel()
         case .backTapped:
-            outputEventSubject.send(.back)
+            outputEventSubject.send(.finish(isPostAdded: false))
         }
     }
     
@@ -69,7 +69,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     )
                     
                     await MainActor.run {
-                        outputEventSubject.send(.addedPost)
+                        outputEventSubject.send(.finish(isPostAdded: true))
                     }
                 } catch {
                     await MainActor.run {

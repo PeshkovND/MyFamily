@@ -41,8 +41,7 @@ enum AddPostViewState: Stubable {
 // MARK: - Output Event
 
 enum AddPostOutputEvent {
-    case addedPost
-    case back
+    case finish(isPostAdded: Bool)
 }
 
 // MARK: - View Event
