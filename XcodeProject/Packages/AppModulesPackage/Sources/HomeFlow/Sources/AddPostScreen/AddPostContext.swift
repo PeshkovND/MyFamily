@@ -32,6 +32,8 @@ enum AddPostViewState: Stubable {
     case contentLoadingError
     case audioRecording
     case audioRecorded
+    case loading
+    case error
 
     static var stub: AddPostViewState { .initial }
 }
@@ -40,6 +42,7 @@ enum AddPostViewState: Stubable {
 
 enum AddPostOutputEvent {
     case addedPost
+    case back
 }
 
 // MARK: - View Event
@@ -50,4 +53,5 @@ enum AddPostViewEvent {
     case addPostTapped
     case recordAudioDidTapped
     case deleteContentDidTapped
+    case backTapped
 }

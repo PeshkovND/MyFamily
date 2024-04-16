@@ -249,6 +249,8 @@ private extension HomeCoordinator {
                 switch event {
                 case .addedPost:
                     self.startHomeScreen()
+                case .back:
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
             .store(in: &setCancelable)

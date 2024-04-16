@@ -43,7 +43,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
-            break
+            viewState = .initial
         case .addPostTapped:
             addPost()
         case .recordAudioDidTapped:
@@ -52,20 +52,29 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
             self.linkToMediaContent = nil
             self.contentType = nil
             uploadDataTask?.cancel()
+        case .backTapped:
+            outputEventSubject.send(.back)
         }
     }
     
     func addPost() {
         if linkToMediaContent != nil || postText != nil {
+            self.viewState = .loading
             Task {
-                try await self.repository.addPost(
-                    text: postText,
-                    contentURL: linkToMediaContent,
-                    contentType: contentType
-                )
-                
-                await MainActor.run {
-                    outputEventSubject.send(.addedPost)
+                do {
+                    try await self.repository.addPost(
+                        text: postText,
+                        contentURL: linkToMediaContent,
+                        contentType: contentType
+                    )
+                    
+                    await MainActor.run {
+                        outputEventSubject.send(.addedPost)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.viewState = .error
+                    }
                 }
             }
         } else {

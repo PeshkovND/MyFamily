@@ -227,7 +227,13 @@ public class FirebaseClient {
     }
     
     public func addPost(_ post: PostPayload) async throws {
-        try await self.fs.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
+        let connectionTest = try await self.getAllUsers()
+        switch connectionTest {
+        case .success:
+            try await self.fs.collection(Collections.posts).document(post.id.uuidString).setData(post.dictionary())
+        case .failure(let e):
+            throw e
+        }
     }
       
     public func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {

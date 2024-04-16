@@ -70,6 +70,8 @@
 "add_post_screen_placeholder" = "Type a text...";
 "add_post_record" = "Record";
 "add_post_choose_audio_file" = "Choose file";
+"add_post_error_title" = "Error";
+"add_post_error_subtitle" = "Please check your internet connection";
 
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
