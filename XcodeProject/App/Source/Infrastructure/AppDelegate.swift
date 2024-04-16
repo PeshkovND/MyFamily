@@ -52,6 +52,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) {
         completionHandler(Deeplinker.handleShortcut(item: shortcutItem))
     }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Registered for Apple Remote Notifications")
+        Messaging.messaging().setAPNSToken(deviceToken, type: .unknown)
+    }
 }
 
 private extension AppDelegate {
@@ -67,17 +72,21 @@ extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("PUSH TOKEN: \(fcmToken)")
-        Messaging.messaging().subscribe(toTopic: "newPost") { _ in
-          print("Subscribing error")
+        Messaging.messaging().subscribe(toTopic: "newPost") { status in
+            print(status)
         }
     }
         
     func configureFirebaseMessaging(application: UIApplication) {
-        UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
-        let authOptions: UNAuthorizationOptions = [ .alert, .badge, .sound ]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
-        
+        UNUserNotificationCenter.current().delegate = self
+
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+          options: authOptions,
+          completionHandler: { _, _ in }
+        )
+
         application.registerForRemoteNotifications()
     }
 }
