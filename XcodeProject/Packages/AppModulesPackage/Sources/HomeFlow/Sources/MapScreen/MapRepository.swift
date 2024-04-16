@@ -14,26 +14,29 @@ final class MapRepository {
     }
     
     func getUsers() async throws -> [MapViewData] {
-        async let usersTask = firebaseClient.getAllUsers()
-        async let statusesTask = firebaseClient.getAllUsersStatuses()
-        
-        let usersResult = try await usersTask
-        let statusesResult = try await statusesTask
-        
-        guard
-            let users = try await firebaseClient.unwrapResult(
-                result: usersResult,
-                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
-                failureAction: { try await swiftDataManager.getAllUsers() }
-            ),
-            let statuses = try await firebaseClient.unwrapResult(
-                result: statusesResult,
-                successAction: { payload in try await swiftDataManager.setAllStatuses(statuses: payload) },
-                failureAction: { try await swiftDataManager.getAllStatuses() }
-            )
-        else { return [] }
-        return parseData(users: users, statuses: statuses)
-        
+        do {
+            async let usersTask = firebaseClient.getAllUsers()
+            async let statusesTask = firebaseClient.getAllUsersStatuses()
+            
+            let usersResult = try await usersTask
+            let statusesResult = try await statusesTask
+            
+            guard
+                let users = try await firebaseClient.unwrapResult(
+                    result: usersResult,
+                    successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                    failureAction: { try await swiftDataManager.getAllUsers() }
+                ),
+                let statuses = try await firebaseClient.unwrapResult(
+                    result: statusesResult,
+                    successAction: { payload in try await swiftDataManager.setAllStatuses(statuses: payload) },
+                    failureAction: { try await swiftDataManager.getAllStatuses() }
+                )
+            else { return [] }
+            return parseData(users: users, statuses: statuses)
+        } catch let e {
+            throw e
+        }
     }
     
     private func parseData(users: [UserPayload], statuses: [UserStatus]) -> [MapViewData] {

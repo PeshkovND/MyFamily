@@ -295,8 +295,13 @@ private extension HomeCoordinator {
             .sink { [weak self] event in
                 guard let self = self else { return }
                 switch event {
-                case .addedPost:
-                    self.startHomeScreen()
+                case .finish(isPostAdded: let isPostAdded):
+                    if isPostAdded {
+                        self.startHomeScreen()
+                    } else {
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                    self.navigationController?.isNavigationBarHidden = true
                 }
             }
             .store(in: &setCancelable)
@@ -304,9 +309,9 @@ private extension HomeCoordinator {
         let viewController = AddPostViewController(viewModel: viewModel)
         viewController.navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
-        navigationController?.isNavigationBarHidden = false
         viewController.title = appDesignSystem.strings.postScreenTitle
         navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.isNavigationBarHidden = false
     }
     
     private func openEditProfileScreen() {
@@ -322,6 +327,8 @@ private extension HomeCoordinator {
                     tabBarController.selectedIndex = 3
                 case .viewWillDisapear:
                     self.navigationController?.isNavigationBarHidden = true
+                case .onBack:
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
             .store(in: &setCancelable)

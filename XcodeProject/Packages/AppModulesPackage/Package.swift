@@ -129,6 +129,13 @@ enum ExternalModules {
             from: "5.6.1"
         )
     )
+    static let swiftMessages = ExternalPackage(
+        productName: "SwiftMessages",
+        dependency: .package(
+            url: "https://github.com/SwiftKickMobile/SwiftMessages.git",
+            from: "10.0.0"
+        )
+    )
     static let firebase = ExternalPackage(
         productName: "Firebase",
         packageName: "firebase-ios-sdk",
@@ -254,7 +261,8 @@ enum InternalModules {
         dependencies: [
             utilitiesModule,
             ExternalModules.tweeTextField,
-            ExternalModules.progressHUD
+            ExternalModules.progressHUD,
+            ExternalModules.swiftMessages
         ]
     )
     static let appDesignSystemTestsModule: AppModule = .makeTestModule(
@@ -369,7 +377,8 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.progressHUD,
     ExternalModules.firebase,
     ExternalModules.vkIdSdk,
-    ExternalModules.cache
+    ExternalModules.cache,
+    ExternalModules.swiftMessages
 ]
 
 /// Defines use of product modules to build tha app

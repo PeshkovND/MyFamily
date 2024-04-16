@@ -45,6 +45,8 @@
 "sign_in_vk" = "Sign in with VK";
 "sign_in_title" = "Welcome to MyFamily";
 "sign_in_subtitle" = "Please log in to stay in touch with your family";
+"sign_in_auth_error_title" = "Auth error";
+"sign_in_auth_error_message" = "Please try again later";
 
 "tabbar_map_title" = "Map";
 "tabbar_news_title" = "News";
@@ -69,10 +71,22 @@
 "add_post_screen_placeholder" = "Type a text...";
 "add_post_record" = "Record";
 "add_post_choose_audio_file" = "Choose file";
+"add_post_error_title" = "Error";
+"add_post_error_subtitle" = "Please check your internet connection";
 
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
 "edit_profile_surname_title" = "Surname";
+
+"edit_profile_error_title" = "Error";
+"edit_profile_error_subtitle" = "Please check your internet connection";
+
+"post_audio_loading_error" = "Audio loading error";
+"post_add_comment_error_title" = "Error adding comment";
+"post_add_comment_error_subtitle" = "Please check your internet connection";
+
+"content_loading_error_title" = "Data loading error";
+"content_loading_error_subtitle" = "Please, check your internet connection";
 
 "get_pro_header" = "Get Pro Status now";
 "get_pro_first_advantage" = "Pro status will allow you to stand out among your family. Your first and last name will be highlighted in gold.";

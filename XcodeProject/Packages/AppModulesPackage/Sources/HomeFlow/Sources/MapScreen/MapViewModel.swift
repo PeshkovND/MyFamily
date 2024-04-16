@@ -38,10 +38,22 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
     
     private func getUsers() {
         Task {
-            self.persons = try await self.repository.getUsers()
-            self.homeCoordinate = self.repository.getHomePosition()
-            await MainActor.run {
-                self.viewState = .loaded
+            do {
+                self.persons = try await self.repository.getUsers()
+                self.homeCoordinate = self.repository.getHomePosition()
+                await MainActor.run {
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed(
+                        error: self.makeScreenError(
+                            from: .custom(
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
+                            )
+                        ))
+                }
             }
         }
     }

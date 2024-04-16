@@ -9,6 +9,7 @@ import Cache
 final class AudioPlayerView: UIView {
     @objc var player: AVPlayer?
     var audioURL: URL?
+    var onItemLoadingError: () -> Void = {}
     private var token: NSKeyValueObservation?
     private var changeTrackToken: NSKeyValueObservation?
     private var timeObserver: Any?
@@ -190,7 +191,6 @@ final class AudioPlayerView: UIView {
             }
         } else {
             addAudioToPlayer(url: audioURL)
-            play()
         }
     }
     
@@ -229,8 +229,6 @@ final class AudioPlayerView: UIView {
             playerItem.delegate = self
             DispatchQueue.main.async {
                 self.player?.replaceCurrentItem(with: playerItem)
-                self.setupSliderObserver()
-//                self.setupTrackEndedObserver()
             }
         }
     }
@@ -262,5 +260,20 @@ extension AudioPlayerView: CachingPlayerItemDelegate {
     
     func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
         print("\(bytesDownloaded) / \(bytesExpected)")
+    }
+    
+    func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
+        if player?.currentItem != nil {
+            self.setupSliderObserver()
+            self.play()
+        }
+    }
+    
+    func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
+        self.player?.replaceCurrentItem(with: nil)
+        DispatchQueue.main.async {
+            self.onItemLoadingError()
+            self.pause()
+        }
     }
 }

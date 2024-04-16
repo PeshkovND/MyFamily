@@ -3,6 +3,10 @@
 import Foundation
 import SwiftData
 
+public enum SwiftDataManagerError: Error {
+    case dataNotFound
+}
+
 public class SwiftDataManager {
     private let container: ModelContainer?
     private let context: ModelContext?
@@ -21,7 +25,10 @@ public class SwiftDataManager {
     public func getAllPosts() async throws -> [PostPayload]? {
         let descriptor = FetchDescriptor<PostModel>()
         
-        guard let postModels = try context?.fetch(descriptor) else { return nil }
+        guard
+            let postModels = try context?.fetch(descriptor),
+                !postModels.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return postModels.map { elem in
             PostPayload(
                 id: elem.id,
@@ -39,7 +46,7 @@ public class SwiftDataManager {
         let predicate = #Predicate<PostModel> { $0.id == id }
         let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
         
-        guard let postModel = try context?.fetch(descriptor).first else { return nil }
+        guard let postModel = try context?.fetch(descriptor).first else { throw SwiftDataManagerError.dataNotFound }
         return PostPayload(
             id: postModel.id,
             text: postModel.text,
@@ -55,7 +62,10 @@ public class SwiftDataManager {
         let predicate = #Predicate<PostModel> { $0.userId == id }
         let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
         
-        guard let postModels = try context?.fetch(descriptor) else { return nil }
+        guard
+            let postModels = try context?.fetch(descriptor),
+            !postModels.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return postModels.map { elem in
             PostPayload(
                 id: elem.id,
@@ -89,7 +99,10 @@ public class SwiftDataManager {
     public func getAllComments() async throws -> [CommentPayload]? {
         let descriptor = FetchDescriptor<CommentModel>()
         
-        guard let commentsModels = try context?.fetch(descriptor) else { return nil }
+        guard 
+            let commentsModels = try context?.fetch(descriptor),
+            !commentsModels.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return commentsModels.map { elem in
             CommentPayload(
                 id: elem.id,
@@ -105,7 +118,10 @@ public class SwiftDataManager {
         let predicate = #Predicate<CommentModel> { $0.postId == id }
         let descriptor = FetchDescriptor<CommentModel>(predicate: predicate)
         
-        guard let commentsModels = try context?.fetch(descriptor) else { return nil }
+        guard 
+            let commentsModels = try context?.fetch(descriptor),
+            !commentsModels.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return commentsModels.map { elem in
             CommentPayload(
                 id: elem.id,
@@ -135,7 +151,10 @@ public class SwiftDataManager {
     public func getAllUsers() async throws -> [UserPayload]? {
         let descriptor = FetchDescriptor<UserModel>()
         
-        guard let models = try context?.fetch(descriptor) else { return nil }
+        guard
+            let models = try context?.fetch(descriptor),
+            !models.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return models.map { elem in
             UserPayload(
                 id: elem.id,
@@ -152,7 +171,7 @@ public class SwiftDataManager {
         let predicate = #Predicate<UserModel> { $0.id == id }
         let descriptor = FetchDescriptor<UserModel>(predicate: predicate)
         
-        guard let model = try context?.fetch(descriptor).first else { return nil }
+        guard let model = try context?.fetch(descriptor).first else { throw SwiftDataManagerError.dataNotFound }
         return UserPayload(
             id: model.id,
             photoURL: model.photoURL,
@@ -195,7 +214,10 @@ public class SwiftDataManager {
     public func getAllStatuses() async throws -> [UserStatus]? {
         let descriptor = FetchDescriptor<UserStatusModel>()
         
-        guard let models = try context?.fetch(descriptor) else { return nil }
+        guard
+            let models = try context?.fetch(descriptor),
+                !models.isEmpty
+        else { throw SwiftDataManagerError.dataNotFound }
         return models.map { elem in
             UserStatus(
                 userId: elem.userId,
@@ -209,7 +231,7 @@ public class SwiftDataManager {
         let predicate = #Predicate<UserStatusModel> { $0.userId == id }
         let descriptor = FetchDescriptor<UserStatusModel>(predicate: predicate)
         
-        guard let model = try context?.fetch(descriptor).first else { return nil }
+        guard let model = try context?.fetch(descriptor).first else { throw SwiftDataManagerError.dataNotFound }
         return UserStatus(
             userId: model.userId,
             lastOnline: model.lastOnline,

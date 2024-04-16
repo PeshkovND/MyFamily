@@ -29,7 +29,7 @@ enum NewsViewState: Stubable {
     case initial
     case loading
     case loaded(content: [NewsViewPost])
-    case failed(error: NewsContext.ScreenError)
+    case failed(error: NewsContext.ScreenError?)
 
     static var stub: NewsViewState { .initial }
 }

@@ -92,8 +92,13 @@ extension EditProfileViewController {
             return view
         }()
         
+        private(set) var loadingView: UIView = {
+            return LoadingView()
+        }()
+        
         override func setLayout() {
             addSubview(scrollView)
+            addSubview(loadingView)
             scrollView.addSubview(contentContainer)
             contentContainer.addSubview(nameLabel)
             contentContainer.addSubview(surnameLabel)
@@ -119,6 +124,10 @@ extension EditProfileViewController {
                 $0.left.equalTo(self.scrollView)
                 $0.width.equalTo(self.scrollView)
                 $0.height.equalTo(self.scrollView)
+            }
+            
+            loadingView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
             }
             
             setupUserPhotoConstraints()

@@ -42,30 +42,48 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
     }
     
     func addComment(text: String, onSuccess: @escaping () -> Void) {
+        viewState = .addCommentLoading
         Task {
-            let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
-            guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
-                return
-            }
-            self.comments.append(comment)
-            
-            await MainActor.run {
-                self.viewState = .loaded
-                onSuccess()
+            do {
+                let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
+                guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
+                    return
+                }
+                self.comments.append(comment)
+                
+                await MainActor.run {
+                    self.viewState = .loaded
+                    onSuccess()
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .addCommentFailed
+                }
             }
         }
     }
     
     private func getPostData() {
         Task {
-            guard let postId = UUID(uuidString: postId) else { return }
-            let (post, comments) = try await repository.getPostData(id: postId)
-            self.post = post
-            self.comments = comments
-            
-            await MainActor.run {
-                self.viewState = .loaded
+            do {
+                guard let postId = UUID(uuidString: postId) else {
+                    await MainActor.run {
+                        self.viewState = .failed
+                    }
+                    return
+                }
+                let (post, comments) = try await repository.getPostData(id: postId)
+                self.post = post
+                self.comments = comments
+                
+                await MainActor.run {
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed
+                }
             }
         }
     }

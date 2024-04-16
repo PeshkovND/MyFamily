@@ -28,10 +28,9 @@ enum SignInViewState: Stubable {
     }
 
     case initial
-    case inputValidated(_ validatingState: ValidatingState)
     case loading
     case loaded
-    case failed(error: SignInContext.ScreenError)
+    case failed(error: SignInContext.ScreenError?)
 
     static var stub: SignInViewState { .initial }
 }
