@@ -30,6 +30,20 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var deleteContentButton: ActionButton { contentView.deleteContentButton }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var errorImageView: UIImageView { contentView.errorImageView }
+    private var loadingView: UIView { contentView.loadingView }
+    private lazy var backButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(backTapped))
+    
+    private var isLoadingShowing = false {
+        willSet {
+            UIView.animate {
+                loadingView.alpha = newValue ? 1 : 0
+            }
+            self.sendButton.isEnabled = !newValue
+            self.backButton.isEnabled = !newValue
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
+        }
+    }
+
     
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
@@ -126,7 +140,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             activityIndicator.stopAnimating()
             sendButton.isEnabled = true
         case .initial:
-            break
+            loadingView.alpha = 0
         case .contentLoading:
             sendButton.isEnabled = false
             activityIndicator.startAnimating()
@@ -137,6 +151,18 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             addAudio()
         case .contentLoadingError:
             showContentLoadingError()
+        case .loading:
+            isLoadingShowing = true
+            closeKeyboard()
+        case .error:
+            isLoadingShowing = false
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.editProfileErrorTitle,
+                message: appDesignSystem.strings.editProfileErrorSubtitle,
+                preferredStyle: .alert
+            )
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
         
     }
@@ -167,6 +193,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     }
     
     private func configureView() {
+        isLoadingShowing = false
         self.contentView.backgroundColor = colors.backgroundPrimary
         viewModel.onViewEvent(.viewDidLoad)
         textView.delegate = self
@@ -176,6 +203,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         addMediaContainer.addGestureRecognizer(gesture)
+        navigationItem.leftBarButtonItem = backButton
         
         sendButton.onTap = {
             self.viewModel.addPost()
@@ -193,6 +221,11 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     @objc
     private func closeKeyboard() {
         textView.resignFirstResponder()
+    }
+    
+    @objc
+    private func backTapped() {
+        self.viewModel.onViewEvent(.backTapped)
     }
     
     private func deleteContent() {

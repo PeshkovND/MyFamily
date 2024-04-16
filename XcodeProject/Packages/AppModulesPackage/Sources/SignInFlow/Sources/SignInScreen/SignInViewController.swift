@@ -30,6 +30,21 @@ final class SignInViewController: BaseViewController<SignInViewModel,
         viewModel.onViewEvent(.viewDidLoad)
     }
     
+    override func onViewState(_ viewState: SignInViewState) {
+        switch viewState {
+        case .failed(error: let error):
+            let alert = UIAlertController(title: error?.alert?.title, message: error?.alert?.message, preferredStyle: .alert)
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
+        case .initial:
+            break
+        case .loading:
+            break
+        case .loaded:
+            break
+        }
+    }
+    
     private func configureView() {
             disableKeyboardAutoManaging = false
 

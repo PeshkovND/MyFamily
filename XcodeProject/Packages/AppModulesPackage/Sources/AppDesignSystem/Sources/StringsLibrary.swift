@@ -61,6 +61,8 @@ extension StringsLibrary {
         )
     }
     public var signInVerifyContentTitle: String { localized("sign_in_verify_content_title") }
+    public var signInAuthErrorTitle: String { localized("sign_in_auth_error_title") }
+    public var signInAuthErrorMessage: String { localized("sign_in_auth_error_message") }
     public var signInVerifyPlaceholder: String { localized("sign_in_verify_placeholder") }
     public var signInResentButtonActive: String { localized("sign_in_resent_button_active") }
     public func signInResentButtonDisable(formattedTimer: String) -> String {
@@ -123,8 +125,19 @@ extension StringsLibrary {
     public var addPostScreenPlaceholder: String { localized("add_post_screen_placeholder") }
     public var addPostRecord: String { localized("add_post_record") }
     public var addPostChooseAudioFile: String { localized("add_post_choose_audio_file") }
+    public var addPostErrorTitle: String { localized("add_post_error_title") }
+    public var addPostErrorSubtitle: String { localized("add_post_error_subtitle") }
     
     public var editProfileScreenTitle: String { localized("edit_profile_screen_title") }
     public var editProfileNameTitle: String { localized("edit_profile_name_title") }
     public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }
+    public var editProfileErrorTitle: String { localized("edit_profile_error_title") }
+    public var editProfileErrorSubtitle: String { localized("edit_profile_error_subtitle") }
+    
+    public var postAudioLoadingError: String { localized("post_audio_loading_error") }
+    public var postAddCommentErrorTitle: String { localized("post_add_comment_error_title") }
+    public var postAddCommentErrorSubtitle: String { localized("post_add_comment_error_subtitle") }
+    
+    public var contentLoadingErrorTitle: String { localized("content_loading_error_title") }
+    public var contentLoadingErrorSubitle: String { localized("content_loading_error_subtitle") }
 }

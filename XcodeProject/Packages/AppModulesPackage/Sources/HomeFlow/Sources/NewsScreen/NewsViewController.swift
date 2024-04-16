@@ -39,7 +39,8 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
-    
+    private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -64,11 +65,19 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
         case .loaded:
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
-        default: break
+        case .failed:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            failedStackView.alpha = 1
+        case .initial:
+            break
+        case .loading:
+            break
         }
     }
     
@@ -115,7 +124,8 @@ extension NewsViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,

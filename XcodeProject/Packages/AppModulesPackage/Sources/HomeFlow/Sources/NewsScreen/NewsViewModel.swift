@@ -66,7 +66,16 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
                     self.viewState = .loaded(content: posts)
                 }
             } catch {
-                print("Get post error")
+                await MainActor.run {
+                    self.viewState = .failed(
+                        error: self.makeScreenError(
+                            from: .custom(
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
+                            )
+                        )
+                    )
+                }
             }
         }
     }

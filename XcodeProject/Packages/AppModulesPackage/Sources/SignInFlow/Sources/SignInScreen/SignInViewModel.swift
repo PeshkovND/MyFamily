@@ -33,13 +33,16 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     func signInTapped() {
         authService.signIn(
             onSuccess: { self.outputEventSubject.send(.signedIn) },
-            onFailure: { print("error") }
+            onFailure: { self.viewState = .failed(
+                error: self.makeScreenError(
+                    from: .custom(
+                        title: self.strings.signInAuthErrorTitle,
+                        message: self.strings.signInAuthErrorMessage
+                    )
+                )
+            )}
         )
     }
-
-    /// Remove formatting symbos
-    /// - Parameter text: Phone number in form of `(234) 567-8900`
-    /// - Returns: Normalized phone number `12345678900`
 
     private func makeScreenError(from appError: AppError) -> SignInContext.ScreenError? {
         switch appError {

@@ -67,13 +67,38 @@ extension PostViewController {
             return activityIndicator
         }()
         
+        private(set) lazy var audioLoadingErrorSnackBar: AppSnackBar = {
+            return AppSnackBar(text: appDesignSystem.strings.postAudioLoadingError)
+        }()
+        
+        private(set) lazy var failedStackView: UIStackView = {
+            return FailedStackView(
+                title: appDesignSystem.strings.contentLoadingErrorTitle,
+                subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
+            )
+        }()
+        
+        private(set) lazy var addCommentActivityIndicator: UIActivityIndicatorView = {
+            let activityIndicator = UIActivityIndicatorView(style: .medium)
+            activityIndicator.color = .black
+            activityIndicator.startAnimating()
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            return activityIndicator
+        }()
+        
         override func setLayout() {
             addSubview(textContainer)
+            addSubview(failedStackView)
             textContainer.addSubview(textView)
             textContainer.addSubview(sendButton)
             addSubview(tableView)
             addSubview(activityIndicator)
+            textContainer.addSubview(addCommentActivityIndicator)
             
+            setupConstraints()
+        }
+        
+        private func setupConstraints() {
             tableView.snp.makeConstraints {
                 $0.top.equalTo(safeAreaLayoutGuide.snp.top)
                 $0.bottom.equalTo(textContainer.snp.top)
@@ -88,7 +113,7 @@ extension PostViewController {
                 $0.trailing.equalToSuperview()
             }
             
-            textContainer.snp.makeConstraints{
+            textContainer.snp.makeConstraints {
                 $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(-1)
                 $0.leading.equalToSuperview().inset(-1)
                 $0.trailing.equalToSuperview().inset(-1)
@@ -102,6 +127,13 @@ extension PostViewController {
                 $0.width.equalTo(54)
             }
             
+            addCommentActivityIndicator.snp.makeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalToSuperview().inset(4)
+                $0.height.equalTo(54)
+                $0.width.equalTo(54)
+            }
+            
             textView.snp.makeConstraints {
                 $0.bottom.equalToSuperview()
                 $0.top.equalToSuperview()
@@ -109,6 +141,10 @@ extension PostViewController {
                 $0.trailing.equalTo(sendButton.snp.leading).inset(-16)
             }
             
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalToSuperview()
+            }
         }
     }
 }

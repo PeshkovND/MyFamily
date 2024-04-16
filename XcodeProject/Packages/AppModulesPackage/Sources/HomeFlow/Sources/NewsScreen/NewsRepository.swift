@@ -15,33 +15,37 @@ final class NewsRepository {
     }
     
     func getPosts() async throws -> [NewsViewPost] {
-        async let postsTask = firebaseClient.getAllPosts()
-        async let commentsTask = firebaseClient.getAllComments()
-        async let usersTask = firebaseClient.getAllUsers()
-        
-        let postsResult = try await postsTask
-        let commentsResult = try await commentsTask
-        let usersResult = try await usersTask
-        
-        guard
-            let comments = try await firebaseClient.unwrapResult(
-                result: commentsResult,
-                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
-                failureAction: { try await swiftDataManager.getAllComments() }
-            ),
-            let users = try await firebaseClient.unwrapResult(
-                result: usersResult,
-                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
-                failureAction: { try await swiftDataManager.getAllUsers() }
-            ),
-            let posts = try await firebaseClient.unwrapResult(
-                result: postsResult,
-                successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
-                failureAction: { try await self.swiftDataManager.getAllPosts() }
-            )
-        else { return [] }
-        
-        return parsePosts(posts: posts, users: users, comments: comments)
+        do {
+            async let postsTask = firebaseClient.getAllPosts()
+            async let commentsTask = firebaseClient.getAllComments()
+            async let usersTask = firebaseClient.getAllUsers()
+            
+            let postsResult = try await postsTask
+            let commentsResult = try await commentsTask
+            let usersResult = try await usersTask
+            
+            guard
+                let comments = try await firebaseClient.unwrapResult(
+                    result: commentsResult,
+                    successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                    failureAction: { try await swiftDataManager.getAllComments() }
+                ),
+                let users = try await firebaseClient.unwrapResult(
+                    result: usersResult,
+                    successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                    failureAction: { try await swiftDataManager.getAllUsers() }
+                ),
+                let posts = try await firebaseClient.unwrapResult(
+                    result: postsResult,
+                    successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
+                    failureAction: { try await self.swiftDataManager.getAllPosts() }
+                )
+            else { return [] }
+            
+            return parsePosts(posts: posts, users: users, comments: comments)
+        } catch let e {
+            throw e
+        }
     }
     
     private func parsePosts(posts: [PostPayload], users: [UserPayload], comments: [CommentPayload]) -> [NewsViewPost] {

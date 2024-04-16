@@ -16,6 +16,8 @@ final class NewsCell: UITableViewCell {
         let profileTapAction: () -> Void
         let commentButtonTapAction: () -> Void
         let shareButtonTapAction: () -> Void
+        let onAudioLoadingError: () -> Void
+        
         let isPremium: Bool
         let likesModel: LikesModel
         let audioPlayer: AVPlayer
@@ -241,6 +243,7 @@ final class NewsCell: UITableViewCell {
             contentView.addSubview(audioView)
             audioView.player = model.audioPlayer
             audioView.audioURL = url
+            audioView.onItemLoadingError = model.onAudioLoadingError
             audioView.setupPlayerData()
             audioView.snp.removeConstraints()
             audioView.snp.makeConstraints {

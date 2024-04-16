@@ -63,10 +63,23 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     
     private func getProfile() {
         Task {
-            self.profile = try await self.repository.getProfile(id: userId)
-            
-            await MainActor.run {
-                self.viewState = .loaded
+            do {
+                self.profile = try await self.repository.getProfile(id: userId)
+                
+                await MainActor.run {
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed(
+                        error: self.makeScreenError(
+                            from: .custom(
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
+                            )
+                        )
+                    )
+                }
             }
         }
     }

@@ -28,7 +28,10 @@ final class PostViewController: BaseViewController<PostViewModel,
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var textView: UITextView { contentView.textView }
     private var textContainer: UIView { contentView.textContainer }
+    private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private var sendButton: ActionButton { contentView.sendButton }
+    private var addCommentActivityIndicator: UIActivityIndicatorView { contentView.addCommentActivityIndicator }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -91,15 +94,35 @@ final class PostViewController: BaseViewController<PostViewModel,
     override func onViewState(_ viewState: PostViewState) {
         switch viewState {
         case .loaded:
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
             textContainer.alpha = 1
+            sendButton.alpha = 1
+            addCommentActivityIndicator.stopAnimating()
         case .loading:
             textContainer.alpha = 0
-        default:
+        case .failed:
+            failedStackView.alpha = 1
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+        case .initial:
             break
+        case .addCommentLoading:
+            addCommentActivityIndicator.startAnimating()
+            sendButton.alpha = 0
+        case .addCommentFailed:
+            sendButton.alpha = 1
+            addCommentActivityIndicator.stopAnimating()
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.postAddCommentErrorTitle,
+                message: appDesignSystem.strings.postAddCommentErrorSubtitle,
+                preferredStyle: .alert
+            )
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
     }
     
@@ -178,7 +201,8 @@ extension PostViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.profileTapped(id: post.userId)) },
             commentButtonTapAction: { },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
+            onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
                 likesCount: post.likesCount,

@@ -199,6 +199,15 @@
       }
     },
     {
+      "identity" : "swiftmessages",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftKickMobile/SwiftMessages.git",
+      "state" : {
+        "revision" : "b899be48a61ddb209695a8d5e411189b704a7fa3",
+        "version" : "10.0.0"
+      }
+    },
+    {
       "identity" : "tweetextfield",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/oleghnidets/TweeTextField.git",

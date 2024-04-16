@@ -29,9 +29,25 @@ extension ProfileViewController {
             return activityIndicator
         }()
         
+        private(set) lazy var audioLoadingErrorSnackBar: AppSnackBar = {
+            return AppSnackBar(text: appDesignSystem.strings.postAudioLoadingError)
+        }()
+        
+        private(set) lazy var failedStackView: UIStackView = {
+            return FailedStackView(
+                title: appDesignSystem.strings.contentLoadingErrorTitle,
+                subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
+            )
+        }()
+        
+        private(set) lazy var scrollView: UIScrollView = {
+            return UIScrollView()
+        }()
+        
         override func setLayout() {
             addSubview(tableView)
             addSubview(activityIndicator)
+            addSubview(failedStackView)
             
             tableView.snp.makeConstraints {
                 $0.top.equalToSuperview()
@@ -45,6 +61,11 @@ extension ProfileViewController {
                 $0.bottom.equalToSuperview()
                 $0.leading.equalToSuperview()
                 $0.trailing.equalToSuperview()
+            }
+            
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalToSuperview()
             }
         }
     }

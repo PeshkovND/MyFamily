@@ -84,6 +84,13 @@ extension MapViewController {
             return activityIndicator
         }()
         
+        private(set) lazy var failedStackView: UIStackView = {
+            return FailedStackView(
+                title: appDesignSystem.strings.contentLoadingErrorTitle,
+                subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
+            )
+        }()
+        
         override func setLayout() {
             backgroundColor = colors.backgroundPrimary
             addSubview(mapContainer)
@@ -92,11 +99,11 @@ extension MapViewController {
             mapContainer.addSubview(homeButton)
             mapContainer.addSubview(meButton)
             tableView.addSubview(activityIndicator)
+            addSubview(failedStackView)
             
             setupConstraints()
         }
             
-        
         func setupConstraints() {
             mapContainer.snp.makeConstraints {
                 $0.top.equalToSuperview()
@@ -136,6 +143,11 @@ extension MapViewController {
                 $0.width.equalTo(40)
                 $0.bottom.equalToSuperview().inset(40)
                 $0.trailing.equalToSuperview().inset(8)
+            }
+            
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalTo(tableView.snp.center)
             }
         }
     }

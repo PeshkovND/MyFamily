@@ -29,7 +29,7 @@ enum MapViewState: Stubable {
     case initial
     case loading
     case loaded
-    case failed(error: MapContext.ScreenError)
+    case failed(error: MapContext.ScreenError?)
 
     static var stub: MapViewState { .initial }
 }
