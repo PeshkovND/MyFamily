@@ -102,12 +102,10 @@ final class NotificationParser {
    private init() { }
     
     func handleNotification(_ userInfo: [AnyHashable : Any]) -> DeeplinkType? {
-       if let data = userInfo["data"] as? [String: Any] {
-          if let postId = data["postId"] as? String {
-              return DeeplinkType.post(id: postId)
-          }
-       }
-       return nil
+        if let postId = userInfo["postId"] as? String {
+            return DeeplinkType.post(id: postId)
+        }
+        return nil
     }
 }
 
