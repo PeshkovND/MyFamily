@@ -183,6 +183,15 @@ enum ExternalModules {
             from: "10.22.1"
         )
     )
+    static let firebaseMessaging = ExternalPackage(
+        productName: "FirebaseMessaging",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+
     static let firebaseCrashlytics = ExternalPackage(
         productName: "FirebaseCrashlytics",
         packageName: "firebase-ios-sdk",
@@ -296,6 +305,7 @@ enum InternalModules {
             ExternalModules.firebaseDatabase,
             ExternalModules.firebaseStorage,
             ExternalModules.firebaseFirestore,
+            ExternalModules.firebaseMessaging,
             ExternalModules.vkIdSdk,
             ExternalModules.firebaseCrashlytics
         ]
