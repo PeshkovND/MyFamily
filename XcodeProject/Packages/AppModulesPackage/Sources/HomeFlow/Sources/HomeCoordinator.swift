@@ -11,7 +11,6 @@ import AVFoundation
 public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
     public enum HomeEvent {
-        case finished
         case signOut
     }
     

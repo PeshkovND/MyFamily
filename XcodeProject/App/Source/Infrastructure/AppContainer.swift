@@ -35,6 +35,7 @@ struct AppContainer {
     private static let firebaseClient = FirebaseClient()
     private static let swiftDataManager = SwiftDataManager()
     private static let purchaseManager = PurchaseManager()
+    private static let deeplinker = DeepLinkManager()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -133,6 +134,7 @@ extension AppContainer {
     static func provideFirebaseClinet() -> FirebaseClient { firebaseClient }
     static func provideSwiftDataManager() -> SwiftDataManager { swiftDataManager }
     static func providePurchaseManager() -> PurchaseManager { purchaseManager }
+    static func provideDeeplinker() -> DeepLinkManager { deeplinker }
 }
 
 // MARK: - Providing Loggers

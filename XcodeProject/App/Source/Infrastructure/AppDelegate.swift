@@ -13,6 +13,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     private static var logger = LoggerFactory.default
 
     private let appCoordinator = AppContainer.provideAppCoordinator()
+    private let deeplinker = AppContainer.provideDeeplinker()
 
     func application(
         _ application: UIApplication,
@@ -39,11 +40,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             print("AVAudioSessionCategoryPlayback not work")
         }
         UNUserNotificationCenter.current().setBadgeCount(0, withCompletionHandler: nil)
-        Deeplinker.checkDeepLink()
+        deeplinker.checkDeepLink(coordinator: appCoordinator)
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [: ]) -> Bool {
-        return Deeplinker.handleDeeplink(url: url)
+        return deeplinker.handleDeeplink(url: url)
     }
     
     func application(
@@ -51,7 +52,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         performActionFor shortcutItem: UIApplicationShortcutItem,
         completionHandler: @escaping (Bool) -> Void
     ) {
-        completionHandler(Deeplinker.handleShortcut(item: shortcutItem))
+        completionHandler(deeplinker.handleShortcut(item: shortcutItem))
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -65,7 +66,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult
         ) -> Void
     ) {
-        Deeplinker.handleRemoteNotification(userInfo)
+        deeplinker.handleRemoteNotification(userInfo)
     }
 }
 

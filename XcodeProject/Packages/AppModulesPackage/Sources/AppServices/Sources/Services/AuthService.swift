@@ -7,7 +7,6 @@ import AppEntities
 // MARK: - AuthState
 public enum AuthState {
     case signIn
-    case signUp
 }
 
 // MARK: - CredentialsProvider
@@ -219,12 +218,12 @@ private extension AppAuthService {
         switch result {
         case .success(let payload):
             let mappedPayload = networkMapper.accountWithCreds(from: payload)
-            let account = mappedPayload.account
+            _ = mappedPayload.account
             let credentials = mappedPayload.credentials
 
             self.saveCredentials(credentials)
 
-            let authState: AuthState = account.alreadyRegistered ? .signIn : .signUp
+            let authState: AuthState = .signIn
 
             return Just<Result<AuthState, AppError>>(
                 .success(authState)
