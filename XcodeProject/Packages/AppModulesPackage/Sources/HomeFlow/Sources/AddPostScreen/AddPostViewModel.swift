@@ -31,7 +31,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         super.init()
         
         do {
-            try recordingSession.setCategory(.playAndRecord, mode: .default)
+            try recordingSession.setCategory(.record, mode: .default)
             try recordingSession.setActive(true)
         } catch {
             print("error on creating record session")
@@ -77,8 +77,6 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     }
                 }
             }
-        } else {
-            print("nope")
         }
     }
     

@@ -32,6 +32,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var errorImageView: UIImageView { contentView.errorImageView }
     private var loadingView: UIView { contentView.loadingView }
     private lazy var backButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(backTapped))
+    let imagePicker = UIImagePickerController()
     
     private var isLoadingShowing = false {
         willSet {
@@ -44,7 +45,6 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         }
     }
 
-    
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
@@ -183,11 +183,8 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
         if UIImagePickerController.isSourceTypeAvailable(sourceType) {
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
             imagePicker.sourceType = sourceType
             imagePicker.mediaTypes = [mediaType]
-            imagePicker.allowsEditing = true
             present(imagePicker, animated: true)
         }
     }
@@ -200,6 +197,9 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         
         addPhotoButton.menu = addPhotoMenu
         addVideoButton.menu = addVideoMenu
+        
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         addMediaContainer.addGestureRecognizer(gesture)
