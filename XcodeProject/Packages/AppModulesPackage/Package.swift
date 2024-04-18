@@ -129,12 +129,26 @@ enum ExternalModules {
             from: "5.6.1"
         )
     )
+    static let swiftMessages = ExternalPackage(
+        productName: "SwiftMessages",
+        dependency: .package(
+            url: "https://github.com/SwiftKickMobile/SwiftMessages.git",
+            from: "10.0.0"
+        )
+    )
     static let firebase = ExternalPackage(
         productName: "Firebase",
         packageName: "firebase-ios-sdk",
         dependency: .package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
             from: "10.22.1"
+        )
+    )
+    static let cache = ExternalPackage(
+        productName: "Cache",
+        dependency: .package(
+            url: "https://github.com/hyperoslo/Cache.git",
+            from: "7.1.0"
         )
     )
     static let firebaseAnalytics = ExternalPackage(
@@ -163,6 +177,23 @@ enum ExternalModules {
     )
     static let firebaseFirestore = ExternalPackage(
         productName: "FirebaseFirestore",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+    static let firebaseMessaging = ExternalPackage(
+        productName: "FirebaseMessaging",
+        packageName: "firebase-ios-sdk",
+        dependency: .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.22.1"
+        )
+    )
+
+    static let firebaseCrashlytics = ExternalPackage(
+        productName: "FirebaseCrashlytics",
         packageName: "firebase-ios-sdk",
         dependency: .package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
@@ -212,14 +243,6 @@ enum ExternalModules {
             from: "2.2.0"
         )
     )
-    
-    static let cachingPlayerItem = ExternalPackage(
-        productName: "CachingPlayerItem",
-        dependency: .package(
-            url: "https://github.com/sukov/CachingPlayerItem.git",
-            from: "1.0.5"
-        )
-    )
 }
 
 // MARK: - Internal Module Declarations
@@ -247,7 +270,8 @@ enum InternalModules {
         dependencies: [
             utilitiesModule,
             ExternalModules.tweeTextField,
-            ExternalModules.progressHUD
+            ExternalModules.progressHUD,
+            ExternalModules.swiftMessages
         ]
     )
     static let appDesignSystemTestsModule: AppModule = .makeTestModule(
@@ -281,7 +305,9 @@ enum InternalModules {
             ExternalModules.firebaseDatabase,
             ExternalModules.firebaseStorage,
             ExternalModules.firebaseFirestore,
-            ExternalModules.vkIdSdk
+            ExternalModules.firebaseMessaging,
+            ExternalModules.vkIdSdk,
+            ExternalModules.firebaseCrashlytics
         ]
     )
     static let appServicesTestsModule: AppModule = .makeTestModule(
@@ -340,7 +366,7 @@ enum InternalModules {
             appBaseFlowModule,
             appServicesModule,
             devToolsModule,
-            ExternalModules.cachingPlayerItem
+            ExternalModules.cache
         ]
     )
 }
@@ -359,9 +385,10 @@ private let externalPackages: [ExternalPackage] = [
     ExternalModules.sdWebImageWebPCoder,
     ExternalModules.snapKit,
     ExternalModules.progressHUD,
-    ExternalModules.cachingPlayerItem,
     ExternalModules.firebase,
-    ExternalModules.vkIdSdk
+    ExternalModules.vkIdSdk,
+    ExternalModules.cache,
+    ExternalModules.swiftMessages
 ]
 
 /// Defines use of product modules to build tha app
@@ -387,7 +414,7 @@ private let testAppModules: [AppModule] = [
 
 let package = Package(
     name: appModulesPackageName,
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS("17.0")],
     products: productAppModules.map(\.libraryProduct),
     dependencies: externalPackages.map(\.dependency),
     targets: (productAppModules + testAppModules).map(\.target)

@@ -16,6 +16,7 @@ struct MapViewData {
     let name: String
     let status: PersonStatus
     let coordinate: Coordinate
+    let isPro: Bool
 }
 
 final class MapViewController: BaseViewController<MapViewModel,
@@ -26,6 +27,7 @@ final class MapViewController: BaseViewController<MapViewModel,
     private let colors = appDesignSystem.colors
     private var mapView: MKMapView { contentView.mapView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     private var tableView: UITableView { contentView.tableView }
     private var meButton: ActionButton { contentView.meButton }
     private var homeButton: ActionButton { contentView.homeButton }
@@ -66,10 +68,23 @@ final class MapViewController: BaseViewController<MapViewModel,
     override func onViewState(_ viewState: MapViewState) {
         switch viewState {
         case .loaded:
-            self.onDataLoaded()
+            onDataLoaded()
+            failedStackView.alpha = 0
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            showContent()
         case .loading:
             homeButton.alpha = 0
             meButton.alpha = 0
+        case .failed:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            failedStackView.alpha = 1
+        case .initial:
+            break
+        case .currentUserLocationLoaded:
+            self.meButton.alpha = 1
+            self.mapView.showsUserLocation = true
         case .zoomedTo(location: let location):
             let region = MKCoordinateRegion(
                 center: location,
@@ -77,19 +92,15 @@ final class MapViewController: BaseViewController<MapViewModel,
                 longitudinalMeters: self.viewModel.mapDefaultZoom
             )
             self.mapView.setRegion(region, animated: true)
-        case .initial:
-            break
-        case .failed:
-            break
-        case .currentUserLocationLoaded:
-            self.meButton.alpha = 1
-            self.mapView.showsUserLocation = true
         }
     }
     
     private func onDataLoaded() {
         activityIndicator.stopAnimating()
         refreshControl.endRefreshing()
+    }
+    
+    private func showContent() {
         tableView.reloadData()
         viewModel.personsNotAtHome.forEach { elem in
             let annotation = MapQuickEventUserAnnotation(
@@ -104,6 +115,22 @@ final class MapViewController: BaseViewController<MapViewModel,
             
             mapView.addAnnotation(annotation)
         }
+        
+        guard let coordinate = viewModel.homeCoordinate else { return }
+        
+        let annotation = MapHomeAnnotation(
+            coordinate: CLLocationCoordinate2D(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            ),
+            persons: viewModel.personsAtHome
+        )
+        homeButton.alpha = 1
+        mapView.addAnnotation(annotation)
+    }
+    
+    private func zoomToHome() {
+        guard let coordinate = self.viewModel.homeCoordinate else { return }
         
         guard let coordinate = viewModel.homeCoordinate else { return }
         
@@ -167,7 +194,8 @@ extension MapViewController: UITableViewDataSource {
         let model = PersonCell.Model(
             userImageURL: person.userImageURL,
             name: person.name,
-            status: person.status
+            status: person.status,
+            isPro: person.isPro
         )
         cell.setup(model)
         return cell

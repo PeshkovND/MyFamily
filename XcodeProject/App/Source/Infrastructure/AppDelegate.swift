@@ -6,6 +6,7 @@ import AppServices
 import FirebaseCore
 import AVFoundation
 import BackgroundTasks
+import FirebaseMessaging
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,20 +25,18 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
 
-        FirebaseApp.configure()
-        
         BGTaskScheduler.shared.register(forTaskWithIdentifier: self.taskId, using: DispatchQueue.global()) { task in
             guard let task = task as? BGProcessingTask else { return }
             self.handleTask(task: task)
         }
         
         initializeStartupServices()
+        configureFirebaseMessaging(application: application)
+        scheduleNewTask()
         appCoordinator.start()
 
         logApplicationStartedEvent()
 
-        scheduleNewTask()
-        
         return true
     }
     
@@ -98,6 +97,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
                 let newTask = BGProcessingTaskRequest(identifier: self.taskId)
                 newTask.earliestBeginDate = Date().addingTimeInterval(60) // Every 6 hours
                 try BGTaskScheduler.shared.submit(newTask)
+                print("AMOGUS")
             } catch {
                 print("Could not schedule new task: \(error)")
             }
@@ -115,6 +115,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("AVAudioSessionCategoryPlayback not work")
         }
+        UNUserNotificationCenter.current().setBadgeCount(0, withCompletionHandler: nil)
         Deeplinker.checkDeepLink()
     }
     
@@ -133,6 +134,20 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         scheduleNewTask()
     }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Registered for Apple Remote Notifications")
+        Messaging.messaging().setAPNSToken(deviceToken, type: .unknown)
+    }
+    
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult
+        ) -> Void
+    ) {
+        Deeplinker.handleRemoteNotification(userInfo)
+    }
 }
 
 private extension AppDelegate {
@@ -141,5 +156,26 @@ private extension AppDelegate {
         Self.logger.info(
             message: "Application started! Environment: \(AppContainer.provideEnv())"
         )
+    }
+}
+
+extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
+    
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("PUSH TOKEN: \(fcmToken)")
+        Messaging.messaging().subscribe(toTopic: "newPost") { _ in }
+    }
+        
+    func configureFirebaseMessaging(application: UIApplication) {
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
+
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+          options: authOptions,
+          completionHandler: { _, _ in }
+        )
+
+        application.registerForRemoteNotifications()
     }
 }

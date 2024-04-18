@@ -28,12 +28,12 @@
       }
     },
     {
-      "identity" : "cachingplayeritem",
+      "identity" : "cache",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sukov/CachingPlayerItem.git",
+      "location" : "https://github.com/hyperoslo/Cache.git",
       "state" : {
-        "revision" : "613ee44cac1e4fd97a58d1b98c8a79ddd17e27cb",
-        "version" : "1.0.8"
+        "revision" : "f44a8f6b5ec27730198725ccc542fef0d1cc6b3d",
+        "version" : "7.1.0"
       }
     },
     {
@@ -196,6 +196,15 @@
       "state" : {
         "revision" : "65e8f29b2d63c4e38e736b25c27b83e012159be8",
         "version" : "1.25.2"
+      }
+    },
+    {
+      "identity" : "swiftmessages",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftKickMobile/SwiftMessages.git",
+      "state" : {
+        "revision" : "b899be48a61ddb209695a8d5e411189b704a7fa3",
+        "version" : "10.0.0"
       }
     },
     {

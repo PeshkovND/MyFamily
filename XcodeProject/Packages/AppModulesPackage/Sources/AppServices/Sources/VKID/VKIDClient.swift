@@ -42,9 +42,14 @@ public final class VKIDClient {
                 )
                 Task {
                     do {
-                        let userInfo = try await self.firebaseClient.addUser(userInfoPayload)
+                        let userInfoResult = try await self.firebaseClient.addUser(userInfoPayload)
                         await MainActor.run {
-                            onSuccess(credentials, userInfo)
+                            switch userInfoResult {
+                            case .success(let userInfo):
+                                onSuccess(credentials, userInfo)
+                            case .failure:
+                                onFailure()
+                            }
                         }
                     } catch {
                         await MainActor.run {

@@ -32,6 +32,8 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private var accountHolder: AccountHolder { authService }
     private let firebaseClient = AppContainer.provideFirebaseClinet()
     private let locationManager = AppContainer.provideLocationManager()
+    private let swiftDataManager = AppContainer.provideSwiftDataManager()
+    private let purchaseManager = AppContainer.providePurchaseManager()
     private var timer: DispatchSourceTimer?
     
     // Debug panel for testing
@@ -141,7 +143,10 @@ private extension AppCoordinator {
             debugTogglesHolder: debugTogglesHolder,
             audioPlayer: audioPlayer,
             firebaseClient: firebaseClient,
-            locationManager: locationManager
+            locationManager: locationManager,
+            swiftDataManager: swiftDataManager,
+            purchaseManager: purchaseManager, 
+            defaultsStorage: defaultsStorage
         )
         let token = coordinator.events.sink { event in
             switch event {
@@ -219,19 +224,21 @@ private extension AppCoordinator {
     }
     
     private func observeUserStatus() {
-        locationManager.setup()
         locationManager.outputEventPublisher.sink { event in
             switch event {
             case .checkAuthorizationFailed:
                 self.showAlert(title: "Error", text: "Please enable always-on location")
+                self.sendUserStatus()
             case .locationServicesNotEnabled:
                 self.showAlert(title: "Error", text: "Please enable location services")
+                self.sendUserStatus()
             case .didUpdateLocation(location: let location):
                 break
             case .observationStarted:
                 self.sendUserStatus()
             }
         }.store(in: &setCancelable)
+        locationManager.setup()
     }
     
     private func showAlert(title: String, text: String) {
@@ -261,23 +268,21 @@ private extension AppCoordinator {
             let calendar = Calendar.current
             var dateComponents = DateComponents()
             dateComponents.minute = 5
-            guard
-                let newDate = calendar.date(byAdding: dateComponents, to: currentDate),
-                let userId = self.authService.account?.id,
-                let location = self.locationManager.lastLocation
-            else { return }
+            guard let newDate = calendar.date(byAdding: dateComponents, to: currentDate), let userId = self.authService.account?.id else { return }
             let dateFormatter = AppDateFormatter()
             let dateString = dateFormatter.toString(newDate)
-            
-            
-            let userStatus = UserStatus(
-                userId: userId,
-                lastOnline: dateString,
-                position: Position(
-                    lat: location.latitude,
-                    lng: location.longitude
-                )
-            )
+            var userStatus = UserStatus(userId: userId, lastOnline: dateString, position: Position(lat: 0, lng: 0))
+            if let location = locationManager.lastLocation {
+                userStatus.position = Position(lat: location.latitude, lng: location.longitude)
+            } else {
+                let lastUserStatusResult = try await firebaseClient.getUserStatus(userId)
+                switch lastUserStatusResult {
+                case .success(let lastUserStatus):
+                    userStatus.position = Position(lat: lastUserStatus.position.lat, lng: lastUserStatus.position.lng)
+                case .failure:
+                    return
+                }
+            }
             try await self.firebaseClient.setUserStatus(userStatus)
         }
     }

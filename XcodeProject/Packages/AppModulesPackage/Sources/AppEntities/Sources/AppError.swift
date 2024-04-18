@@ -10,6 +10,7 @@ public enum AppError: LocalizedError, Equatable {
     case permissionDenied
     case undefined(causedError: Error)
     case unathorized
+    case custom(title: String, message: String)
 
     public static var unexpected: AppError {
         .undefined(causedError: AnyLocalizedError.unexpected)

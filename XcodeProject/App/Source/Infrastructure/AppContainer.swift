@@ -12,9 +12,10 @@ import AVFoundation
 
 struct AppContainer {
     
-    private static var audioPlayer: AVQueuePlayer = {
-        let player = AVQueuePlayer()
+    private static var audioPlayer: AVPlayer = {
+        let player = AVPlayer()
         player.allowsExternalPlayback = true
+        player.actionAtItemEnd = .none
         return player
     }()
     
@@ -33,6 +34,8 @@ struct AppContainer {
     private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient)
     private static let firebaseClient = FirebaseClient()
     private static let locationManager = AppLocationManager()
+    private static let swiftDataManager = SwiftDataManager()
+    private static let purchaseManager = PurchaseManager()
 
     private static let defaultsStorage: DefaultsStorage = {
         let suiteName = "\(InfoPlist.bundleId).defaultsStorage"
@@ -116,7 +119,7 @@ extension AppContainer {
 
     static func provideAppCoordinator() -> Coordinator { AppCoordinator() }
 
-    static func provideAudioPlayer() -> AVQueuePlayer { audioPlayer }
+    static func provideAudioPlayer() -> AVPlayer { audioPlayer }
     
     static func provideEnv() -> Env { env }
 
@@ -130,6 +133,8 @@ extension AppContainer {
     private static let fakeAuthService: FakeAuthService = .init()
     static func provideAuthService() -> AuthService { authService }
     static func provideFirebaseClinet() -> FirebaseClient { firebaseClient }
+    static func provideSwiftDataManager() -> SwiftDataManager { swiftDataManager }
+    static func providePurchaseManager() -> PurchaseManager { purchaseManager }
 }
 
 // MARK: - Providing Loggers

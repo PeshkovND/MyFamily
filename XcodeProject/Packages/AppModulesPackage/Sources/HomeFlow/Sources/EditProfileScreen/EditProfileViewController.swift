@@ -18,11 +18,24 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     private var userPhotoView: UIImageView { contentView.userPhotoView }
     private var contentContainer: UIView { contentView.contentContainer }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
-    private let saveButton = UIBarButtonItem(
+    private var loadingView: UIView { contentView.loadingView }
+    private lazy var saveButton = UIBarButtonItem(
         barButtonSystemItem: .save,
         target: self,
         action: #selector(saveTapped)
     )
+    private lazy var backButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(backTapped))
+    
+    private var isLoadingShowing = false {
+        willSet {
+            UIView.animate {
+                loadingView.alpha = newValue ? 1 : 0
+            }
+            self.saveButton.isEnabled = !newValue
+            self.backButton.isEnabled = !newValue
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
+        }
+    }
     
     private let errorImage = UIImage(systemName: "exclamationmark.triangle.fill")?
         .withTintColor(appDesignSystem.colors.backgroundPrimary,
@@ -61,23 +74,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         viewModel.onViewEvent(.viewDidLoad)
         configureView()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(self.keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
+ 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         closeKeyboard()
@@ -85,18 +82,10 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         viewModel.onViewEvent(.viewWillDisapear)
     }
     
-    @objc func keyboardWillShow(_ notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-        }
-    }
-    
-    @objc func  keyboardWillHide(_ notification: Notification) {
-        
-    }
-    
     override func onViewState(_ viewState: EditProfileViewState) {
         switch viewState {
         case .initial(let firstname, let lastname, let photoURL):
+            loadingView.alpha = 0
             self.nameInputField.text = firstname
             self.surnameInputField.text = lastname
             self.userPhotoView.setImageUrl(url: photoURL)
@@ -114,9 +103,18 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
             self.activityIndicator.stopAnimating()
             self.editImageButton.setImage(errorImage, for: .normal)
             self.editImageButton.alpha = 1
-            
+        case .loading:
+            isLoadingShowing = true
+        case .failure:
+            isLoadingShowing = false
+            let alert = UIAlertController(
+                title: appDesignSystem.strings.editProfileErrorTitle,
+                message: appDesignSystem.strings.editProfileErrorSubtitle,
+                preferredStyle: .alert
+            )
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
-        
     }
     
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
@@ -140,6 +138,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         contentContainer.addGestureRecognizer(gesture)
         
         navigationItem.rightBarButtonItem = saveButton
+        navigationItem.leftBarButtonItem = backButton
         
         nameInputField.addTarget(
             self,
@@ -168,7 +167,13 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     
     @objc
     private func saveTapped() {
+        closeKeyboard()
         viewModel.onViewEvent(.saveButtonDidTapped)
+    }
+    
+    @objc
+    private func backTapped() {
+        viewModel.onViewEvent(.onBack)
     }
     
     @objc

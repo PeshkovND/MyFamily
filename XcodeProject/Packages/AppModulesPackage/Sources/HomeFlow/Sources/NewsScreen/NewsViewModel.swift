@@ -13,10 +13,10 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     private var strings = appDesignSystem.strings
     private var validField: String { "number" }
     private let repository: NewsRepository
-    var audioPlayer: AVQueuePlayer
+    var audioPlayer: AVPlayer
     var posts: [NewsViewPost] = []
     
-    init(audioPlayer: AVQueuePlayer, repository: NewsRepository) {
+    init(audioPlayer: AVPlayer, repository: NewsRepository) {
         self.audioPlayer = audioPlayer
         self.repository = repository
         super.init()
@@ -37,7 +37,6 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         posts[index] = postItem
     }
 
-    // swiftlint:disable function_body_length
     override func onViewEvent(_ event: NewsViewEvent) {
         switch event {
         case .deinit:
@@ -67,7 +66,16 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
                     self.viewState = .loaded(content: posts)
                 }
             } catch {
-                print("Get post error")
+                await MainActor.run {
+                    self.viewState = .failed(
+                        error: self.makeScreenError(
+                            from: .custom(
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
+                            )
+                        )
+                    )
+                }
             }
         }
     }

@@ -16,9 +16,11 @@ final class NewsCell: UITableViewCell {
         let profileTapAction: () -> Void
         let commentButtonTapAction: () -> Void
         let shareButtonTapAction: () -> Void
+        let onAudioLoadingError: () -> Void
         
+        let isPremium: Bool
         let likesModel: LikesModel
-        let audioPlayer: AVQueuePlayer
+        let audioPlayer: AVPlayer
     }
     
     struct LikesModel {
@@ -30,6 +32,8 @@ final class NewsCell: UITableViewCell {
         static let cardLabelConstraintValue = CGFloat(16)
         static let containerWidthMultiplier = CGFloat(0.8)
     }
+    
+    private var isAudioPlayerPlaingBeforeBigPlayerOpening = false
 
     private let userImageView: UIImageView = {
         let userImageView = UIImageView()
@@ -140,8 +144,7 @@ final class NewsCell: UITableViewCell {
         
     }
     
-    // swiftlint:disable function_body_length
-    private func setupLayout(model: Model) {
+    public func setup(_ model: Model) {
         setupContentConstraints(model: model)
         setupData(model: model)
     }
@@ -168,6 +171,7 @@ final class NewsCell: UITableViewCell {
         }
     }
     
+    // swiftlint:disable function_body_length
     private func setupContentConstraints(model: Model) {
         
         if let contentText = model.contentLabel {
@@ -192,10 +196,17 @@ final class NewsCell: UITableViewCell {
             contentView.addSubview(videoContainer)
             videoContainer.addVideoToPlayer(videoUrl: url)
             videoContainer.onOpenBigPlayer = {
-                model.audioPlayer.pause()
+                if model.audioPlayer.timeControlStatus == .playing {
+                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = true
+                    model.audioPlayer.pause()
+                } else {
+                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = false
+                }
             }
             videoContainer.onCloseBigPlayer = {
-                model.audioPlayer.play()
+                if self.isAudioPlayerPlaingBeforeBigPlayerOpening {
+                    model.audioPlayer.play()
+                }
             }
             videoContainer.snp.removeConstraints()
             videoContainer.snp.makeConstraints {
@@ -232,6 +243,7 @@ final class NewsCell: UITableViewCell {
             contentView.addSubview(audioView)
             audioView.player = model.audioPlayer
             audioView.audioURL = url
+            audioView.onItemLoadingError = model.onAudioLoadingError
             audioView.setupPlayerData()
             audioView.snp.removeConstraints()
             audioView.snp.makeConstraints {
@@ -302,12 +314,18 @@ final class NewsCell: UITableViewCell {
         let commentsCount = String(model.commentsCount)
         self.commentButton.setTitle(commentsCount, for: .normal)
         
-        self.usernameLabel.text = model.name
+        let text = NSMutableAttributedString(string: model.name + " ")
+        if model.isPremium {
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            text.append(NSAttributedString(attachment: imageAttachment))
+        }
+        usernameLabel.attributedText = text
+        usernameLabel.textColor = model.isPremium
+        ? appDesignSystem.colors.premiumColor
+        : appDesignSystem.colors.labelPrimary
+        
         self.userImageView.setImageUrl(url: model.userImageURL)
-    }
-
-    func setup(_ model: Model) {
-        setupLayout(model: model)
     }
     
     func setupLikes(_ model: LikesModel) {

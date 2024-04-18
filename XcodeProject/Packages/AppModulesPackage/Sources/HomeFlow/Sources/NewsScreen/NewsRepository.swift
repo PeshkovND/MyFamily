@@ -6,23 +6,50 @@ import AppServices
 final class NewsRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let swiftDataManager: SwiftDataManager
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, swiftDataManager: SwiftDataManager) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.swiftDataManager = swiftDataManager
     }
     
-    // swiftlint:disable function_body_length
     func getPosts() async throws -> [NewsViewPost] {
+        do {
+            async let postsTask = firebaseClient.getAllPosts()
+            async let commentsTask = firebaseClient.getAllComments()
+            async let usersTask = firebaseClient.getAllUsers()
+            
+            let postsResult = try await postsTask
+            let commentsResult = try await commentsTask
+            let usersResult = try await usersTask
+            
+            guard
+                let comments = try await firebaseClient.unwrapResult(
+                    result: commentsResult,
+                    successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                    failureAction: { try await swiftDataManager.getAllComments() }
+                ),
+                let users = try await firebaseClient.unwrapResult(
+                    result: usersResult,
+                    successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                    failureAction: { try await swiftDataManager.getAllUsers() }
+                ),
+                let posts = try await firebaseClient.unwrapResult(
+                    result: postsResult,
+                    successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
+                    failureAction: { try await self.swiftDataManager.getAllPosts() }
+                )
+            else { return [] }
+            
+            return parsePosts(posts: posts, users: users, comments: comments)
+        } catch let e {
+            throw e
+        }
+    }
+    
+    private func parsePosts(posts: [PostPayload], users: [UserPayload], comments: [CommentPayload]) -> [NewsViewPost] {
         guard let userId = authService.account?.id else { return [] }
-        async let postsTask = firebaseClient.getAllPosts()
-        async let commentsTask = firebaseClient.getAllComments()
-        async let usersTask = firebaseClient.getAllUsers()
-        
-        let posts = try await postsTask
-        let comments = try await commentsTask
-        let users = try await usersTask
-        
         var result: [NewsViewPost] = []
             
         for post in posts {
@@ -56,7 +83,8 @@ final class NewsRepository {
                 mediaContent: mediaContent,
                 likesCount: post.likes.count,
                 commentsCount: commentCount,
-                isLiked: isLiked
+                isLiked: isLiked,
+                isPremium: user.pro
             )
             
             result.append(newsPost)
@@ -66,13 +94,18 @@ final class NewsRepository {
     
     public func likeOrUnlikePost(postId: UUID) async throws {
         guard let userId = authService.account?.id else { return }
-        var post = try await firebaseClient.getPost(postId)
-        if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
-            post.likes.remove(at: index)
-        } else {
-            post.likes.append(userId)
-            
+        let postResult = try await firebaseClient.getPost(postId)
+        switch postResult {
+        case .success(var post):
+            if let index = post.likes.firstIndex(where: { elem in elem == userId }) {
+                post.likes.remove(at: index)
+            } else {
+                post.likes.append(userId)
+                
+            }
+            try await self.firebaseClient.addPost(post)
+        case .failure:
+            return
         }
-        try await self.firebaseClient.addPost(post)
     }
 }

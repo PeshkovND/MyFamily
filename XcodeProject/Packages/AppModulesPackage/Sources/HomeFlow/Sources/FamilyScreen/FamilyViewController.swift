@@ -15,6 +15,7 @@ struct FamilyViewData {
     let userImageURL: URL?
     let name: String
     let status: PersonStatus
+    let isPro: Bool
 }
 
 final class FamilyViewController: BaseViewController<FamilyViewModel,
@@ -32,6 +33,7 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
+    private var failedStackView: UIStackView { contentView.failedStackView }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -51,11 +53,20 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     override func onViewState(_ viewState: FamilyViewState) {
         switch viewState {
         case .loaded:
+            tableView.alpha = 1
+            failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
-        default: break
+        case .failed:
+            activityIndicator.stopAnimating()
+            refreshControl.endRefreshing()
+            failedStackView.alpha = 1
+        case.loading:
+            break
+        case .initial:
+            break
         }
     }
     
@@ -86,7 +97,8 @@ extension FamilyViewController: UITableViewDataSource {
         let model = PersonCell.Model(
             userImageURL: person.userImageURL,
             name: person.name,
-            status: person.status
+            status: person.status,
+            isPro: person.isPro
         )
         cell.setup(model)
         return cell

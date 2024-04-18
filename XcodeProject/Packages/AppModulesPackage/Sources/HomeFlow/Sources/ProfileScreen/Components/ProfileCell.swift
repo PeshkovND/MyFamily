@@ -11,6 +11,7 @@ final class ProfileCell: UITableViewCell {
         let userImageURL: URL?
         let name: String
         let status: PersonStatus
+        let isPro: Bool
     }
     
     private enum Layout {
@@ -32,7 +33,6 @@ final class ProfileCell: UITableViewCell {
     private let usernameLabel: UILabel = {
         let usernameLabel = UILabel()
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.textColor = appDesignSystem.colors.labelPrimary
         usernameLabel.font = appDesignSystem.typography.body.withSize(20)
         usernameLabel.numberOfLines = 0
         return usernameLabel
@@ -116,7 +116,18 @@ final class ProfileCell: UITableViewCell {
 
     func setup(_ model: Model) {
         userImageView.setImageUrl(url: model.userImageURL)
-        usernameLabel.text = model.name
+        
+        let text = NSMutableAttributedString(string: model.name + " ")
+        if model.isPro {
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            text.append(NSAttributedString(attachment: imageAttachment))
+        }
+        
+        usernameLabel.attributedText = text
+        usernameLabel.textColor = model.isPro
+        ? appDesignSystem.colors.premiumColor
+        : appDesignSystem.colors.labelPrimary
         
         switch model.status {
         case .online:

@@ -23,8 +23,10 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
+            self.viewState = .loading
             getUsers()
         case .pullToRefresh:
+            self.viewState = .loading
             getUsers()
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
@@ -33,9 +35,22 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
     
     private func getUsers() {
         Task {
-            self.persons = try await repository.getUsers()
-            await MainActor.run {
-                self.viewState = .loaded(content: persons)
+            do {
+                self.persons = try await repository.getUsers()
+                await MainActor.run {
+                    self.viewState = .loaded(content: persons)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failed(
+                        error: self.makeScreenError(
+                            from: .custom(
+                                title: self.strings.contentLoadingErrorTitle,
+                                message: self.strings.contentLoadingErrorSubitle
+                            )
+                        )
+                    )
+                }
             }
         }
     }
@@ -62,33 +77,4 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             return NewsContext.ScreenError.defaultUIError(from: appError)
         }
     }
-    
-    private let mockData: [FamilyViewData] = [
-        FamilyViewData(
-            id: 0,
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Виталий Виталиев",
-            status: .atHome
-        ),
-        FamilyViewData(
-            id: 1, userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Иванов Иван",
-            status: .offline(lastOnline: "11 march, 11:37")
-        ),
-        FamilyViewData(
-            id: 2,
-            userImageURL:
-                URL(
-                    string: "https://m.media-amazon.com/images/M/MV5BMTQzMjkwNTQ2OF5BMl5BanBnXkFtZTgwNTQ4MTQ4MTE@._V1_.jpg"
-                ),
-            name: "Генадий Генадиев",
-            status: .online
-        )
-    ]
 }

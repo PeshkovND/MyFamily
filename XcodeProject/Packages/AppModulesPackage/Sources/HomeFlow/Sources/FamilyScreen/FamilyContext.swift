@@ -29,7 +29,7 @@ enum FamilyViewState: Stubable {
     case initial
     case loading
     case loaded(content: [FamilyViewData])
-    case failed(error: FamilyContext.ScreenError)
+    case failed(error: FamilyContext.ScreenError?)
 
     static var stub: FamilyViewState { .initial }
 }

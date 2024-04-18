@@ -30,9 +30,9 @@ enum MapViewState: Stubable {
     case initial
     case loading
     case loaded
-    case failed(error: MapContext.ScreenError)
     case zoomedTo(location: CLLocationCoordinate2D)
     case currentUserLocationLoaded
+    case failed(error: MapContext.ScreenError?)
 
     static var stub: MapViewState { .initial }
 }

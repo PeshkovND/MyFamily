@@ -1,24 +1,56 @@
-//  Copyright © 2021 Krasavchik OOO. All rights reserved.
-
 import UIKit
-import JGProgressHUD
+import SnapKit
 
-// INFO: This helper is considered to use for temporarily soluton
-// Until visual design are not provided for loading state
-
-public final class LoadingViewHelper {
-
-    private let hud = JGProgressHUD()
-
-    init() {}
-
-    public func showLoadingViw(in view: UIView, message: String) {
-        hud.textLabel.text = message
-        hud.style = .dark
-        hud.show(in: view)
+public class LoadingView: UIView {
+    
+    private let container = {
+        let container = UIView()
+        container.backgroundColor = .black.withAlphaComponent(0.3)
+        return container
+    }()
+    
+    private let loadingStackView = {
+        let loadingView = UIStackView()
+        loadingView.axis = .horizontal
+        loadingView.spacing = 8
+        loadingView.backgroundColor = appDesignSystem.colors.backgroundPrimary
+        loadingView.layer.cornerRadius = 12
+        loadingView.alignment = .center
+        loadingView.distribution = .equalCentering
+        loadingView.layoutMargins = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        loadingView.isLayoutMarginsRelativeArrangement = true
+        return loadingView
+    }()
+    
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.color = appDesignSystem.colors.labelPrimary
+        activityIndicator.startAnimating()
+        
+        return activityIndicator
+    }()
+    
+    private let label: UILabel = {
+        let label = UILabel()
+        label.text = appDesignSystem.strings.commonLoading
+        label.textColor = appDesignSystem.colors.labelPrimary
+        label.font = appDesignSystem.typography.body
+        return label
+    }()
+    
+    public init() {
+        super.init(frame: .zero)
+        backgroundColor = .black.withAlphaComponent(0.3)
+        self.addSubview(loadingStackView)
+        loadingStackView.addArrangedSubview(label)
+        loadingStackView.addArrangedSubview(activityIndicator)
+        
+        loadingStackView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
-
-    public func dismissLoadingView() {
-        hud.dismiss()
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

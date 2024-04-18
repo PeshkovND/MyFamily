@@ -6,6 +6,7 @@ final class PersonCell: UITableViewCell {
         let userImageURL: URL?
         let name: String
         let status: PersonStatus
+        let isPro: Bool
     }
     
     private let userImageView: UIImageView = {
@@ -74,8 +75,18 @@ final class PersonCell: UITableViewCell {
     }
     
     func setup(_ model: Model) {
-        self.usernameLabel.text = model.name
         self.userImageView.setImageUrl(url: model.userImageURL)
+        
+        let text = NSMutableAttributedString(string: model.name + " ")
+        if model.isPro {
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            text.append(NSAttributedString(attachment: imageAttachment))
+        }
+        usernameLabel.attributedText = text
+        usernameLabel.textColor = model.isPro
+        ? appDesignSystem.colors.premiumColor
+        : appDesignSystem.colors.labelPrimary
         
         switch model.status {
         case .online:

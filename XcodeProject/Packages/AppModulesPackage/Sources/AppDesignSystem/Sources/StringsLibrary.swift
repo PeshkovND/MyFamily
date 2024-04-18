@@ -61,6 +61,8 @@ extension StringsLibrary {
         )
     }
     public var signInVerifyContentTitle: String { localized("sign_in_verify_content_title") }
+    public var signInAuthErrorTitle: String { localized("sign_in_auth_error_title") }
+    public var signInAuthErrorMessage: String { localized("sign_in_auth_error_message") }
     public var signInVerifyPlaceholder: String { localized("sign_in_verify_placeholder") }
     public var signInResentButtonActive: String { localized("sign_in_resent_button_active") }
     public func signInResentButtonDisable(formattedTimer: String) -> String {
@@ -100,7 +102,18 @@ extension StringsLibrary {
     
     public var profilePostsTitle: String { localized("profile_posts_title") }
     public var profileSignOut: String { localized("profile_sign_out") }
+    public var profileGetPro: String { localized("profile_get_pro") }
     public var profileEditProfile: String { localized("profile_edit_profile") }
+    
+    public var getProHeader: String { localized("get_pro_header") }
+    public var getProFirstAdvantage: String { localized("get_pro_first_advantage") }
+    public var getProSecondAdvantage: String { localized("get_pro_second_advantage") }
+    public var getProBuy: String { localized("get_pro_buy") }
+    public var getProRestorePurchases: String { localized("get_pro_restore_purchases") }
+    public var getProPurchaseFailedTitle: String { localized("get_pro_purchase_failed_title") }
+    public var getProPurchaseFailedDescription: String { localized("get_pro_purchase_failed_description") }
+    public var getProContentLoadingError: String { localized("get_pro_content_loading_error") }
+    public var getProRetry: String { localized("get_pro_retry") }
     
     public var postScreenTitle: String { localized("post_screen_title") }
     public var postScreenCommentPlaceholder: String { localized("post_screen_comment_placeholder") }
@@ -112,8 +125,19 @@ extension StringsLibrary {
     public var addPostScreenPlaceholder: String { localized("add_post_screen_placeholder") }
     public var addPostRecord: String { localized("add_post_record") }
     public var addPostChooseAudioFile: String { localized("add_post_choose_audio_file") }
+    public var addPostErrorTitle: String { localized("add_post_error_title") }
+    public var addPostErrorSubtitle: String { localized("add_post_error_subtitle") }
     
     public var editProfileScreenTitle: String { localized("edit_profile_screen_title") }
     public var editProfileNameTitle: String { localized("edit_profile_name_title") }
     public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }
+    public var editProfileErrorTitle: String { localized("edit_profile_error_title") }
+    public var editProfileErrorSubtitle: String { localized("edit_profile_error_subtitle") }
+    
+    public var postAudioLoadingError: String { localized("post_audio_loading_error") }
+    public var postAddCommentErrorTitle: String { localized("post_add_comment_error_title") }
+    public var postAddCommentErrorSubtitle: String { localized("post_add_comment_error_subtitle") }
+    
+    public var contentLoadingErrorTitle: String { localized("content_loading_error_title") }
+    public var contentLoadingErrorSubitle: String { localized("content_loading_error_subtitle") }
 }

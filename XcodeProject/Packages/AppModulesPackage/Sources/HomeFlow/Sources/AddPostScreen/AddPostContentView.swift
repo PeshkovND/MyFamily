@@ -103,6 +103,10 @@ extension AddPostViewController {
             return view
         }()
         
+        private(set) lazy var loadingView: UIView = {
+            return LoadingView()
+        }()
+        
         private(set) lazy var addVideoButton: ActionButton = {
             let button = ActionButton()
             let image = UIImage(systemName: "video")?.withTintColor(
@@ -187,6 +191,7 @@ extension AddPostViewController {
             contentImageView.addSubview(deleteContentButton)
             contentVideoView.addSubview(deleteContentButton)
             contentAudioView.addSubview(deleteContentButton)
+            addSubview(loadingView)
             setupConstraints()
         }
         
@@ -205,6 +210,10 @@ extension AddPostViewController {
                 $0.top.equalTo(safeAreaLayoutGuide.snp.top)
                 $0.leading.equalToSuperview().inset(8)
                 $0.trailing.equalToSuperview().inset(8)
+            }
+            
+            loadingView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
             }
         }
         

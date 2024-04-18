@@ -48,6 +48,12 @@ public struct BaseUIError<FieldInfo> {
                     title: strings.commonError, message: strings.commonUnexpectedError
                 )
             )
+        case .custom(let title, let message):
+            return .init(
+                alert: .init(
+                    title: title, message: message
+                )
+            )
         case .permissionDenied, .unathorized:
             // INFO: It's not supposed to handle it by default
             return nil

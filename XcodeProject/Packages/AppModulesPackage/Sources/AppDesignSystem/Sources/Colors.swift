@@ -41,6 +41,8 @@ extension Colors {
     public var onlineStatusColor: UIColor  { valueOrStub("background_secondary_variant") }
     public var offlineStatusColor: UIColor { .gray }
     public var atHomeStatusColor: UIColor { .orange }
+    
+    public var premiumColor: UIColor { UIColor(red: 230 / 255, green: 189 / 255, blue: 25 / 255, alpha: 1) }
 }
 
 // MARK: - Color Palette

@@ -30,6 +30,8 @@ enum EditProfileViewState: Stubable {
     case imageloading
     case imageLoaded
     case contentLoadingError
+    case loading
+    case failure
 
     static var stub: EditProfileViewState { .initial(
         firstname: "",
@@ -43,6 +45,7 @@ enum EditProfileViewState: Stubable {
 enum EditProfileOutputEvent {
     case saveTapped
     case viewWillDisapear
+    case onBack
 }
 
 // MARK: - View Event
@@ -52,5 +55,6 @@ enum EditProfileViewEvent {
     case viewWillDisapear
     case `deinit`
     case saveButtonDidTapped
+    case onBack
     case usernameDidChanged(firstname: String, lastName: String)
 }

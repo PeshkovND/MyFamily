@@ -31,17 +31,23 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let debugTogglesHolder: DebugTogglesHolder
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
-    private let audioPlayer: AVQueuePlayer
+    private let audioPlayer: AVPlayer
     private let locationManager: AppLocationManager
+    private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
+    private let purchaseManager: PurchaseManager
+    private let defaultsStorage: DefaultsStorage
     
     public init(
         navigationController: UINavigationController,
         authService: AuthService,
         debugTogglesHolder: DebugTogglesHolder,
-        audioPlayer: AVQueuePlayer,
+        audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
-        locationManager: AppLocationManager
+        locationManager: AppLocationManager,
+        swiftDataManager: SwiftDataManager,
+        purchaseManager: PurchaseManager,
+        defaultsStorage: DefaultsStorage
     ) {
         self.navigationController = navigationController
         self.authService = authService
@@ -49,6 +55,9 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
         self.locationManager = locationManager
+        self.swiftDataManager = swiftDataManager
+        self.purchaseManager = purchaseManager
+        self.defaultsStorage = defaultsStorage
     }
     
     public func start() {
@@ -99,11 +108,31 @@ private extension HomeCoordinator {
         
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        Task {
+            do {
+                guard let user = authService.account else { return }
+                await purchaseManager.updatePurchasedProducts()
+                if purchaseManager.hasUnlockedPro {
+                    try await firebaseClient.setProStatus(userId: user.id, status: true)
+                    defaultsStorage.add(object: true, forKey: "isPro")
+                } else {
+                    try await firebaseClient.setProStatus(userId: user.id, status: false)
+                    defaultsStorage.add(object: false, forKey: "isPro")
+                }
+            } catch {
+                print("error")
+            }
+        }
     }
     
     func makeNewsViewController() -> UINavigationController {
         
-        let repository = NewsRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = NewsRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
@@ -131,7 +160,7 @@ private extension HomeCoordinator {
     
     func makeFamilyViewController() -> UIViewController {
                 
-        let repository = FamilyRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = FamilyRepository(firebaseClient: firebaseClient, authService: authService, swiftDataManager: swiftDataManager)
         let viewModel = FamilyViewModel(repository: repository)
         let viewController = FamilyViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarFamilyTitle
@@ -154,7 +183,11 @@ private extension HomeCoordinator {
     }
     
     func makeMapViewController() -> UIViewController {
-        let repository = MapRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = MapRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = MapViewModel(repository: repository, locationManager: locationManager)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
@@ -166,7 +199,11 @@ private extension HomeCoordinator {
     
     func makeProfileViewController() -> UIViewController {
         guard let userId = authService.account?.id else { return UIViewController() }
-        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = ProfileRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         
@@ -185,6 +222,9 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let vc = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -196,8 +236,32 @@ private extension HomeCoordinator {
         return nvc
     }
     
+    private func makeGetProScreen() -> GetProViewController {
+        let repository = GetProRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager,
+            purchaseManager: purchaseManager,
+            defaultsStorage: defaultsStorage
+        )
+        let viewModel = GetProViewModel(repository: repository)
+        let viewController = GetProViewController(viewModel: viewModel)
+        viewModel.outputEventPublisher.sink { event in
+            switch event {
+            case .finish(isSuccess: let isSuccess):
+                viewController.dismiss(animated: true, completion: nil)
+                if isSuccess { self.start() }
+            }
+        }.store(in: &setCancelable)
+        return viewController
+    }
+    
     private func openProfileScreen(id: Int, nvc: UINavigationController) {
-        let repository = ProfileRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = ProfileRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = ProfileViewModel(userId: id, audioPlayer: self.audioPlayer, repository: repository)
         let viewController = ProfileViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
@@ -209,7 +273,7 @@ private extension HomeCoordinator {
                 guard let self = self else { return }
                 
                 switch event {
-                case .commentTapped(id: let id) :
+                case .commentTapped(id: let id):
                     openPostScreen(id: id, nvc: nvc, animated: true)
                 case .shareTapped(id: let id):
                     showSharePostViewController(id: id)
@@ -217,6 +281,9 @@ private extension HomeCoordinator {
                     eventSubject.send(.signOut)
                 case .editProfile:
                     openEditProfileScreen()
+                case .getPro:
+                    let vc = makeGetProScreen()
+                    self.tabBarController.present(vc, animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -231,8 +298,13 @@ private extension HomeCoordinator {
             .sink { [weak self] event in
                 guard let self = self else { return }
                 switch event {
-                case .addedPost:
-                    self.startHomeScreen()
+                case .finish(isPostAdded: let isPostAdded):
+                    if isPostAdded {
+                        self.startHomeScreen()
+                    } else {
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                    self.navigationController?.isNavigationBarHidden = true
                 }
             }
             .store(in: &setCancelable)
@@ -240,9 +312,9 @@ private extension HomeCoordinator {
         let viewController = AddPostViewController(viewModel: viewModel)
         viewController.navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
-        navigationController?.isNavigationBarHidden = false
         viewController.title = appDesignSystem.strings.postScreenTitle
         navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.isNavigationBarHidden = false
     }
     
     private func openEditProfileScreen() {
@@ -258,6 +330,8 @@ private extension HomeCoordinator {
                     tabBarController.selectedIndex = 3
                 case .viewWillDisapear:
                     self.navigationController?.isNavigationBarHidden = true
+                case .onBack:
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
             .store(in: &setCancelable)
@@ -271,7 +345,11 @@ private extension HomeCoordinator {
     }
     
     private func openPostScreen(id: String, nvc: UINavigationController, animated: Bool) {
-        let repository = PostRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = PostRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
         let viewModel = PostViewModel(postId: id, audioPlayer: self.audioPlayer, repository: repository)
         viewModel.outputEventPublisher
             .sink { [weak self] event in

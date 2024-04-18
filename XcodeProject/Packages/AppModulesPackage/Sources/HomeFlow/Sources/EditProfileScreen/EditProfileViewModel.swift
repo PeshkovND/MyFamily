@@ -42,25 +42,34 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
                 photoUrl: userPhotoUrl
             )
         case .saveButtonDidTapped:
+            self.viewState = .loading
             editUser()
         case .usernameDidChanged(let firstName, let lastName):
             self.userName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
             self.userSurname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
         case .viewWillDisapear:
             outputEventSubject.send(.viewWillDisapear)
+        case .onBack:
+            outputEventSubject.send(.onBack)
         }
     }
     
     private func editUser() {
         Task {
-            guard let url = self.linkToMediaContent else { return }
-            try await self.repository.editUser(
-                name: self.userName,
-                surname: self.userSurname,
-                imageURL: url
-            )
-            await MainActor.run {
-                outputEventSubject.send(.saveTapped)
+            do {
+                guard let url = self.linkToMediaContent else { return }
+                try await self.repository.editUser(
+                    name: self.userName,
+                    surname: self.userSurname,
+                    imageURL: url
+                )
+                await MainActor.run {
+                    outputEventSubject.send(.saveTapped)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .failure
+                }
             }
         }
     }
