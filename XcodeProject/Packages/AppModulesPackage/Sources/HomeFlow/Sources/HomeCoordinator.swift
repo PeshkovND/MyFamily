@@ -325,9 +325,8 @@ private extension HomeCoordinator {
                 case .saveTapped:
                     start()
                     tabBarController.selectedIndex = 3
-                case .viewWillDisapear:
-                    self.navigationController?.isNavigationBarHidden = true
                 case .onBack:
+                    self.navigationController?.isNavigationBarHidden = true
                     self.navigationController?.popViewController(animated: true)
                 }
             }

@@ -19,11 +19,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     private var contentContainer: UIView { contentView.contentContainer }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var loadingView: UIView { contentView.loadingView }
-    private lazy var saveButton = UIBarButtonItem(
-        barButtonSystemItem: .save,
-        target: self,
-        action: #selector(saveTapped)
-    )
+    private lazy var saveButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
     private lazy var backButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(backTapped))
     
     private var isLoadingShowing = false {
@@ -79,7 +75,6 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         super.viewWillDisappear(animated)
         closeKeyboard()
         NotificationCenter.default.removeObserver(self)
-        viewModel.onViewEvent(.viewWillDisapear)
     }
     
     override func onViewState(_ viewState: EditProfileViewState) {
@@ -180,13 +175,7 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
     private func closeKeyboard() {
         nameInputField.resignFirstResponder()
         surnameInputField.resignFirstResponder()
-    }
-    
-    private func showContentLoadingError() {
-        //        activityIndicator.stopAnimating()
-        //        errorImageView.alpha = 1
-    }
-}
+    }}
 
 extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(

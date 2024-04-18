@@ -44,7 +44,6 @@ enum EditProfileViewState: Stubable {
 
 enum EditProfileOutputEvent {
     case saveTapped
-    case viewWillDisapear
     case onBack
 }
 
@@ -52,7 +51,6 @@ enum EditProfileOutputEvent {
 
 enum EditProfileViewEvent {
     case viewDidLoad
-    case viewWillDisapear
     case `deinit`
     case saveButtonDidTapped
     case onBack
