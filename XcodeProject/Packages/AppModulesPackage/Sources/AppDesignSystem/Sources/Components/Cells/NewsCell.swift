@@ -1,31 +1,65 @@
 import UIKit
 import Foundation
 import Utilities
-import AppDesignSystem
 import AVKit
+import AppEntities
 
-final class NewsCell: UITableViewCell {
+public final class NewsCell: UITableViewCell {
     
-    struct Model {
-        let userImageURL: URL?
-        let name: String
-        let contentLabel: String?
-        let mediaContent: MediaContent?
-        var commentsCount: Int
-        let likeButtonTapAction: () -> Void
-        let profileTapAction: () -> Void
-        let commentButtonTapAction: () -> Void
-        let shareButtonTapAction: () -> Void
-        let onAudioLoadingError: () -> Void
+    public struct Model {
+        public let userImageURL: URL?
+        public let name: String
+        public let contentLabel: String?
+        public let mediaContent: MediaContent?
+        public var commentsCount: Int
+        public let likeButtonTapAction: () -> Void
+        public let profileTapAction: () -> Void
+        public let commentButtonTapAction: () -> Void
+        public let shareButtonTapAction: () -> Void
+        public let onAudioLoadingError: () -> Void
         
-        let isPremium: Bool
-        let likesModel: LikesModel
-        let audioPlayer: AVPlayer
+        public let isPremium: Bool
+        public let likesModel: LikesModel
+        public let audioPlayer: AVPlayer
+        
+        public init(
+            userImageURL: URL?,
+            name: String, contentLabel: String?,
+            mediaContent: MediaContent?,
+            commentsCount: Int,
+            likeButtonTapAction: @escaping () -> Void,
+            profileTapAction: @escaping () -> Void,
+            commentButtonTapAction: @escaping () -> Void,
+            shareButtonTapAction: @escaping () -> Void,
+            onAudioLoadingError: @escaping () -> Void,
+            isPremium: Bool, 
+            likesModel: LikesModel,
+            audioPlayer: AVPlayer
+        ) {
+            self.userImageURL = userImageURL
+            self.name = name
+            self.contentLabel = contentLabel
+            self.mediaContent = mediaContent
+            self.commentsCount = commentsCount
+            self.likeButtonTapAction = likeButtonTapAction
+            self.profileTapAction = profileTapAction
+            self.commentButtonTapAction = commentButtonTapAction
+            self.shareButtonTapAction = shareButtonTapAction
+            self.onAudioLoadingError = onAudioLoadingError
+            self.isPremium = isPremium
+            self.likesModel = likesModel
+            self.audioPlayer = audioPlayer
+        }
     }
     
-    struct LikesModel {
-        var likesCount: Int
-        var isLiked: Bool
+    public struct LikesModel {
+        public var likesCount: Int
+        public var isLiked: Bool
+        
+        public init(likesCount: Int, isLiked: Bool) {
+            self.likesCount = likesCount
+            self.isLiked = isLiked
+        }
     }
 
     private enum Layout {
@@ -328,7 +362,7 @@ final class NewsCell: UITableViewCell {
         self.userImageView.setImageUrl(url: model.userImageURL)
     }
     
-    func setupLikes(_ model: LikesModel) {
+    public func setupLikes(_ model: LikesModel) {
         let likesCount = String(model.likesCount)
         self.likeButton.setTitle(likesCount, for: .normal)
         

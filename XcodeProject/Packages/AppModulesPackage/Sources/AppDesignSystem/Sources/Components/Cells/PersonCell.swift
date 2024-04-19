@@ -1,12 +1,19 @@
 import UIKit
-import AppDesignSystem
+import AppEntities
 
-final class PersonCell: UITableViewCell {
-    struct Model {
-        let userImageURL: URL?
-        let name: String
-        let status: PersonStatus
-        let isPro: Bool
+public final class PersonCell: UITableViewCell {
+    public struct Model {
+        public let userImageURL: URL?
+        public let name: String
+        public let status: PersonStatus
+        public let isPro: Bool
+        
+        public init(userImageURL: URL?, name: String, status: PersonStatus, isPro: Bool) {
+            self.userImageURL = userImageURL
+            self.name = name
+            self.status = status
+            self.isPro = isPro
+        }
     }
     
     private let userImageView: UIImageView = {
@@ -74,7 +81,7 @@ final class PersonCell: UITableViewCell {
         super.init(coder: coder)
     }
     
-    func setup(_ model: Model) {
+    public func setup(_ model: Model) {
         self.userImageView.setImageUrl(url: model.userImageURL)
         
         let text = NSMutableAttributedString(string: model.name + " ")

@@ -4,12 +4,6 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 
-enum PersonStatus: Equatable {
-    case online
-    case atHome
-    case offline(lastOnline: String)
-}
-
 struct FamilyViewData {
     let id: Int
     let userImageURL: URL?

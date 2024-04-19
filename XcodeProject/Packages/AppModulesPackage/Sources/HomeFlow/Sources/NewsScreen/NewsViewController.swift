@@ -4,12 +4,7 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 import MobileCoreServices
-
-enum MediaContent {
-    case Image(url: URL?)
-    case Audio(url: URL?)
-    case Video(url: URL?)
-}
+import AppEntities
 
 struct NewsViewPost {
     let id: String

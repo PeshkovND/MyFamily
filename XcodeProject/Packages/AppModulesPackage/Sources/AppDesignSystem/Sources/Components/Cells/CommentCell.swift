@@ -1,12 +1,18 @@
 import UIKit
-import AppDesignSystem
 
-final class CommentCell: UITableViewCell {
-    struct Model {
-        let userImageURL: URL?
-        let name: String
-        let text: String
-        let userTapAction: () -> Void
+public final class CommentCell: UITableViewCell {
+    public struct Model {
+        public let userImageURL: URL?
+        public let name: String
+        public let text: String
+        public let userTapAction: () -> Void
+        
+        public init(userImageURL: URL?, name: String, text: String, userTapAction: @escaping () -> Void) {
+            self.userImageURL = userImageURL
+            self.name = name
+            self.text = text
+            self.userTapAction = userTapAction
+        }
     }
     
     private let userImageView: UIImageView = {
@@ -93,7 +99,7 @@ final class CommentCell: UITableViewCell {
         super.init(coder: coder)
     }
     
-    func setup(_ model: Model) {
+    public func setup(_ model: Model) {
         self.usernameLabel.text = model.name
         self.userImageView.setImageUrl(url: model.userImageURL)
         self.commentLabel.text = model.text

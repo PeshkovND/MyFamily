@@ -1,5 +1,6 @@
 import MapKit
 import AppDesignSystem
+import AppEntities
 
 class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
