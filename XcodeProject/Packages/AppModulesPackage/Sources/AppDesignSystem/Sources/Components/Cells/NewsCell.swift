@@ -19,7 +19,7 @@ public final class NewsCell: UITableViewCell {
         public let onAudioLoadingError: () -> Void
         
         public let isPremium: Bool
-        public let likesModel: LikesModel
+        public var likesModel: LikesModel
         public let audioPlayer: AVPlayer
         
         public init(
@@ -61,13 +61,8 @@ public final class NewsCell: UITableViewCell {
             self.isLiked = isLiked
         }
     }
-
-    private enum Layout {
-        static let cardLabelConstraintValue = CGFloat(16)
-        static let containerWidthMultiplier = CGFloat(0.8)
-    }
     
-    private var isAudioPlayerPlaingBeforeBigPlayerOpening = false
+    private var isAudioPlayerPlayingBeforeBigPlayerOpening = false
 
     private let userImageView: UIImageView = {
         let userImageView = UIImageView()
@@ -179,8 +174,11 @@ public final class NewsCell: UITableViewCell {
     }
     
     public func setup(_ model: Model) {
-        setupContentConstraints(model: model)
-        setupData(model: model)
+        setupMediaContent(model: model)
+        setupUserData(model: model)
+        setupLikes(model.likesModel)
+        setupComments(model)
+        setupControlButtonsActions(model)
     }
     
     private func setupUserInfoConstraints() {
@@ -205,101 +203,119 @@ public final class NewsCell: UITableViewCell {
         }
     }
     
-    // swiftlint:disable function_body_length
-    private func setupContentConstraints(model: Model) {
-        
+    private func setupMediaContent(model: Model) {
         if let contentText = model.contentLabel {
-            contentView.addSubview(contentLabel)
-            contentLabel.text = contentText
-            contentLabel.snp.removeConstraints()
-            contentLabel.snp.makeConstraints {
-                $0.top.equalTo(userImageView.snp.bottom).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(16)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(16)
-                if model.mediaContent == nil {
-                    $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                }
-            }
+            setupContentLabel(text: contentText, model: model)
         } else {
             self.contentLabel.removeFromSuperview()
         }
         
         switch model.mediaContent {
         case .Video(let url):
-            guard let url = url else { return }
-            contentView.addSubview(videoContainer)
-            videoContainer.addVideoToPlayer(videoUrl: url)
-            videoContainer.onOpenBigPlayer = {
-                if model.audioPlayer.timeControlStatus == .playing {
-                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = true
-                    model.audioPlayer.pause()
-                } else {
-                    self.isAudioPlayerPlaingBeforeBigPlayerOpening = false
-                }
-            }
-            videoContainer.onCloseBigPlayer = {
-                if self.isAudioPlayerPlaingBeforeBigPlayerOpening {
-                    model.audioPlayer.play()
-                }
-            }
-            videoContainer.snp.removeConstraints()
-            videoContainer.snp.makeConstraints {
-                $0.top.equalTo(model.contentLabel != nil
-                               ? contentLabel.snp.bottom
-                               : userImageView.snp.bottom
-                ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading)
-                $0.trailing.equalTo(contentView.snp.trailing)
-                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(contentView.snp.width).multipliedBy(0.6)
-            }
-            audioView.removeFromSuperview()
-            contentImageView.removeFromSuperview()
+            setupVideo(url: url, model: model)
         case .Image(let url):
-            guard let url = url else { return }
-            contentView.addSubview(contentImageView)
-            self.contentImageView.setImageUrl(url: url)
-            contentImageView.snp.removeConstraints()
-            contentImageView.snp.makeConstraints {
-                $0.top.equalTo(model.contentLabel != nil
-                               ? contentLabel.snp.bottom
-                               : userImageView.snp.bottom
-                ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading)
-                $0.trailing.equalTo(contentView.snp.trailing)
-                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(contentImageView.snp.width)
-            }
-            videoContainer.removeFromSuperview()
-            audioView.removeFromSuperview()
+            setupImage(url: url, model: model)
         case .Audio(let url):
-            guard let url = url else { return }
-            contentView.addSubview(audioView)
-            audioView.player = model.audioPlayer
-            audioView.audioURL = url
-            audioView.onItemLoadingError = model.onAudioLoadingError
-            audioView.setupPlayerData()
-            audioView.snp.removeConstraints()
-            audioView.snp.makeConstraints {
-                $0.top.equalTo(model.contentLabel != nil
-                               ? contentLabel.snp.bottom
-                               : userImageView.snp.bottom
-                ).inset(-8)
-                $0.leading.equalTo(contentView.snp.leading).inset(16)
-                $0.trailing.equalTo(contentView.snp.trailing).inset(16)
-                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
-                $0.height.equalTo(40)
-            }
-            contentImageView.removeFromSuperview()
-            videoContainer.removeFromSuperview()
+            setupAudio(url: url, model: model)
         case .none:
-            videoContainer.snp.removeConstraints()
-            contentImageView.snp.removeConstraints()
-            audioView.snp.removeConstraints()
-            videoContainer.removeFromSuperview()
-            contentImageView.removeFromSuperview()
-            audioView.removeFromSuperview()
+            removeMediaContent()
         }
+    }
+    
+    private func setupVideo(url: URL?, model: Model) {
+        guard let url = url else { return }
+        contentView.addSubview(videoContainer)
+        videoContainer.addVideoToPlayer(videoUrl: url)
+        videoContainer.onOpenBigPlayer = {
+            if model.audioPlayer.timeControlStatus == .playing {
+                self.isAudioPlayerPlayingBeforeBigPlayerOpening = true
+                model.audioPlayer.pause()
+            } else {
+                self.isAudioPlayerPlayingBeforeBigPlayerOpening = false
+            }
+        }
+        videoContainer.onCloseBigPlayer = {
+            if self.isAudioPlayerPlayingBeforeBigPlayerOpening {
+                model.audioPlayer.play()
+            }
+        }
+        videoContainer.snp.removeConstraints()
+        videoContainer.snp.makeConstraints {
+            $0.top.equalTo(model.contentLabel != nil
+                           ? contentLabel.snp.bottom
+                           : userImageView.snp.bottom
+            ).inset(-8)
+            $0.leading.equalTo(contentView.snp.leading)
+            $0.trailing.equalTo(contentView.snp.trailing)
+            $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+            $0.height.equalTo(contentView.snp.width).multipliedBy(0.6)
+        }
+        audioView.removeFromSuperview()
+        contentImageView.removeFromSuperview()
+    }
+    
+    private func setupAudio(url: URL?, model: Model) {
+        guard let url = url else { return }
+        contentView.addSubview(audioView)
+        audioView.player = model.audioPlayer
+        audioView.audioURL = url
+        audioView.onItemLoadingError = model.onAudioLoadingError
+        audioView.setupPlayerData()
+        audioView.snp.removeConstraints()
+        audioView.snp.makeConstraints {
+            $0.top.equalTo(model.contentLabel != nil
+                           ? contentLabel.snp.bottom
+                           : userImageView.snp.bottom
+            ).inset(-8)
+            $0.leading.equalTo(contentView.snp.leading).inset(16)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+            $0.height.equalTo(40)
+        }
+        contentImageView.removeFromSuperview()
+        videoContainer.removeFromSuperview()
+    }
+    
+    private func setupImage(url: URL?, model: Model) {
+        guard let url = url else { return }
+        contentView.addSubview(contentImageView)
+        self.contentImageView.setImageUrl(url: url)
+        contentImageView.snp.removeConstraints()
+        contentImageView.snp.makeConstraints {
+            $0.top.equalTo(model.contentLabel != nil
+                           ? contentLabel.snp.bottom
+                           : userImageView.snp.bottom
+            ).inset(-8)
+            $0.leading.equalTo(contentView.snp.leading)
+            $0.trailing.equalTo(contentView.snp.trailing)
+            $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+            $0.height.equalTo(contentImageView.snp.width)
+        }
+        videoContainer.removeFromSuperview()
+        audioView.removeFromSuperview()
+    }
+    
+    private func setupContentLabel(text: String, model: Model) {
+        contentView.addSubview(contentLabel)
+        contentLabel.text = text
+        contentLabel.snp.removeConstraints()
+        contentLabel.snp.makeConstraints {
+            $0.top.equalTo(userImageView.snp.bottom).inset(-8)
+            $0.leading.equalTo(contentView.snp.leading).inset(16)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            if model.mediaContent == nil {
+                $0.bottom.equalTo(commentButton.snp.top).inset(-8)
+            }
+        }
+    }
+    
+    private func removeMediaContent() {
+        videoContainer.snp.removeConstraints()
+        contentImageView.snp.removeConstraints()
+        audioView.snp.removeConstraints()
+        videoContainer.removeFromSuperview()
+        contentImageView.removeFromSuperview()
+        audioView.removeFromSuperview()
     }
     
     private func setupControlButtonConstraints() {
@@ -325,29 +341,7 @@ public final class NewsCell: UITableViewCell {
         }
     }
     
-    private func setupData(model: Model) {
-        
-        likeButton.onTap = {
-            model.likeButtonTapAction()
-        }
-        
-        commentButton.onTap = {
-            model.commentButtonTapAction()
-        }
-        
-        userInfoContainerButton.onTap = {
-            model.profileTapAction()
-        }
-        
-        shareButton.onTap = {
-            model.shareButtonTapAction()
-        }
-        
-        setupLikes(model.likesModel)
-        
-        let commentsCount = String(model.commentsCount)
-        self.commentButton.setTitle(commentsCount, for: .normal)
-        
+    private func setupUserData(model: Model) {
         let text = NSMutableAttributedString(string: model.name + " ")
         if model.isPremium {
             let imageAttachment = NSTextAttachment()
@@ -358,7 +352,7 @@ public final class NewsCell: UITableViewCell {
         usernameLabel.textColor = model.isPremium
         ? appDesignSystem.colors.premiumColor
         : appDesignSystem.colors.labelPrimary
-        
+        userInfoContainerButton.onTap = { model.profileTapAction() }
         self.userImageView.setImageUrl(url: model.userImageURL)
     }
     
@@ -371,6 +365,17 @@ public final class NewsCell: UITableViewCell {
         } else {
             likeButton.setImage(appDesignSystem.icons.like, for: .normal)
         }
+    }
+    
+    private func setupComments(_ model: Model ) {
+        let commentsCount = String(model.commentsCount)
+        self.commentButton.setTitle(commentsCount, for: .normal)
+    }
+    
+    private func setupControlButtonsActions(_ model: Model) {
+        commentButton.onTap = { model.commentButtonTapAction() }
+        shareButton.onTap = { model.shareButtonTapAction() }
+        likeButton.onTap = { model.likeButtonTapAction() }
     }
     
     public func startVideo() {

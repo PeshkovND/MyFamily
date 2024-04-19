@@ -119,7 +119,7 @@ extension NewsViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
             onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
