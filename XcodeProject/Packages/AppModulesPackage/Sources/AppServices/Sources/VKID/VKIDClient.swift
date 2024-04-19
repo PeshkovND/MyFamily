@@ -5,15 +5,17 @@ import AppEntities
 public final class VKIDClient {
     public var vkid: VKID
     private let firebaseClient: FirebaseClient
+    private let env: Env
     
-    public init(firebaseClient: FirebaseClient) {
+    public init(firebaseClient: FirebaseClient, env: Env) {
         self.firebaseClient = firebaseClient
+        self.env = env
         do {
             vkid = try VKID(
                 config: Configuration(
                     appCredentials: AppCredentials(
-                        clientId: "51879243",
-                        clientSecret: "pOg3b9a2oLiBnG3xWBL6"
+                        clientId: env.vkidClientId,
+                        clientSecret: env.vkidClientSecret
                     )
                 )
             )

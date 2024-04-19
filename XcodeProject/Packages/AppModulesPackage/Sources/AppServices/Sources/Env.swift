@@ -16,6 +16,8 @@ public struct Env {
 
     public var stagingApi: String { InfoPlist.apiStaging }
     public var productionApi: String { InfoPlist.apiProduction }
+    public var vkidClientId: String { InfoPlist.vkidClientId }
+    public var vkidClientSecret: String { InfoPlist.vkidClientSecret }
 
     private var currentApi: String {
         debugStorage.primitiveValue(
@@ -73,5 +75,13 @@ public struct InfoPlist {
 
     public static var apiProduction: String {
         info["APP_API_PRODUCTION"] as? String ?? ""
+    }
+    
+    public static var vkidClientId: String {
+        info["VKID_CLIENT_ID"] as? String ?? ""
+    }
+    
+    public static var vkidClientSecret: String {
+        info["VKID_CLIENT_SECRET"] as? String ?? ""
     }
 }

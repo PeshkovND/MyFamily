@@ -17,3 +17,6 @@ APP_API_PRODUCTION = https:/$()/api.apptemplate.effective.band
 //----------------------------------------------------------------------
 PRODUCT_BUNDLE_IDENTIFIER = my.family
 DEVELOPMENT_TEAM = JVX7U43WRX
+
+VKID_CLIENT_ID = 51879243
+VKID_CLIENT_SECRET = pOg3b9a2oLiBnG3xWBL6

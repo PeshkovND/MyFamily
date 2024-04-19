@@ -31,7 +31,7 @@ struct AppContainer {
     private static let defaultJsonDecoder = JSONDecoder()
 
     private static let memoryStorage: MemoryStorage = .init()
-    private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient)
+    private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient, env: env)
     private static let firebaseClient = FirebaseClient()
     private static let swiftDataManager = SwiftDataManager()
     private static let purchaseManager = PurchaseManager()
