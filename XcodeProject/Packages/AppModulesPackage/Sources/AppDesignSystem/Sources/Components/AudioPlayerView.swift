@@ -31,15 +31,8 @@ final class AudioPlayerView: UIView {
         return button
     }()
     
-    private let playImage = UIImage(systemName: "play")?.withTintColor(
-        .white,
-        renderingMode: .alwaysOriginal
-    )
-    
-    private let pauseImage = UIImage(systemName: "pause")?.withTintColor(
-        .white,
-        renderingMode: .alwaysOriginal
-    )
+    private let playImage = appDesignSystem.icons.play
+    private let pauseImage = appDesignSystem.icons.pause
     
     private let slider: UISlider = {
         let view = UISlider()

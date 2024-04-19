@@ -36,15 +36,7 @@ extension PostViewController {
         
         private(set) lazy var sendButton: ActionButton = {
             let view = ActionButton()
-            var image = UIImage(systemName: "arrow.forward.circle")?.withTintColor(
-                colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            ).scaleImageToFitSize(
-                size: .init(
-                    width: 36,
-                    height: 36
-                )
-            )
+            var image = appDesignSystem.icons.sendIcon.scaleImageToFitSize(size: .init(width: 36, height: 36))
             view.setImage(image, for: .normal)
             
             return view

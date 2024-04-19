@@ -126,7 +126,7 @@ public final class ProfileCell: UITableViewCell {
         let text = NSMutableAttributedString(string: model.name + " ")
         if model.isPro {
             let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            imageAttachment.image = appDesignSystem.icons.premium
             text.append(NSAttributedString(attachment: imageAttachment))
         }
         

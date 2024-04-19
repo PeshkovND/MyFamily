@@ -44,12 +44,7 @@ extension MapViewController {
             button.layer.borderWidth = 4
             button.layer.cornerRadius = 20
             button.backgroundColor = colors.backgroundPrimary
-            button.setImage(
-                UIImage(systemName: "house.fill")?.withTintColor(
-                    colors.backgroundSecondaryVariant,
-                    renderingMode: .alwaysOriginal
-                ),
-                for: .normal)
+            button.setImage(icons.homeFill, for: .normal)
             return button
         }()
         
@@ -60,12 +55,7 @@ extension MapViewController {
             button.layer.borderWidth = 4
             button.layer.cornerRadius = 20
             button.backgroundColor = colors.backgroundPrimary
-            button.setImage(
-                UIImage(systemName: "location.fill")?.withTintColor(
-                    colors.backgroundSecondaryVariant,
-                    renderingMode: .alwaysOriginal
-                ),
-                for: .normal)
+            button.setImage(icons.location, for: .normal)
             return button
         }()
         

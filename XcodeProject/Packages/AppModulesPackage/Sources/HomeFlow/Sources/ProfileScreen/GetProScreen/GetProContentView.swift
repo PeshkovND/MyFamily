@@ -26,7 +26,7 @@ extension GetProViewController {
             view.textAlignment = .center
             
             let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(.orange)
+            imageAttachment.image = icons.premium
             
             let text = NSMutableAttributedString(string: appDesignSystem.strings.getProHeader + " ")
             text.append(NSAttributedString(attachment: imageAttachment))
@@ -62,11 +62,7 @@ extension GetProViewController {
         
         private(set) lazy var closeButton: ActionButton = {
             let view = ActionButton()
-            let image = UIImage(systemName: "xmark")?
-                .withTintColor(
-                    appDesignSystem.colors.backgroundSecondaryVariant,
-                    renderingMode: .alwaysOriginal
-                )
+            let image = appDesignSystem.icons.close
                 .scaleImageToFitSize(size: .init(width: 20, height: 20))
             
             view.setImage(image, for: .normal)
@@ -114,7 +110,7 @@ extension GetProViewController {
             view.textAlignment = .center
             
             let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "exclamationmark.triangle")?.withTintColor(.red)
+            imageAttachment.image = icons.error
             
             let text = NSMutableAttributedString(string: appDesignSystem.strings.getProContentLoadingError + " ")
             text.append(NSAttributedString(attachment: imageAttachment))

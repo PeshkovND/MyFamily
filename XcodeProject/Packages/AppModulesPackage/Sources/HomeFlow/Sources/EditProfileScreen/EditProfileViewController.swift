@@ -33,29 +33,25 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         }
     }
     
-    private let errorImage = UIImage(systemName: "exclamationmark.triangle.fill")?
-        .withTintColor(appDesignSystem.colors.backgroundPrimary,
-                       renderingMode: .alwaysOriginal)
+    private let errorImage = appDesignSystem.icons.error
+        .withTintColor(
+            appDesignSystem.colors.backgroundPrimary,
+            renderingMode: .alwaysOriginal
+        )
         .scaleImageToFitSize(size: .init(width: 32, height: 32))
     
-    private let editImage = UIImage(systemName: "photo.badge.plus")?
-        .withTintColor(.white, renderingMode: .alwaysOriginal)
-        .scaleImageToFitSize(size: .init(width: 32, height: 32))
+    private let editImage = appDesignSystem.icons.addPhoto.scaleImageToFitSize(size: .init(width: 32, height: 32))
     
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
-            image: UIImage(systemName: "camera")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.camera, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.camera
+        ) { _ in self.open(.camera, for: UTType.image.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
-            image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.gallery
+        ) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [cameraAction, galleryAction])
         return menu

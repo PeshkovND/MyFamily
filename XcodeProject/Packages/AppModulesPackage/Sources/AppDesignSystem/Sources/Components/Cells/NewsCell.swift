@@ -100,7 +100,7 @@ public final class NewsCell: UITableViewCell {
         filled.baseForegroundColor = .black
         
         let button = ActionButton(configuration: filled, primaryAction: nil)
-        let icon = UIImage(systemName: "heart")
+        let icon = appDesignSystem.icons.like
         button.setImage(icon, for: .normal)
         return button
     }()
@@ -112,7 +112,7 @@ public final class NewsCell: UITableViewCell {
         filled.baseForegroundColor = .black
         
         let button = ActionButton(configuration: filled, primaryAction: nil)
-        let icon = UIImage(systemName: "message")
+        let icon = appDesignSystem.icons.comment
         button.setImage(icon, for: .normal)
         
         return button
@@ -125,7 +125,7 @@ public final class NewsCell: UITableViewCell {
         filled.baseForegroundColor = .black
         
         let button = ActionButton(configuration: filled, primaryAction: nil)
-        let icon = UIImage(systemName: "paperplane")
+        let icon = appDesignSystem.icons.share
         button.setImage(icon, for: .normal)
         
         return button
@@ -351,7 +351,7 @@ public final class NewsCell: UITableViewCell {
         let text = NSMutableAttributedString(string: model.name + " ")
         if model.isPremium {
             let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            imageAttachment.image = appDesignSystem.icons.premium
             text.append(NSAttributedString(attachment: imageAttachment))
         }
         usernameLabel.attributedText = text
@@ -367,9 +367,9 @@ public final class NewsCell: UITableViewCell {
         self.likeButton.setTitle(likesCount, for: .normal)
         
         if model.isLiked {
-            likeButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal), for: .normal)
+            likeButton.setImage(appDesignSystem.icons.likeFilled, for: .normal)
         } else {
-            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+            likeButton.setImage(appDesignSystem.icons.like, for: .normal)
         }
     }
     

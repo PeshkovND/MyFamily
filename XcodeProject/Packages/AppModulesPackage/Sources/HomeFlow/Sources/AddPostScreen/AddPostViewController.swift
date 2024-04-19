@@ -48,17 +48,12 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
-            image: UIImage(systemName: "camera")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.camera, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.camera
+        ) { _ in self.open(.camera, for: UTType.image.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
-            image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.gallery) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
@@ -67,17 +62,13 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private(set) lazy var addVideoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
-            image: UIImage(systemName: "camera")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.camera, for: UTType.movie.identifier) }
+            image: appDesignSystem.icons.camera
+        ) { _ in self.open(.camera, for: UTType.movie.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
-            image: UIImage(systemName: "arrow.up.right.video")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.photoLibrary, for: UTType.movie.identifier) }
+            image: appDesignSystem.icons.videoGallery
+        ) { _ in self.open(.photoLibrary, for: UTType.movie.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
@@ -168,16 +159,12 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     }
     
     private func recordingDidBegin() {
-        let image = UIImage(systemName: "stop.circle")?
-            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        let image = appDesignSystem.icons.stopRecording.scaleImageToFitSize(size: .init(width: 30, height: 30))
         self.addAudioButton.setImage(image, for: .normal)
     }
     
     private func recordingDidEnd() {
-        let image = UIImage(systemName: "mic")?
-            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        let image = appDesignSystem.icons.microphone.scaleImageToFitSize(size: .init(width: 30, height: 30))
         self.addAudioButton.setImage(image, for: .normal)
     }
     

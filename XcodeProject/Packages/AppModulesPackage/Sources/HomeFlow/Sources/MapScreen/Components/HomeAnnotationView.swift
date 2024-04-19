@@ -31,10 +31,7 @@ class MapHomeAnnotationView: MKAnnotationView {
         imageView.layer.cornerRadius = 18.0
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.image = UIImage(systemName: "house.circle.fill")?.withTintColor(
-            appDesignSystem.colors.backgroundSecondaryVariant,
-            renderingMode: .alwaysOriginal
-        )
+        imageView.image = appDesignSystem.icons.houseInCircle
         imageView.backgroundColor = .white
         return imageView
     }()

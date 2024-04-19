@@ -64,9 +64,7 @@ extension EditProfileViewController {
         
         private(set) var editImageButton: ActionButton = {
             let view = ActionButton()
-            let image = UIImage(systemName: "photo.badge.plus")?
-                .withTintColor(.white, renderingMode: .alwaysOriginal)
-                .scaleImageToFitSize(size: .init(width: 32, height: 32))
+            let image = appDesignSystem.icons.addPhoto.scaleImageToFitSize(size: .init(width: 32, height: 32))
             view.setImage(image, for: .normal)
             view.backgroundColor = .black.withAlphaComponent(0.5)
             view.showsMenuAsPrimaryAction = true

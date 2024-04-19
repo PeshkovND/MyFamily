@@ -48,7 +48,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "plus")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal),
+            image: appDesignSystem.icons.plus,
             style: .done,
             target: self,
             action: #selector(addPostButtonDidTapped)

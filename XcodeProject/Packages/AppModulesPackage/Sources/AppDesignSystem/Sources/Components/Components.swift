@@ -33,7 +33,7 @@ extension Components {
     public var mapTabBarItem: UITabBarItem {
         .init(
             title: strings.tabBarMapTitle,
-            image: UIImage(systemName: "map"),
+            image: icons.map,
             tag: 0
         )
     }
@@ -41,7 +41,7 @@ extension Components {
     public var newsTabBarItem: UITabBarItem {
         .init(
             title: strings.tabBarNewsTitle,
-            image: UIImage(systemName: "house"),
+            image: icons.home,
             tag: 0
         )
     }
@@ -49,7 +49,7 @@ extension Components {
     public var familyTabBarItem: UITabBarItem {
         .init(
             title: strings.tabBarFamilyTitle,
-            image: UIImage(systemName: "figure.2.and.child.holdinghands"),
+            image: icons.family,
             tag: 0
         )
     }
@@ -57,7 +57,7 @@ extension Components {
     public var profileTabBarItem: UITabBarItem {
         .init(
             title: strings.tabBarProfileTitle,
-            image: UIImage(systemName: "person.crop.circle"),
+            image: icons.profile,
             tag: 2
         )
     }

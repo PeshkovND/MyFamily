@@ -29,7 +29,7 @@ public class FailedStackView: UIStackView {
         self.alpha = 0
         
         let imageAttachment = NSTextAttachment()
-        imageAttachment.image = UIImage(systemName: "exclamationmark.triangle")?.withTintColor(.red)
+        imageAttachment.image = appDesignSystem.icons.error
         
         let text = NSMutableAttributedString(string: title + " ")
         text.append(NSAttributedString(attachment: imageAttachment))
