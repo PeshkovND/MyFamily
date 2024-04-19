@@ -1,6 +1,7 @@
 import Foundation
 import AppServices
 import Utilities
+import AppEntities
 
 final class FamilyRepository {
     private let firebaseClient: FirebaseClient

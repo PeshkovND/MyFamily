@@ -3,6 +3,7 @@
 import Foundation
 import AppServices
 import Utilities
+import AppEntities
 
 final class ProfileRepository {
     private let firebaseClient: FirebaseClient

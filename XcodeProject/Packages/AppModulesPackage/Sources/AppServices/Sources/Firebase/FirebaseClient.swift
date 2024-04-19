@@ -4,6 +4,7 @@ import FirebaseDatabase
 import FirebaseStorage
 import FirebaseFirestore
 import SwiftData
+import AppEntities
 
 private final class Collections {
     static let posts = "Posts"
@@ -35,7 +36,7 @@ public class FirebaseClient {
         self.db = db.reference()
     }
     
-    public func addUser(_ user: UserInfo) async throws -> Result<UserInfo,FirebaseClientError> {
+    public func addUser(_ user: UserInfo) async throws -> Result<UserInfo, FirebaseClientError> {
         let dbUserResult = try await getUser(user.id)
         switch dbUserResult {
         case .success(let dbUser):
@@ -210,7 +211,7 @@ public class FirebaseClient {
             } catch {
                 return .failure(.fetchingError)
             }
-        case .failure(_):
+        case .failure:
             return .failure(.fetchingError)
         }
     }

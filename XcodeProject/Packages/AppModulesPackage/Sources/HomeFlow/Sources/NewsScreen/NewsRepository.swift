@@ -2,6 +2,7 @@
 
 import Foundation
 import AppServices
+import AppEntities
 
 final class NewsRepository {
     private let firebaseClient: FirebaseClient

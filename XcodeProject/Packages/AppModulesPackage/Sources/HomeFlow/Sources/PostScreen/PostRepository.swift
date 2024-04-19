@@ -3,6 +3,7 @@
 import Foundation
 import AppServices
 import Utilities
+import AppEntities
 
 final class PostRepository {
     private let firebaseClient: FirebaseClient

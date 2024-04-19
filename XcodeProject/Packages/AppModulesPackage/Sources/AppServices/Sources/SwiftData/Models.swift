@@ -2,6 +2,7 @@
 
 import Foundation
 import SwiftData
+import AppEntities
 
 @Model
 public class CommentModel {

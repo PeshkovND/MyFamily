@@ -2,6 +2,7 @@
 
 import Foundation
 import SwiftData
+import AppEntities
 
 public enum SwiftDataManagerError: Error {
     case dataNotFound

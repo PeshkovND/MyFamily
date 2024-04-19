@@ -5,6 +5,7 @@ import Combine
 import AppEntities
 import AppServices
 import Alamofire
+import AppEntities
 
 public final class StubAuthInterceptor: RequestInterceptor {
 
@@ -16,7 +17,7 @@ public final class FakeAuthService: AuthService {
     public var hasAuthorizedUser: Bool { false }
     public var hasFilledProfile: Bool { false }
     public var credentials: Credentials? { nil }
-    public var account: AppServices.UserInfo? { nil }
+    public var account: Account? { nil }
     public func updateAccount(_ account: UserInfo) {}
     public var onLogoutCompleted: () -> Void = {}
     public var onAuthErrorOccured: () -> Void = {}

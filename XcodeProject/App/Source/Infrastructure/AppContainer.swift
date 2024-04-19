@@ -103,13 +103,11 @@ struct AppContainer {
     private static let authService: AppAuthService = .init(
         providingHttpClient: { alamofireHttpClient },
         requestFactory: httpRequestFactory,
-        networkMapper: networkMapper,
         defaultsStorage: defaultsStorage,
         vkIdClient: vkIdClient
     )
 
     private static let httpRequestFactory: HttpRequestFactory = .init { env.apiBaseUrlString }
-    private static let networkMapper: NetworkMapper = .init()
 
     private init() {}
 }

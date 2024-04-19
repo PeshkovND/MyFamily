@@ -4,6 +4,7 @@ import Foundation
 import AppServices
 import Utilities
 import StoreKit
+import AppEntities
 
 final class GetProRepository {
     private let firebaseClient: FirebaseClient
@@ -26,7 +27,7 @@ final class GetProRepository {
         self.defaultsStorage = defaultsStorage
     }
     
-    func getCurrentUserInfo() -> UserInfo? {
+    func getCurrentUserInfo() -> Account? {
         self.authService.account
     }
     
