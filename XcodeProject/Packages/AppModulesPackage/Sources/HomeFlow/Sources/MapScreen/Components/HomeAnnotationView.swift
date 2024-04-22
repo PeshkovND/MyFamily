@@ -15,7 +15,7 @@ class MapHomeAnnotation: NSObject, MKAnnotation {
     }
 }
 
-class MapHomeAnnotationView: MKAnnotationView {
+final class MapHomeAnnotationView: MKAnnotationView {
     static let reuseId = "home"
     var persons: [MapViewData] = []
     override var annotation: MKAnnotation? {
