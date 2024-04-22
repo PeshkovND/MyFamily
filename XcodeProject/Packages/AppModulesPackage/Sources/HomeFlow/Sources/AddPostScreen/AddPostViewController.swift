@@ -190,7 +190,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     }
     
     private func configureButtons() {
-        sendButton.onTap = { self.viewModel.addPost() }
+        sendButton.onTap = { self.viewModel.onViewEvent(.addPostTapped) }
         deleteContentButton.onTap = {
             self.viewModel.onViewEvent(.deleteContentDidTapped)
             self.sendButton.isEnabled = true
@@ -345,7 +345,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                     do {
                         let videoData = try Data(contentsOf: videoURL)
                         addVideo(videoURL)
-                        viewModel.uploadVideo(video: videoData)
+                        viewModel.onViewEvent(.mediaChoosed(data: videoData, contentType: .video))
                     } catch {
                         print("Error converting video to Data: \(error)")
                     }
@@ -354,7 +354,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
                     guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
                     addImage(image)
-                    viewModel.uploadImage(image: imageData)
+                    viewModel.onViewEvent(.mediaChoosed(data: imageData, contentType: .image))
                 }
             }
         }

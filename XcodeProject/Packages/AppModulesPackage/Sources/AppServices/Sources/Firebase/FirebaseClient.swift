@@ -345,12 +345,12 @@ public class FirebaseClient {
         return try await ref.downloadURL()
     }
     
-    public func uploadAudio(url: URL) async throws -> URL {
+    public func uploadAudio(audio: Data) async throws -> URL {
         storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Audio").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
         uploadMetadata.contentType = "audio"
-        _ = try await ref.putFileAsync(from: url)
+        _ = try await ref.putDataAsync(audio, metadata: uploadMetadata)
         return try await ref.downloadURL()
     }
     

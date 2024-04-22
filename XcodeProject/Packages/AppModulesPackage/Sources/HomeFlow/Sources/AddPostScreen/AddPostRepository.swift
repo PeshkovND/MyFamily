@@ -12,16 +12,15 @@ final class AddPostRepository {
         self.authService = authService
     }
     
-    func uploadImage(image: Data) async throws -> URL {
-        return try await firebaseClient.uploadImage(image: image)
-    }
-    
-    func uploadVideo(video: Data) async throws -> URL {
-        return try await firebaseClient.uploadVideo(video: video)
-    }
-    
-    func uploadAudio(url: URL) async throws -> URL {
-        return try await firebaseClient.uploadAudio(url: url)
+    func uploadMedia(data: Data, contentType: ContentType) async throws -> URL {
+        switch contentType {
+        case .audio:
+            return try await firebaseClient.uploadAudio(audio: data)
+        case .image:
+            return try await firebaseClient.uploadImage(image: data)
+        case .video:
+            return try await firebaseClient.uploadVideo(video: data)
+        }
     }
     
     func addPost(text: String?, contentURL: URL?, contentType: ContentType?) async throws {
