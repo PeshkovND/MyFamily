@@ -59,7 +59,7 @@ public struct CommentPayload: Codable {
 public struct UserStatus: Codable {
     public let userId: Int
     public let lastOnline: String
-    public let position: Position
+    public var position: Position
     
     public init(userId: Int, lastOnline: String, position: Position) {
         self.userId = userId

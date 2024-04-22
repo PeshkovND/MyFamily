@@ -5,6 +5,7 @@ import Utilities
 import AppServices
 import FirebaseCore
 import AVFoundation
+import BackgroundTasks
 import FirebaseMessaging
 
 @main
@@ -12,21 +13,24 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private static var logger = LoggerFactory.default
 
+    private let firebaseClient = AppContainer.provideFirebaseClinet()
+    private let locationManager = AppContainer.provideLocationManager()
+    private let authService = AppContainer.provideAuthService()
     private let appCoordinator = AppContainer.provideAppCoordinator()
+    
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-
         initializeStartupServices()
         configureFirebaseMessaging(application: application)
         appCoordinator.start()
-
         logApplicationStartedEvent()
+
         return true
     }
-
+    
     private func initializeStartupServices() {
         ImageLoadingHelper.enableWebPCoder()
         KeyboardHealper.firstEnableKeyboardManager()
@@ -53,7 +57,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) {
         completionHandler(Deeplinker.handleShortcut(item: shortcutItem))
     }
-    
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         print("Registered for Apple Remote Notifications")
         Messaging.messaging().setAPNSToken(deviceToken, type: .unknown)
