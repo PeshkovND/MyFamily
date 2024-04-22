@@ -33,6 +33,7 @@ struct AppContainer {
     private static let memoryStorage: MemoryStorage = .init()
     private static let vkIdClient = VKIDClient(firebaseClient: firebaseClient, env: env)
     private static let firebaseClient = FirebaseClient()
+    private static let locationManager = AppLocationManager()
     private static let swiftDataManager = SwiftDataManager()
     private static let purchaseManager = PurchaseManager()
     private static let deeplinker = DeepLinkManager()
@@ -124,6 +125,7 @@ extension AppContainer {
     static func provideDebugDefaultsStorage() -> DefaultsStorage { debugStorage }
     static func provideMemoryStorage() -> ObjectStorage { memoryStorage }
     static func provideDefaultsStorage() -> DefaultsStorage { defaultsStorage }
+    static func provideLocationManager() -> AppLocationManager { locationManager }
 
     static func provideHttpClient() -> AlamofireHttpClient { alamofireHttpClient }
 

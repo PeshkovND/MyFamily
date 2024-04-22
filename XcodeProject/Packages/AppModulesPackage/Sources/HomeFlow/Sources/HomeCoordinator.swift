@@ -31,6 +31,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let authService: AuthService
     private let firebaseClient: FirebaseClient
     private let audioPlayer: AVPlayer
+    private let locationManager: AppLocationManager
     private let swiftDataManager: SwiftDataManager
     private let sharePostDeeplinkBody = "mf://post/"
     private let purchaseManager: PurchaseManager
@@ -42,6 +43,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         debugTogglesHolder: DebugTogglesHolder,
         audioPlayer: AVPlayer,
         firebaseClient: FirebaseClient,
+        locationManager: AppLocationManager,
         swiftDataManager: SwiftDataManager,
         purchaseManager: PurchaseManager,
         defaultsStorage: DefaultsStorage
@@ -51,6 +53,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.debugTogglesHolder = debugTogglesHolder
         self.audioPlayer = audioPlayer
         self.firebaseClient = firebaseClient
+        self.locationManager = locationManager
         self.swiftDataManager = swiftDataManager
         self.purchaseManager = purchaseManager
         self.defaultsStorage = defaultsStorage
@@ -184,7 +187,7 @@ private extension HomeCoordinator {
             authService: authService,
             swiftDataManager: swiftDataManager
         )
-        let viewModel = MapViewModel(repository: repository)
+        let viewModel = MapViewModel(repository: repository, locationManager: locationManager)
         let viewController = MapViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarMapTitle
         
