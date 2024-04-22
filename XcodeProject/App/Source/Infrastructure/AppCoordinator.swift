@@ -13,6 +13,7 @@ import AppDevTools
 import HomeFlow
 import AppDesignSystem
 import CoreLocation
+import BackgroundTasks
 
 final class AppCoordinator: BaseCoordinator, Coordinator {
     
@@ -136,6 +137,7 @@ private extension AppCoordinator {
         }
     }
     
+    // swiftlint:disable function_body_length
     private func startHomeFlow() {
         let coordinator = HomeCoordinator(
             navigationController: navigationController,
@@ -148,20 +150,25 @@ private extension AppCoordinator {
             purchaseManager: purchaseManager, 
             defaultsStorage: defaultsStorage
         )
+        
         let token = coordinator.events.sink { event in
             switch event {
             case .finished:
                 break
             case .signOut:
                 self.authService.logout(
-                    onSuccess: { self.startSignInFlow() },
+                    onSuccess: { 
+                        self.startSignInFlow()
+                        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: self.backgroundTaskId)
+                    },
                     onFailure: { }
                 )
-                
             }
         }
-        addDependency(coordinator, token: token)
         
+        addDependency(coordinator, token: token)
+        registerTask(taskId: backgroundTaskId)
+        scheduleNewTask()
         switch Deeplinker.deeplinkType {
         case .post(id: let id):
             coordinator.openPost(id: id)
@@ -173,10 +180,10 @@ private extension AppCoordinator {
             coordinator.openMap()
         case .profile:
             coordinator.openProfile()
-            
-        default:
+        case .none:
             coordinator.start()
         }
+        
         Deeplinker.deeplinkType = nil
         observeUserStatus()
     }
@@ -262,8 +269,10 @@ private extension AppCoordinator {
         timer.resume()
     }
     
+    // swiftlint:disable closure_body_length
     private func sendUserStatusTask() {
         Task {
+            guard await UIApplication.shared.applicationState == .active else { return }
             let currentDate = Date()
             let calendar = Calendar.current
             var dateComponents = DateComponents()
@@ -278,7 +287,7 @@ private extension AppCoordinator {
                 let lastUserStatusResult = try await firebaseClient.getUserStatus(userId)
                 switch lastUserStatusResult {
                 case .success(let lastUserStatus):
-                    userStatus.position = Position(lat: lastUserStatus.position.lat, lng: lastUserStatus.position.lng)
+                    userStatus.position = lastUserStatus.position
                 case .failure:
                     return
                 }
@@ -389,5 +398,68 @@ private extension AppCoordinator {
             mapShortcutItem,
             profileShortcutItem
         ]
+    }
+}
+
+private extension AppCoordinator {
+    private var backgroundTaskId: String { "com.background.geolocation" }
+    
+    private func scheduleNewTask() {
+        
+        BGTaskScheduler.shared.getPendingTaskRequests { requests in
+            guard requests.isEmpty else { return }
+            
+            do {
+                let newTask = BGProcessingTaskRequest(identifier: self.backgroundTaskId)
+                try BGTaskScheduler.shared.submit(newTask)
+            } catch {
+                print("Could not schedule new task: \(error)")
+            }
+        }
+    }
+    
+    private func registerTask(taskId: String) {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundTaskId, using: DispatchQueue.global()) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleTask(task: task)
+        }
+    }
+    
+    private func handleTask(task: BGProcessingTask) {
+        // swiftlint:disable closure_body_length
+        let fetchTask = Task {
+            defer {
+                scheduleNewTask()
+            }
+            
+            let count = UserDefaults.standard.integer(forKey: "teeest") + 1
+            UserDefaults.standard.set(count, forKey: "teeest")
+            print(count)
+            let locationManager = AppContainer.provideLocationManager()
+            locationManager.setup()
+            guard
+                let user = authService.account,
+                let location = locationManager.lastLocation
+            else {
+                task.setTaskCompleted(success: false)
+                return
+            }
+            do {
+                try await self.firebaseClient.setUserCoordinates(
+                    userId: user.id,
+                    coordinates: Position(lat: location.latitude, lng: location.longitude)
+                )
+                task.setTaskCompleted(success: true)
+            } catch {
+                task.setTaskCompleted(success: false)
+                return
+            }
+        }
+        
+        task.expirationHandler = {
+            fetchTask.cancel()
+            task.setTaskCompleted(success: false)
+            self.scheduleNewTask()
+        }
     }
 }
