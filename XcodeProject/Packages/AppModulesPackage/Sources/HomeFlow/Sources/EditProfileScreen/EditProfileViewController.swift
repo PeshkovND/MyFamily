@@ -77,23 +77,21 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
         switch viewState {
         case .initial(let firstname, let lastname, let photoURL):
             loadingView.alpha = 0
-            self.nameInputField.text = firstname
-            self.surnameInputField.text = lastname
-            self.userPhotoView.setImageUrl(url: photoURL)
-        case .imageloading:
-            self.saveButton.isEnabled = false
-            self.editImageButton.alpha = 0
-            self.activityIndicator.startAnimating()
+            nameInputField.text = firstname
+            surnameInputField.text = lastname
+            userPhotoView.setImageUrl(url: photoURL)
+        case .imageloading(let data):
+            userPhotoView.image = UIImage(data: data)
+            saveButton.isEnabled = false
+            showImageLoading()
         case .imageLoaded:
-            self.saveButton.isEnabled = true
-            self.editImageButton.alpha = 1
-            self.activityIndicator.stopAnimating()
-            self.editImageButton.setImage(editImage, for: .normal)
+            saveButton.isEnabled = true
+            editImageButton.setImage(editImage, for: .normal)
+            hideImageLoading()
         case .contentLoadingError:
-            self.saveButton.isEnabled = false
-            self.activityIndicator.stopAnimating()
-            self.editImageButton.setImage(errorImage, for: .normal)
-            self.editImageButton.alpha = 1
+            saveButton.isEnabled = false
+            editImageButton.setImage(errorImage, for: .normal)
+            hideImageLoading()
         case .loading:
             isLoadingShowing = true
         case .failure:
@@ -106,6 +104,16 @@ final class EditProfileViewController: BaseViewController<EditProfileViewModel,
             alert.addAction(.cancelAction())
             self.present(alert, animated: true)
         }
+    }
+    
+    private func showImageLoading() {
+        self.editImageButton.alpha = 0
+        self.activityIndicator.startAnimating()
+    }
+    
+    private func hideImageLoading() {
+        editImageButton.alpha = 1
+        activityIndicator.stopAnimating()
     }
     
     private func open(_ sourceType: UIImagePickerController.SourceType, for mediaType: String) {
@@ -185,8 +193,7 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
             if mediaType == UTType.image.identifier { // Проверка на изображение
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
                     guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
-                    viewModel.uploadImage(image: imageData)
-                    userPhotoView.image = image
+                    viewModel.onViewEvent(.photoChoosed(data: imageData))
                 }
             }
         }
