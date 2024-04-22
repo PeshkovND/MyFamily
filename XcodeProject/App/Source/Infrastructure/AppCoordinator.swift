@@ -143,15 +143,15 @@ private extension AppCoordinator {
     private func showHome(coordinator: HomeCoordinator) {
         switch deeplinker.deeplinkType {
         case .post(id: let id):
-            coordinator.openPost(id: id)
+            coordinator.startPost(id: id)
         case .news:
-            coordinator.openNews()
+            coordinator.startNews()
         case .family:
-            coordinator.openFamily()
+            coordinator.startFamily()
         case .map:
-            coordinator.openMap()
+            coordinator.startMap()
         case .profile:
-            coordinator.openProfile()
+            coordinator.startProfile()
         case .none:
             coordinator.start()
         }
