@@ -36,6 +36,7 @@ struct AppContainer {
     private static let locationManager = AppLocationManager()
     private static let swiftDataManager = SwiftDataManager()
     private static let purchaseManager = PurchaseManager()
+    private static let backgroundTasksManager = BackgroundTasksManager()
     private static let deeplinker = DeepLinkManager()
 
     private static let defaultsStorage: DefaultsStorage = {
@@ -135,6 +136,7 @@ extension AppContainer {
     static func provideSwiftDataManager() -> SwiftDataManager { swiftDataManager }
     static func providePurchaseManager() -> PurchaseManager { purchaseManager }
     static func provideDeeplinker() -> DeepLinkManager { deeplinker }
+    static func provideBackgroundTasksManager() -> BackgroundTasksManager { backgroundTasksManager }
 }
 
 // MARK: - Providing Loggers

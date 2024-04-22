@@ -15,7 +15,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     private let strings = appDesignSystem.strings
     private let recorderSettings = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-        AVSampleRateKey: 12000,
+        AVSampleRateKey: 12_000,
         AVNumberOfChannelsKey: 1,
         AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
     ]
@@ -58,23 +58,22 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     }
     
     func addPost() {
-        if linkToMediaContent != nil || postText != nil {
-            self.viewState = .loading
-            Task {
-                do {
-                    try await self.repository.addPost(
-                        text: postText,
-                        contentURL: linkToMediaContent,
-                        contentType: contentType
-                    )
-                    
-                    await MainActor.run {
-                        outputEventSubject.send(.finish(isPostAdded: true))
-                    }
-                } catch {
-                    await MainActor.run {
-                        self.viewState = .error
-                    }
+        guard linkToMediaContent != nil || postText != nil else { return }
+        self.viewState = .loading
+        Task {
+            do {
+                try await self.repository.addPost(
+                    text: postText,
+                    contentURL: linkToMediaContent,
+                    contentType: contentType
+                )
+                
+                await MainActor.run {
+                    outputEventSubject.send(.finish(isPostAdded: true))
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .error
                 }
             }
         }
@@ -176,7 +175,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     }
     
     func startRecording() {
-        recordingSession.requestRecordPermission() { [unowned self] allowed in
+        recordingSession.requestRecordPermission { [unowned self] allowed in
             
             if allowed {
                 DispatchQueue.main.async {
@@ -192,18 +191,16 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                         self.finishRecording(success: false)
                     }
                 }
-            } else {
-                // failed to record!
             }
         }
     }
     
-    func getDocumentsDirectory() -> URL {
+    private func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
     
-    func finishRecording(success: Bool) {
+    private func finishRecording(success: Bool) {
         viewState = .audioRecorded
         audioRecorder?.stop()
         self.uploadAudio(url: audioRecorder?.url)

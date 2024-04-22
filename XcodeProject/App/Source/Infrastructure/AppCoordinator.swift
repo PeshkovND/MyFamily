@@ -35,7 +35,8 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private let locationManager = AppContainer.provideLocationManager()
     private let swiftDataManager = AppContainer.provideSwiftDataManager()
     private let purchaseManager = AppContainer.providePurchaseManager()
-    private let deeplinker: DeepLinkManager = AppContainer.provideDeeplinker()
+    private let deeplinker = AppContainer.provideDeeplinker()
+    private let backgroundTasksManager = AppContainer.provideBackgroundTasksManager()
     private var timer: DispatchSourceTimer?
     private var setCancelable = Set<AnyCancellable>()
     
@@ -126,7 +127,7 @@ private extension AppCoordinator {
                 self.authService.logout(
                     onSuccess: {
                         self.startSignInFlow()
-                        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: self.backgroundTaskId)
+                        self.backgroundTasksManager.cancelTask(backgroundTaskId: self.env.geolocationBackgroundTaskId)
                     },
                     onFailure: { }
                 )
@@ -134,8 +135,7 @@ private extension AppCoordinator {
         }
         
         addDependency(coordinator, token: token)
-        registerTask(taskId: backgroundTaskId)
-        scheduleNewTask()
+        backgroundTasksManager.scheduleNewTask(backgroundTaskId: env.geolocationBackgroundTaskId)
         setupLocationManager()
         showHome(coordinator: coordinator)
     }
@@ -281,58 +281,5 @@ private extension AppCoordinator {
 }
 
 private extension AppCoordinator {
-    private var backgroundTaskId: String { "com.background.geolocation" }
     
-    private func scheduleNewTask() {
-        
-        BGTaskScheduler.shared.getPendingTaskRequests { requests in
-            guard requests.isEmpty else { return }
-            
-            do {
-                let newTask = BGProcessingTaskRequest(identifier: self.backgroundTaskId)
-                try BGTaskScheduler.shared.submit(newTask)
-            } catch {
-                print("Could not schedule new task: \(error)")
-            }
-        }
-    }
-    
-    private func registerTask(taskId: String) {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundTaskId, using: DispatchQueue.global()) { task in
-            guard let task = task as? BGProcessingTask else { return }
-            self.handleTask(task: task)
-        }
-    }
-    
-    private func handleTask(task: BGProcessingTask) {
-        let fetchTask = Task {
-            defer { scheduleNewTask() }
-            
-            let count = UserDefaults.standard.integer(forKey: "teeest") + 1
-            UserDefaults.standard.set(count, forKey: "teeest")
-            print(count)
-            let locationManager = AppContainer.provideLocationManager()
-            locationManager.setup()
-            guard let user = authService.account, let location = locationManager.lastLocation else {
-                task.setTaskCompleted(success: false)
-                return
-            }
-            do {
-                try await self.firebaseClient.setUserCoordinates(
-                    userId: user.id,
-                    coordinates: Position(lat: location.latitude, lng: location.longitude)
-                )
-                task.setTaskCompleted(success: true)
-            } catch {
-                task.setTaskCompleted(success: false)
-                return
-            }
-        }
-        
-        task.expirationHandler = {
-            task.setTaskCompleted(success: false)
-            fetchTask.cancel()
-            self.scheduleNewTask()
-        }
-    }
 }

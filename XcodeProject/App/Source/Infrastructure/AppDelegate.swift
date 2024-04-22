@@ -7,6 +7,7 @@ import FirebaseCore
 import AVFoundation
 import BackgroundTasks
 import FirebaseMessaging
+import AppEntities
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,6 +19,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     private let authService = AppContainer.provideAuthService()
     private let appCoordinator = AppContainer.provideAppCoordinator()
     private let deeplinker = AppContainer.provideDeeplinker()
+    private let backgroundTasksManager = AppContainer.provideBackgroundTasksManager()
+    private let env = AppContainer.provideEnv()
 
     func application(
         _ application: UIApplication,
@@ -25,9 +28,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         initializeStartupServices()
         configureFirebaseMessaging(application: application)
+        backgroundTasksManager.registerTask(backgroundTaskId: env.geolocationBackgroundTaskId) { task in
+            self.handleTask(task: task)
+        }
         appCoordinator.start()
         logApplicationStartedEvent()
-
         return true
     }
     
@@ -100,5 +105,39 @@ extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
         )
 
         application.registerForRemoteNotifications()
+    }
+}
+
+private extension AppDelegate {
+    private func handleTask(task: BGProcessingTask) {
+        let fetchTask = Task {
+            defer { backgroundTasksManager.scheduleNewTask(backgroundTaskId: env.geolocationBackgroundTaskId) }
+            
+            let count = UserDefaults.standard.integer(forKey: "teeest") + 1
+            UserDefaults.standard.set(count, forKey: "teeest")
+            print(count)
+            let locationManager = AppContainer.provideLocationManager()
+            locationManager.setup()
+            guard let user = authService.account, let location = locationManager.lastLocation else {
+                task.setTaskCompleted(success: false)
+                return
+            }
+            do {
+                try await self.firebaseClient.setUserCoordinates(
+                    userId: user.id,
+                    coordinates: Position(lat: location.latitude, lng: location.longitude)
+                )
+                task.setTaskCompleted(success: true)
+            } catch {
+                task.setTaskCompleted(success: false)
+                return
+            }
+        }
+        
+        task.expirationHandler = {
+            task.setTaskCompleted(success: false)
+            fetchTask.cancel()
+            self.backgroundTasksManager.scheduleNewTask(backgroundTaskId: self.env.geolocationBackgroundTaskId)
+        }
     }
 }

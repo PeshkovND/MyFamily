@@ -39,6 +39,8 @@ public struct Env {
     public var buildType: BuildType {
         BuildType(rawValue: InfoPlist.buildType) ?? .unknown
     }
+    
+    public var geolocationBackgroundTaskId: String { "com.background.geolocation" }
 }
 
 extension Env: CustomStringConvertible {

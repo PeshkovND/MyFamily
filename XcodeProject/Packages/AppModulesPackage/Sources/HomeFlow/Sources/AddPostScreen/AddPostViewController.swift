@@ -44,6 +44,10 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
         }
     }
+    
+    private var isTextEmpty: Bool {
+        self.textView.textColor == UIColor.lightGray || self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
@@ -74,11 +78,10 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         return menu
     }()
     
-    // MARK: - View Controller Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        configureButtons()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -182,27 +185,24 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         viewModel.onViewEvent(.viewDidLoad)
         textView.delegate = self
         
-        addPhotoButton.menu = addPhotoMenu
-        addVideoButton.menu = addVideoMenu
-        
         imagePicker.delegate = self
         imagePicker.allowsEditing = true
-        
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
-        addMediaContainer.addGestureRecognizer(gesture)
-        navigationItem.leftBarButtonItem = backButton
-        
-        sendButton.onTap = {
-            self.viewModel.addPost()
-        }
-        
+    }
+    
+    private func configureButtons() {
+        sendButton.onTap = { self.viewModel.addPost() }
         deleteContentButton.onTap = {
             self.viewModel.onViewEvent(.deleteContentDidTapped)
             self.sendButton.isEnabled = true
             self.deleteContent()
         }
-        
         addAudioButton.onTap = { self.viewModel.onViewEvent(.recordAudioDidTapped) }
+        
+        addPhotoButton.menu = addPhotoMenu
+        addVideoButton.menu = addVideoMenu
+        
+        addMediaContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
+        navigationItem.leftBarButtonItem = backButton
     }
     
     @objc
@@ -314,26 +314,21 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
 
 extension AddPostViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor.lightGray {
+        if isTextEmpty {
             textView.text = nil
             textView.textColor = UIColor.black
         }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
+        if isTextEmpty {
             textView.text = appDesignSystem.strings.addPostScreenPlaceholder
             textView.textColor = UIColor.lightGray
         }
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        if self.textView.textColor == UIColor.lightGray ||
-            self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            self.viewModel.postText = nil
-        } else {
-            self.viewModel.postText = textView.text
-        }
+        self.viewModel.postText = isTextEmpty ? nil : textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
