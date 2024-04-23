@@ -40,11 +40,11 @@ final class PostViewController: BaseViewController<PostViewModel,
         return refreshControl
     }()
     
-    // MARK: - View Controller Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        configureButtons()
+        viewModel.onViewEvent(.viewDidLoad)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -95,27 +95,23 @@ final class PostViewController: BaseViewController<PostViewModel,
         switch viewState {
         case .loaded:
             failedStackView.alpha = 0
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
             textContainer.alpha = 1
-            sendButton.alpha = 1
-            addCommentActivityIndicator.stopAnimating()
+            hideSendingLoading()
+            hideLoading()
         case .loading:
             textContainer.alpha = 0
         case .failed:
             failedStackView.alpha = 1
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
+            hideLoading()
         case .initial:
             break
         case .addCommentLoading:
             addCommentActivityIndicator.startAnimating()
             sendButton.alpha = 0
         case .addCommentFailed:
-            sendButton.alpha = 1
-            addCommentActivityIndicator.stopAnimating()
+            hideSendingLoading()
             let alert = UIAlertController(
                 title: appDesignSystem.strings.postAddCommentErrorTitle,
                 message: appDesignSystem.strings.postAddCommentErrorSubtitle,
@@ -126,18 +122,26 @@ final class PostViewController: BaseViewController<PostViewModel,
         }
     }
     
+    private func hideLoading() {
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+    }
+    
+    private func hideSendingLoading() {
+        sendButton.alpha = 1
+        addCommentActivityIndicator.stopAnimating()
+    }
+    
     private func configureView() {
         self.contentView.backgroundColor = colors.backgroundPrimary
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
-        viewModel.onViewEvent(.viewDidLoad)
         textView.delegate = self
         tabBarController?.tabBar.backgroundColor = colors.backgroundPrimary
-        
-        let tableGesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
-        tableView.addGestureRecognizer(tableGesture)
-        
+    }
+    
+    private func configureButtons() {
         sendButton.onTap = {
             if self.textView.textColor != UIColor.lightGray {
                 self.viewModel.addComment(text: self.textView.text) {
@@ -148,8 +152,9 @@ final class PostViewController: BaseViewController<PostViewModel,
                     self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
                 }
             }
-
         }
+
+        tableView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
     }
     
     @objc
@@ -223,9 +228,8 @@ extension PostViewController: UITableViewDataSource {
         let model = CommentCell.Model(
             userImageURL: comment.imageUrl,
             name: comment.username,
-            text: comment.text,
-            userTapAction: { self.viewModel.onViewEvent(.profileTapped(id: comment.userId)) }
-        )
+            text: comment.text
+        ) { self.viewModel.onViewEvent(.profileTapped(id: comment.userId)) }
         cell.setup(model)
         return cell
     }
