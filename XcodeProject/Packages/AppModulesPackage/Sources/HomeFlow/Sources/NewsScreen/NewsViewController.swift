@@ -146,7 +146,8 @@ extension NewsViewController: UITableViewDelegate {
         switch viewModel.posts[indexPath.row].mediaContent {
         case .Video:
             cell.startVideo()
-        default: break
+        default:
+            break
         }
     }
     
@@ -155,7 +156,8 @@ extension NewsViewController: UITableViewDelegate {
         switch viewModel.posts[indexPath.row].mediaContent {
         case .Video:
             cell.stopVideo()
-        default: break
+        default:
+            break
         }
     }
 }

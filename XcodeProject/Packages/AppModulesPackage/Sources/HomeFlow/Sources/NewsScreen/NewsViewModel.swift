@@ -11,7 +11,6 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
                                                NewsOutputEvent> {
     
     private var strings = appDesignSystem.strings
-    private var validField: String { "number" }
     private let repository: NewsRepository
     var audioPlayer: AVPlayer
     var posts: [NewsViewPost] = []
@@ -82,16 +81,6 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
 
     private func makeScreenError(from appError: AppError) -> NewsContext.ScreenError? {
         switch appError {
-        case .api(general: let generalError, specific: let specificErrors):
-            switch generalError.code {
-            default:
-                let screenError: NewsContext.ScreenError = .init(
-                    alert: .init(title: strings.commonError, message: generalError.message),
-                    fieldsInfo: specificErrors
-                        .first( where: { $0.field == validField })?.message
-                )
-                return screenError
-            }
         case .network:
             let screenError: NewsContext.ScreenError = .init(
                 alert: .init(title: strings.commonError, message: strings.commonErrorNetwork),
