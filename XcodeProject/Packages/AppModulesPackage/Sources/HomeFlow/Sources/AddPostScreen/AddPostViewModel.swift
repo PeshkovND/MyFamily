@@ -57,9 +57,9 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         case .mediaChoosed(data: let data, contentType: let contentType):
             switch contentType {
             case .image:
-                self.uploadMedia(data: data, contentType: .image)
+                self.setupUploadMediaTask(data: data, contentType: .image)
             case .video:
-                self.uploadMedia(data: data, contentType: .video)
+                self.setupUploadMediaTask(data: data, contentType: .video)
             case .audio:
                 break
             }
@@ -88,28 +88,30 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         }
     }
     
-    func uploadMedia(data: Data, contentType: ContentType) {
+    func setupUploadMediaTask(data: Data, contentType: ContentType) {
         uploadDataTask?.cancel()
         viewState = .contentLoading
         linkToMediaContent = nil
-        uploadDataTask = Task.detached {
-            do {
-                let link = try await self.repository.uploadMedia(data: data, contentType: contentType)
-                try Task.checkCancellation()
-                self.linkToMediaContent = link
-                self.contentType = .image
-                await MainActor.run {
-                    self.viewState = .contentLoaded
-                }
-            } catch let error as NSError {
-                if error.domain == NSURLErrorDomain && error.code == -999 { // Проверяем закрытие таски
-                    self.linkToMediaContent = nil
-                    return
-                }
-                await MainActor.run { self.showContentError() }
-            } catch {
-                await MainActor.run { self.showContentError() }
+        uploadDataTask = Task.detached { await self.uploadMedia(data: data, contentType: contentType) }
+    }
+    
+    private func uploadMedia(data: Data, contentType: ContentType) async {
+        do {
+            let link = try await self.repository.uploadMedia(data: data, contentType: contentType)
+            try Task.checkCancellation()
+            self.linkToMediaContent = link
+            self.contentType = .image
+            await MainActor.run {
+                self.viewState = .contentLoaded
             }
+        } catch let error as NSError {
+            if error.domain == NSURLErrorDomain && error.code == -999 { // Проверяем закрытие таски
+                self.linkToMediaContent = nil
+                return
+            }
+            await MainActor.run { self.showContentError() }
+        } catch {
+            await MainActor.run { self.showContentError() }
         }
     }
 
@@ -167,7 +169,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         guard let url = audioRecorder?.url else { return }
         do {
             let data = try Data(contentsOf: url)
-            self.uploadMedia(data: data, contentType: .audio)
+            self.setupUploadMediaTask(data: data, contentType: .audio)
             audioRecorder = nil
         } catch {
             return

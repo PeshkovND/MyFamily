@@ -2,8 +2,6 @@
 
 import Foundation
 
-// TODO: Implement Flex library if it's needed
-
 struct FlexProvider {
 
     let flex = Flex {}

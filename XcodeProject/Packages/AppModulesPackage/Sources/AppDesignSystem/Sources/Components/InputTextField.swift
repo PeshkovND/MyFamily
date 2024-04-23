@@ -37,7 +37,6 @@ extension TweeAttributedTextField {
 
         tweeAttributedTextField.infoAnimationDuration = 0.3
 
-        // TODO: Replace with colors
         tweeAttributedTextField.infoTextColor = .systemRed
         tweeAttributedTextField.infoLabel.font = typography.caption1
 
@@ -69,7 +68,6 @@ extension TweeAttributedTextField {
     }
 
     public func hideError(animated: Bool = true) {
-        // TODO: Refactor using colors
         let colors = Colors()
         activeLineColor = colors.backgroundSecondary
         lineColor = colors.labelSecondary

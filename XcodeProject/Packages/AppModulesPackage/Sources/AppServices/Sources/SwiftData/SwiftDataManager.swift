@@ -1,5 +1,3 @@
-//  
-
 import Foundation
 import SwiftData
 import AppEntities
@@ -27,12 +25,8 @@ public class SwiftDataManager {
     public func getAllPosts() async throws -> [PostPayload]? {
         try queue.sync {
             let descriptor = FetchDescriptor<PostModel>()
-            
-            guard
-                let postModels = try context?.fetch(descriptor),
-                !postModels.isEmpty
-            else { throw SwiftDataManagerError.dataNotFound }
-            return postModels.sorted(by: { $0.date > $1.date }).map { elem in
+            guard let postModels = try context?.fetch(descriptor), !postModels.isEmpty else { throw SwiftDataManagerError.dataNotFound }
+            return postModels.sorted { $0.date > $1.date }.map { elem in
                 PostPayload(
                     id: elem.id,
                     text: elem.text,
@@ -69,10 +63,7 @@ public class SwiftDataManager {
             let predicate = #Predicate<PostModel> { $0.userId == id }
             let descriptor = FetchDescriptor<PostModel>(predicate: predicate)
             
-            guard
-                let postModels = try context?.fetch(descriptor),
-                !postModels.isEmpty
-            else { throw SwiftDataManagerError.dataNotFound }
+            guard let postModels = try context?.fetch(descriptor), !postModels.isEmpty else { throw SwiftDataManagerError.dataNotFound }
             return postModels.map { elem in
                 PostPayload(
                     id: elem.id,

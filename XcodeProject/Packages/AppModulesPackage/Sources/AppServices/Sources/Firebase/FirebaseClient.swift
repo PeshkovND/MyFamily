@@ -19,7 +19,7 @@ public enum FirebaseClientError: Error {
 }
 
 public class FirebaseClient {
-
+    
     private var fs: Firestore
     private var db: DatabaseReference
     private lazy var storage = Storage.storage().reference()
@@ -35,8 +35,11 @@ public class FirebaseClient {
         self.fs = fs
         self.db = db.reference()
     }
+}
+
+public extension FirebaseClient {
     
-    public func addUser(_ user: UserInfo) async throws -> Result<UserInfo, FirebaseClientError> {
+    func addUser(_ user: UserInfo) async throws -> Result<UserInfo, FirebaseClientError> {
         let dbUserResult = try await getUser(user.id)
         switch dbUserResult {
         case .success(let dbUser):
@@ -66,8 +69,8 @@ public class FirebaseClient {
         }
     }
     
-    public func setProStatus(userId: Int, status: Bool) async throws {
-        var result = try await getUser(userId)
+    func setProStatus(userId: Int, status: Bool) async throws {
+        let result = try await getUser(userId)
         switch result {
         case .success(var user):
             user.pro = status
@@ -77,7 +80,7 @@ public class FirebaseClient {
         }
     }
     
-    public func updateUser(_ user: UserInfo) async throws {
+    func updateUser(_ user: UserInfo) async throws {
         let result = try await getUser(user.id)
         switch result {
         case .success(let document):
@@ -95,7 +98,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getUser(_ id: Int) async throws -> Result<UserPayload, FirebaseClientError> {
+    func getUser(_ id: Int) async throws -> Result<UserPayload, FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.users).document(String(id)).getDocument()
             if snapshot.metadata.isFromCache {
@@ -109,7 +112,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
+    func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.users).getDocuments(source: .server)
             if snapshot.metadata.isFromCache {
@@ -129,8 +132,10 @@ public class FirebaseClient {
             return .failure(.fetchingError)
         }
     }
-    
-    public func addComment(_ comment: CommentPayload) async throws {
+}
+
+public extension FirebaseClient {
+    func addComment(_ comment: CommentPayload) async throws {
         let test = try await getAllUsers()
         switch test {
         case .success:
@@ -142,7 +147,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getCommentsOnPost(_ id: UUID) async throws -> Result<[CommentPayload], FirebaseClientError> {
+    func getCommentsOnPost(_ id: UUID) async throws -> Result<[CommentPayload], FirebaseClientError> {
         do {
             let collection = fs.collection(Collections.comments)
             let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
@@ -165,7 +170,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {
+    func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.comments).getDocuments()
             if snapshot.metadata.isFromCache {
@@ -185,14 +190,21 @@ public class FirebaseClient {
             return .failure(.fetchingError)
         }
     }
+}
+
+public extension FirebaseClient {
     
-    public func setUserStatus(_ userStatus: UserStatus) async throws {
+    func getHomePosition() -> Position {
+        return Position(lat: 37.78, lng: -122.40)
+    }
+    
+    func setUserStatus(_ userStatus: UserStatus) async throws {
         try await self.db.child(Collections.statuses)
             .child(String(userStatus.userId))
             .setValue(userStatus.dictionary())
     }
     
-    public func setUserCoordinates(userId: Int, coordinates: Position) async throws {
+    func setUserCoordinates(userId: Int, coordinates: Position) async throws {
         let result = try await getUserStatus(userId)
         switch result {
         case .success(let lastUserStatus):
@@ -209,7 +221,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getUserStatus(_ id: Int) async throws -> Result<UserStatus, FirebaseClientError> {
+    func getUserStatus(_ id: Int) async throws -> Result<UserStatus, FirebaseClientError> {
         let connectionTest = try await self.getAllUsers()
         switch connectionTest {
         case .success:
@@ -233,7 +245,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getAllUsersStatuses() async throws -> Result<[UserStatus], FirebaseClientError> {
+    func getAllUsersStatuses() async throws -> Result<[UserStatus], FirebaseClientError> {
         let connectionTest = try await self.getAllUsers()
         switch connectionTest {
         case .success:
@@ -254,8 +266,10 @@ public class FirebaseClient {
             return .failure(.fetchingError)
         }
     }
-    
-    public func addPost(_ post: PostPayload) async throws {
+}
+
+public extension FirebaseClient {
+    func addPost(_ post: PostPayload) async throws {
         let connectionTest = try await self.getAllUsers()
         switch connectionTest {
         case .success:
@@ -264,8 +278,8 @@ public class FirebaseClient {
             throw e
         }
     }
-      
-    public func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {
+    
+    func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.posts)
                 .order(by: "date", descending: true)
@@ -288,7 +302,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getPost(_ id: UUID) async throws -> Result<PostPayload, FirebaseClientError> {
+    func getPost(_ id: UUID) async throws -> Result<PostPayload, FirebaseClientError> {
         do {
             let document = try await fs.collection(Collections.posts).document(id.uuidString).getDocument()
             if document.metadata.isFromCache {
@@ -300,7 +314,7 @@ public class FirebaseClient {
         }
     }
     
-    public func getUsersPosts(userId: Int) async throws -> Result<[PostPayload], FirebaseClientError> {
+    func getUsersPosts(userId: Int) async throws -> Result<[PostPayload], FirebaseClientError> {
         do {
             let collection = fs.collection(Collections.posts)
             let query = collection.whereField("userId", isEqualTo: userId).order(by: "date", descending: true)
@@ -322,12 +336,10 @@ public class FirebaseClient {
             return .failure(.fetchingError)
         }
     }
-    
-    public func getHomePosition() -> Position {
-        return Position(lat: 37.78, lng: -122.40)
-    }
-    
-    public func uploadImage(image: Data) async throws -> URL {
+}
+
+public extension FirebaseClient {
+    func uploadImage(image: Data) async throws -> URL {
         storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Images").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
@@ -336,7 +348,7 @@ public class FirebaseClient {
         return try await ref.downloadURL()
     }
     
-    public func uploadVideo(video: Data) async throws -> URL {
+    func uploadVideo(video: Data) async throws -> URL {
         storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Videos").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
@@ -345,7 +357,7 @@ public class FirebaseClient {
         return try await ref.downloadURL()
     }
     
-    public func uploadAudio(audio: Data) async throws -> URL {
+    func uploadAudio(audio: Data) async throws -> URL {
         storage.storage.maxUploadRetryTime = 30
         let ref = storage.child("Audio").child(UUID().uuidString)
         let uploadMetadata = StorageMetadata()
@@ -353,8 +365,10 @@ public class FirebaseClient {
         _ = try await ref.putDataAsync(audio, metadata: uploadMetadata)
         return try await ref.downloadURL()
     }
-    
-    public func unwrapResult<T>(
+}
+
+public extension FirebaseClient {
+    func unwrapResult<T>(
         result: Result<T, FirebaseClientError>,
         successAction: (T) async throws -> Void,
         failureAction: () async throws -> T?

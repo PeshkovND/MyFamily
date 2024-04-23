@@ -2,7 +2,7 @@ import MapKit
 import AppDesignSystem
 import Utilities
 
-class MapHomeAnnotation: NSObject, MKAnnotation {
+final class MapHomeAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
     let persons: [MapViewData]
     
@@ -64,45 +64,43 @@ final class MapHomeAnnotationView: MKAnnotationView {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private func makeStackView(person: MapViewData) {
+        let label = UILabel()
+        label.text = person.name
+        
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 36, height: 36))
+        imageView.layer.cornerRadius = 18.0
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        
+        imageView.setImageUrl(url: person.userImageURL)
+        imageView.snp.makeConstraints {
+            $0.width.equalTo(36)
+            $0.height.equalTo(36)
+        }
+        
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 8
+        
+        stack.addArrangedSubview(imageView)
+        stack.addArrangedSubview(label)
+        
+        stackView.addArrangedSubview(stack)
+    }
 
     override func prepareForDisplay() {
         super.prepareForDisplay()
         stackView.removeAllArrangedSubviews()
         if !persons.isEmpty {
-            persons.forEach { elem in
-                let label = UILabel()
-                label.text = elem.name
-                
-                let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 36, height: 36))
-                imageView.layer.cornerRadius = 18.0
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                
-                imageView.setImageUrl(url: elem.userImageURL)
-                imageView.snp.makeConstraints {
-                    $0.width.equalTo(36)
-                    $0.height.equalTo(36)
-                }
-                
-                let stack = UIStackView()
-                stack.axis = .horizontal
-                stack.spacing = 8
-                
-                stack.addArrangedSubview(imageView)
-                stack.addArrangedSubview(label)
-                
-                stackView.addArrangedSubview(stack)
-            }
-            
-            if !persons.isEmpty {
-                addSubview(counterLabel)
-                counterLabel.text = String(persons.count)
-            } else {
-                counterLabel.removeFromSuperview()
-            }
-            
+            persons.forEach { elem in makeStackView(person: elem) }
+            addSubview(counterLabel)
+            counterLabel.text = String(persons.count)
             detailCalloutAccessoryView = stackView
             canShowCallout = true
+        } else {
+            counterLabel.removeFromSuperview()
         }
     }
 }

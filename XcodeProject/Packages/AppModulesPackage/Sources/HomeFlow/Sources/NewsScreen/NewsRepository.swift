@@ -52,12 +52,8 @@ final class NewsRepository {
         var result: [NewsViewPost] = []
             
         for post in posts {
-            guard let user = users.first(where: { elem in
-                elem.id == post.userId
-            }) else { continue }
-            let commentCount = comments.filter { elem in
-                elem.postId == post.id
-            }.count
+            guard let user = users.first(where: { elem in elem.id == post.userId }) else { continue }
+            let commentCount = comments.filter { elem in elem.postId == post.id }.count
             let isLiked = post.likes.contains(userId)
             
             var mediaContent: MediaContent?

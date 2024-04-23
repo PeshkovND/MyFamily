@@ -72,9 +72,7 @@ final class PostRepository {
             mediaContent = .Image(url: post.contentURL)
         }
         
-        guard let user = users.first(where: { elem in
-            elem.id == post.userId
-        }) else { return nil }
+        guard let user = users.first(where: { elem in elem.id == post.userId }) else { return nil }
         
         return NewsViewPost(
             id: post.id.uuidString,
@@ -120,7 +118,7 @@ final class PostRepository {
                 
             }
             try await self.firebaseClient.addPost(post)
-        case .failure(_):
+        case .failure:
             return
         }
     }

@@ -134,7 +134,7 @@ extension IconsLibrary {
     
     public var plus: UIImage {
         valueOrStub(UIImage(systemName: "plus")?.withTintColor(
-            appDesignSystem.colors.backgroundSecondaryVariant, 
+            appDesignSystem.colors.backgroundSecondaryVariant,
             renderingMode: .alwaysOriginal
         )) }
     

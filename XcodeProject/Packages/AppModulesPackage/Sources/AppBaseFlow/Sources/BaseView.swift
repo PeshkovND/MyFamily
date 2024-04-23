@@ -6,12 +6,12 @@ import AppDesignSystem
 open class BaseView: UIView {
 
     private var designSystem = appDesignSystem
-    private(set) public lazy var colors = designSystem.colors
-    private(set) public lazy var icons = designSystem.icons
-    private(set) public lazy var strings = designSystem.strings
-    private(set) public lazy var spacing = designSystem.spacing
-    private(set) public lazy var typography = designSystem.typography
-    private(set) public lazy var components = designSystem.components
+    public private(set) lazy var colors = designSystem.colors
+    public private(set) lazy var icons = designSystem.icons
+    public private(set) lazy var strings = designSystem.strings
+    public private(set) lazy var spacing = designSystem.spacing
+    public private(set) lazy var typography = designSystem.typography
+    public private(set) lazy var components = designSystem.components
 
     public override init(frame: CGRect) {
         super.init(frame: frame)

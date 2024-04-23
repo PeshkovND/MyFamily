@@ -42,11 +42,11 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             break
         case .viewDidLoad:
             viewState = .initial
-            getPosts()
+            Task { await getPosts() }
         case .addPostTapped:
             outputEventSubject.send(.addPost)
         case .pullToRefresh:
-            getPosts()
+            Task { await getPosts() }
         case .userTapped(id: let id):
             outputEventSubject.send(.openUserProfile(id: id))
         case .commentTapped(id: let id):
@@ -56,25 +56,23 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
         }
     }
     
-    private func getPosts() {
-        Task {
-            do {
-                let posts = try await repository.getPosts()
-                self.posts = posts
-                await MainActor.run {
-                    self.viewState = .loaded(content: posts)
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewState = .failed(
-                        error: self.makeScreenError(
-                            from: .custom(
-                                title: self.strings.contentLoadingErrorTitle,
-                                message: self.strings.contentLoadingErrorSubitle
-                            )
+    private func getPosts() async {
+        do {
+            let posts = try await repository.getPosts()
+            self.posts = posts
+            await MainActor.run {
+                self.viewState = .loaded(content: posts)
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .failed(
+                    error: self.makeScreenError(
+                        from: .custom(
+                            title: self.strings.contentLoadingErrorTitle,
+                            message: self.strings.contentLoadingErrorSubitle
                         )
                     )
-                }
+                )
             }
         }
     }

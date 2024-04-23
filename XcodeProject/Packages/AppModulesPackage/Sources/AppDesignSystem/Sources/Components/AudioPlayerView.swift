@@ -76,7 +76,7 @@ final class AudioPlayerView: UIView {
            asset.url.lastPathComponent == audioURLLastPathComponent + ".mp3" {
             let time = CMTime(
                 seconds: Double(slider.value),
-                preferredTimescale: 1000
+                preferredTimescale: 1_000
             )
             
             player?.seek(to: time) { [weak self] _ in
@@ -94,7 +94,7 @@ final class AudioPlayerView: UIView {
         timeObserver = player?.addPeriodicTimeObserver(
             forInterval: CMTime(
                 seconds: 1,
-                preferredTimescale: 1000
+                preferredTimescale: 1_000
             ),
             queue: DispatchQueue.main
         ) { time in
@@ -189,7 +189,7 @@ final class AudioPlayerView: UIView {
     private func play() {
         let time = CMTime(
             seconds: Double(slider.value),
-            preferredTimescale: 1000
+            preferredTimescale: 1_000
         )
         player?.seek(to: time)
         player?.play()

@@ -3,60 +3,50 @@ import UIKit
 import AppDesignSystem
 
 public class ShortcutMaker {
-     private static let newsShortcutItem: UIApplicationShortcutItem = {
-        let newsIcon = UIApplicationShortcutIcon(systemImageName: "house")
-        return UIApplicationShortcutItem(
+    private struct ShortcutInfo {
+        let type: String
+        let icon: UIApplicationShortcutIcon
+        let title: String
+    }
+    
+    private static let application = UIApplication.shared
+    
+    private static let shortcuts: [ShortcutInfo] = [
+        ShortcutInfo(
             type: ShortcutKey.news.rawValue,
-            localizedTitle: appDesignSystem.strings.tabBarNewsTitle,
-            localizedSubtitle: nil,
-            icon: newsIcon,
-            userInfo: nil
-        )
-    }()
-    
-    private static let mapShortcutItem: UIApplicationShortcutItem = {
-        let mapIcon = UIApplicationShortcutIcon(systemImageName: "map")
-        return UIApplicationShortcutItem(
+            icon: UIApplicationShortcutIcon(systemImageName: "house"),
+            title: appDesignSystem.strings.tabBarNewsTitle
+        ),
+        ShortcutInfo(
             type: ShortcutKey.map.rawValue,
-            localizedTitle: appDesignSystem.strings.tabBarMapTitle,
-            localizedSubtitle: nil,
-            icon: mapIcon,
-            userInfo: nil
-        )
-    }()
-    
-    private static let familyShortcutItem: UIApplicationShortcutItem = {
-        let familyIcon = UIApplicationShortcutIcon(systemImageName: "figure.2.and.child.holdinghands")
-        return UIApplicationShortcutItem(
+            icon: UIApplicationShortcutIcon(systemImageName: "map"),
+            title: appDesignSystem.strings.tabBarMapTitle
+        ),
+        ShortcutInfo(
             type: ShortcutKey.family.rawValue,
-            localizedTitle: appDesignSystem.strings.tabBarFamilyTitle,
-            localizedSubtitle: nil,
-            icon: familyIcon,
-            userInfo: nil
-        )
-    }()
-    
-    private static let profileShortcutItem: UIApplicationShortcutItem = {
-        let profileIcon = UIApplicationShortcutIcon(systemImageName: "person.crop.circle")
-        return UIApplicationShortcutItem(
+            icon: UIApplicationShortcutIcon(systemImageName: "figure.2.and.child.holdinghands"),
+            title: appDesignSystem.strings.tabBarFamilyTitle
+        ),
+        ShortcutInfo(
             type: ShortcutKey.profile.rawValue,
-            localizedTitle: appDesignSystem.strings.tabBarProfileTitle,
-            localizedSubtitle: nil,
-            icon: profileIcon,
-            userInfo: nil
+            icon: UIApplicationShortcutIcon(systemImageName: "person.crop.circle"),
+            title: appDesignSystem.strings.tabBarProfileTitle
         )
-    }()
+    ]
     
     public static func addShortcuts() {
-        UIApplication.shared.shortcutItems = [
-            newsShortcutItem,
-            familyShortcutItem,
-            mapShortcutItem,
-            profileShortcutItem
-        ]
+        application.shortcutItems = shortcuts.map { elem in
+            UIApplicationShortcutItem(
+                type: elem.type,
+                localizedTitle: elem.title,
+                localizedSubtitle: nil,
+                icon: elem.icon,
+                userInfo: nil
+            )
+        }
     }
     
     public static func removeShortcuts() {
-        UIApplication.shared.shortcutItems = []
+        application.shortcutItems = []
     }
 }

@@ -24,33 +24,31 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             break
         case .viewDidLoad:
             self.viewState = .loading
-            getUsers()
+            Task { await getUsers() }
         case .pullToRefresh:
             self.viewState = .loading
-            getUsers()
+            Task { await getUsers() }
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
         }
     }
     
-    private func getUsers() {
-        Task {
-            do {
-                self.persons = try await repository.getUsers()
-                await MainActor.run {
-                    self.viewState = .loaded(content: persons)
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewState = .failed(
-                        error: self.makeScreenError(
-                            from: .custom(
-                                title: self.strings.contentLoadingErrorTitle,
-                                message: self.strings.contentLoadingErrorSubitle
-                            )
+    private func getUsers() async {
+        do {
+            self.persons = try await repository.getUsers()
+            await MainActor.run {
+                self.viewState = .loaded(content: persons)
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .failed(
+                    error: self.makeScreenError(
+                        from: .custom(
+                            title: self.strings.contentLoadingErrorTitle,
+                            message: self.strings.contentLoadingErrorSubitle
                         )
                     )
-                }
+                )
             }
         }
     }

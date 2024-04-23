@@ -45,7 +45,6 @@ public final class CommentCell: UITableViewCell {
         return view
     }()
     
-    
     private let commentLabel: UILabel = {
         let usernameLabel = UILabel()
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false

@@ -140,7 +140,7 @@ extension ProfileViewController: UITableViewDataSource {
         let model = ProfileCell.Model(
             userImageURL: profile.userImageURL,
             name: profile.name,
-            status: profile.status, 
+            status: profile.status,
             isPro: profile.isPremium
         )
         cell.setup(model)
@@ -166,7 +166,7 @@ extension ProfileViewController: UITableViewDataSource {
             },
             profileTapAction: { },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
             onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(

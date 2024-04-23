@@ -2,7 +2,7 @@ import MapKit
 import AppDesignSystem
 import AppEntities
 
-class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
+final class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
     var coordinate: CLLocationCoordinate2D
     let photo: URL?
     let title: String?
@@ -21,7 +21,7 @@ class MapQuickEventUserAnnotation: NSObject, MKAnnotation {
     }
 }
 
-class MapUserAnnotationView: MKAnnotationView {
+final class MapUserAnnotationView: MKAnnotationView {
     static let reuseId = "quickEventUser"
     var photo: URL?
     var status: PersonStatus?

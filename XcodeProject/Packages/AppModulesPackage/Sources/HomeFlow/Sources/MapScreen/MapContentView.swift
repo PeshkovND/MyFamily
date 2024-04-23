@@ -91,20 +91,14 @@ extension MapViewController {
             tableView.addSubview(activityIndicator)
             addSubview(failedStackView)
             
-            setupConstraints()
+            setupMapConstraints()
+            setupContentConstraints()
         }
-            
-        func setupConstraints() {
+        
+        private func setupMapConstraints() {
             mapContainer.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalTo(tableView.snp.top).inset(28)
-                $0.leading.equalToSuperview()
-                $0.trailing.equalToSuperview()
-            }
-            
-            tableView.snp.makeConstraints {
-                $0.height.equalToSuperview().multipliedBy(0.35)
-                $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
                 $0.leading.equalToSuperview()
                 $0.trailing.equalToSuperview()
             }
@@ -114,11 +108,6 @@ extension MapViewController {
                 $0.bottom.equalToSuperview()
                 $0.leading.equalToSuperview()
                 $0.trailing.equalToSuperview()
-            }
-            
-            activityIndicator.snp.makeConstraints {
-                $0.centerX.equalToSuperview()
-                $0.centerY.equalToSuperview()
             }
             
             homeButton.snp.makeConstraints {
@@ -133,6 +122,20 @@ extension MapViewController {
                 $0.width.equalTo(40)
                 $0.bottom.equalToSuperview().inset(40)
                 $0.trailing.equalToSuperview().inset(8)
+            }
+        }
+        
+        private func setupContentConstraints() {
+            tableView.snp.makeConstraints {
+                $0.height.equalToSuperview().multipliedBy(0.35)
+                $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+                $0.leading.equalToSuperview()
+                $0.trailing.equalToSuperview()
+            }
+            
+            activityIndicator.snp.makeConstraints {
+                $0.centerX.equalToSuperview()
+                $0.centerY.equalToSuperview()
             }
             
             failedStackView.snp.makeConstraints {

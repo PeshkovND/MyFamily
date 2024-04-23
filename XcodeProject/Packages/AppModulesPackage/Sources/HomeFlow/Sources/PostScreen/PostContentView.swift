@@ -87,10 +87,11 @@ extension PostViewController {
             addSubview(activityIndicator)
             textContainer.addSubview(addCommentActivityIndicator)
             
-            setupConstraints()
+            setupContentConstraints()
+            setupTextInputConstraints()
         }
         
-        private func setupConstraints() {
+        private func setupContentConstraints() {
             tableView.snp.makeConstraints {
                 $0.top.equalTo(safeAreaLayoutGuide.snp.top)
                 $0.bottom.equalTo(textContainer.snp.top)
@@ -105,6 +106,13 @@ extension PostViewController {
                 $0.trailing.equalToSuperview()
             }
             
+            failedStackView.snp.makeConstraints {
+                $0.width.equalToSuperview().multipliedBy(0.85)
+                $0.center.equalToSuperview()
+            }
+        }
+        
+        private func setupTextInputConstraints() {
             textContainer.snp.makeConstraints {
                 $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(-1)
                 $0.leading.equalToSuperview().inset(-1)
@@ -131,11 +139,6 @@ extension PostViewController {
                 $0.top.equalToSuperview()
                 $0.leading.equalToSuperview().inset(16)
                 $0.trailing.equalTo(sendButton.snp.leading).inset(-16)
-            }
-            
-            failedStackView.snp.makeConstraints {
-                $0.width.equalToSuperview().multipliedBy(0.85)
-                $0.center.equalToSuperview()
             }
         }
     }

@@ -179,7 +179,7 @@ private extension AppCoordinator {
             case .locationServicesNotEnabled:
                 self.showAlert(title: "Error", text: "Please enable location services")
                 self.setupSendUserStatusTimer()
-            case .didUpdateLocation(location: let location):
+            case .didUpdateLocation:
                 break
             case .observationStarted:
                 self.setupSendUserStatusTimer()

@@ -5,9 +5,9 @@ import AppBaseFlow
 import AVKit
 
 final class AddPostViewController: BaseViewController<AddPostViewModel,
-                                AddPostViewEvent,
-                                AddPostViewState,
-                                AddPostViewController.ContentView> {
+                                   AddPostViewEvent,
+                                   AddPostViewState,
+                                   AddPostViewController.ContentView> {
     
     private let colors = appDesignSystem.colors
     
@@ -48,7 +48,7 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private var isTextEmpty: Bool {
         self.textView.textColor == UIColor.lightGray || self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-
+    
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
@@ -158,7 +158,6 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             alert.addAction(.cancelAction())
             self.present(alert, animated: true)
         }
-        
     }
     
     private func recordingDidBegin() {
@@ -215,22 +214,56 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         self.viewModel.onViewEvent(.backTapped)
     }
     
-    private func deleteContent() {
-        contentImageView.snp.removeConstraints()
-        contentImageView.removeFromSuperview()
-        contentVideoView.snp.removeConstraints()
-        contentVideoView.removeFromSuperview()
-        contentAudioView.snp.removeConstraints()
-        contentAudioView.removeFromSuperview()
-        deleteContentButton.snp.removeConstraints()
-        deleteContentButton.removeFromSuperview()
+    private func showContentLoadingError() {
+        activityIndicator.stopAnimating()
+        errorImageView.alpha = 1
+    }
+}
+
+private extension AddPostViewController {
+    private func addVideo(_ url: URL) {
+        deleteContent()
         
-        self.mediaContentContainer.snp.remakeConstraints {
-            $0.height.equalTo(0)
-            $0.leading.equalToSuperview().inset(8)
+        contentVideoView.addVideoToPlayer(videoUrl: url)
+        contentVideoView.play()
+        mediaContentContainer.addSubview(contentVideoView)
+        contentVideoView.snp.makeConstraints {
+            $0.height.equalTo(80)
             $0.width.equalTo(80)
-            $0.bottom.equalTo(self.addMediaContainer.snp.top)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
+        
+        setupContentContainer()
+    }
+    
+    private func addAudio() {
+        deleteContent()
+        
+        mediaContentContainer.addSubview(contentAudioView)
+        contentAudioView.snp.makeConstraints {
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+        
+        setupContentContainer()
+    }
+    
+    private func addImage(_ image: UIImage) {
+        deleteContent()
+        
+        contentImageView.image = image
+        mediaContentContainer.addSubview(contentImageView)
+        contentImageView.snp.makeConstraints {
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+        
+        setupContentContainer()
     }
     
     private func setupContentContainer() {
@@ -261,54 +294,22 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         }
     }
     
-    private func showContentLoadingError() {
-        activityIndicator.stopAnimating()
-        errorImageView.alpha = 1
-    }
-    
-    private func addImage(_ image: UIImage) {
-        deleteContent()
+    private func deleteContent() {
+        contentImageView.snp.removeConstraints()
+        contentImageView.removeFromSuperview()
+        contentVideoView.snp.removeConstraints()
+        contentVideoView.removeFromSuperview()
+        contentAudioView.snp.removeConstraints()
+        contentAudioView.removeFromSuperview()
+        deleteContentButton.snp.removeConstraints()
+        deleteContentButton.removeFromSuperview()
         
-        contentImageView.image = image
-        mediaContentContainer.addSubview(contentImageView)
-        contentImageView.snp.makeConstraints {
-            $0.height.equalTo(80)
+        self.mediaContentContainer.snp.remakeConstraints {
+            $0.height.equalTo(0)
+            $0.leading.equalToSuperview().inset(8)
             $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(self.addMediaContainer.snp.top)
         }
-        
-        setupContentContainer()
-    }
-    
-    private func addAudio() {
-        deleteContent()
-        
-        mediaContentContainer.addSubview(contentAudioView)
-        contentAudioView.snp.makeConstraints {
-            $0.height.equalTo(80)
-            $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
-        }
-        
-        setupContentContainer()
-    }
-    
-    private func addVideo(_ url: URL) {
-        deleteContent()
-        
-        contentVideoView.addVideoToPlayer(videoUrl: url)
-        contentVideoView.play()
-        mediaContentContainer.addSubview(contentVideoView)
-        contentVideoView.snp.makeConstraints {
-            $0.height.equalTo(80)
-            $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
-        }
-        
-        setupContentContainer()
     }
 }
 

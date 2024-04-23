@@ -144,16 +144,15 @@ final class PostViewController: BaseViewController<PostViewModel,
     private func configureButtons() {
         sendButton.onTap = {
             if self.textView.textColor != UIColor.lightGray {
-                self.viewModel.addComment(text: self.textView.text) {
+                self.viewModel.onViewEvent(.addCommentTapped(text: self.textView.text) {
                     self.textView.text = nil
                     self.textViewDidEndEditing(self.textView)
                     self.textView.resignFirstResponder()
                     let indexPath = IndexPath(row: self.viewModel.comments.count-1, section: 1)
                     self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-                }
+                })
             }
         }
-
         tableView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
     }
     
@@ -185,11 +184,8 @@ extension PostViewController: UITableViewDataSource {
     }
     
     private func makePostCell(tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: String(describing: NewsCell.self), for: indexPath
-        )
-        guard let cell = cell as? NewsCell,
-              let post = viewModel.post else { return cell }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: NewsCell.self), for: indexPath) as? NewsCell,
+              let post = viewModel.post else { return UITableViewCell() }
         let model = NewsCell.Model(
             userImageURL: post.userImageURL,
             name: post.name,

@@ -30,60 +30,58 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
             break
         case .viewDidLoad:
             self.viewState = .loading
-            getPostData()
+            Task { await getPostData() }
         case .pullToRefresh:
             self.viewState = .loading
-            getPostData()
+            Task { await getPostData() }
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
+        case .addCommentTapped(let text, let onSucces):
+            viewState = .addCommentLoading
+            Task { await addComment(text: text, onSuccess: onSucces) }
         }
     }
     
-    func addComment(text: String, onSuccess: @escaping () -> Void) {
-        viewState = .addCommentLoading
-        Task {
-            do {
-                let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
-                guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
-                    return
-                }
-                self.comments.append(comment)
-                
-                await MainActor.run {
-                    self.viewState = .loaded
-                    onSuccess()
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewState = .addCommentFailed
-                }
+    private func addComment(text: String, onSuccess: @escaping () -> Void) async {
+        do {
+            let str = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let postId = UUID(uuidString: postId), !str.isEmpty else { return }
+            guard let comment = try await self.repository.addComment(text: text, postId: postId) else {
+                return
+            }
+            self.comments.append(comment)
+            
+            await MainActor.run {
+                self.viewState = .loaded
+                onSuccess()
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .addCommentFailed
             }
         }
     }
     
-    private func getPostData() {
-        Task {
-            do {
-                guard let postId = UUID(uuidString: postId) else {
-                    await MainActor.run {
-                        self.viewState = .failed
-                    }
-                    return
-                }
-                let (post, comments) = try await repository.getPostData(id: postId)
-                self.post = post
-                self.comments = comments
-                
-                await MainActor.run {
-                    self.viewState = .loaded
-                }
-            } catch {
+    private func getPostData() async {
+        do {
+            guard let postId = UUID(uuidString: postId) else {
                 await MainActor.run {
                     self.viewState = .failed
                 }
+                return
+            }
+            let (post, comments) = try await repository.getPostData(id: postId)
+            self.post = post
+            self.comments = comments
+            
+            await MainActor.run {
+                self.viewState = .loaded
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .failed
             }
         }
     }

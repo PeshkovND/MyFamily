@@ -61,14 +61,18 @@ final class GetProViewController: BaseViewController<GetProViewModel,
             isModalInPresentation = true
             closeButton.isEnabled = false
         case .purchaseFailed:
-            let alert = UIAlertController(
-                title: appDesignSystem.strings.getProPurchaseFailedTitle,
-                message: appDesignSystem.strings.getProPurchaseFailedDescription,
-                preferredStyle: .alert
-            )
-            alert.addAction(.okAction())
-            self.present(alert, animated: true)
+            showErrorAlert()
         }
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: appDesignSystem.strings.getProPurchaseFailedTitle,
+            message: appDesignSystem.strings.getProPurchaseFailedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(.okAction())
+        self.present(alert, animated: true)
     }
     
     private func configureView() {

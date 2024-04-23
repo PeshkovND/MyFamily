@@ -17,49 +17,46 @@ final class ProfileRepository {
     }
     
     func getProfile(id: Int) async throws -> Profile? {
-        do {
-            async let postsTask = firebaseClient.getUsersPosts(userId: id)
-            async let commentsTask = firebaseClient.getAllComments()
-            async let userTask = firebaseClient.getUser(id)
-            async let statusTask = firebaseClient.getUserStatus(id)
-            
-            let postsResult = try await postsTask
-            let commentsResult = try await commentsTask
-            let userResult = try await userTask
-            let statusResult = try await statusTask
-            
-            guard
-                let posts = try await firebaseClient.unwrapResult(
-                    result: postsResult,
-                    successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
-                    failureAction: { try await self.swiftDataManager.getUserPosts(id: id) }
-                ),
-                let comments = try await firebaseClient.unwrapResult(
-                    result: commentsResult,
-                    successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
-                    failureAction: { try await swiftDataManager.getAllComments() }
-                ),
-                let user = try await firebaseClient.unwrapResult(
-                    result: userResult,
-                    successAction: { payload in try await self.swiftDataManager.setAllUsers(users: [payload]) },
-                    failureAction: { try await swiftDataManager.getUser(id: id) }
-                ),
-                let status = try await firebaseClient.unwrapResult(
-                    result: statusResult,
-                    successAction: { payload in try await self.swiftDataManager.setAllStatuses(statuses: [payload]) },
-                    failureAction: { try await swiftDataManager.getUserStatus(id: id) }
-                ) else { return nil }
-            
-            return makeProfile(
-                id: id,
-                user: user,
-                status: status,
-                posts: posts,
-                comments: comments
+        async let postsTask = firebaseClient.getUsersPosts(userId: id)
+        async let commentsTask = firebaseClient.getAllComments()
+        async let userTask = firebaseClient.getUser(id)
+        async let statusTask = firebaseClient.getUserStatus(id)
+        
+        let postsResult = try await postsTask
+        let commentsResult = try await commentsTask
+        let userResult = try await userTask
+        let statusResult = try await statusTask
+        
+        guard
+            let posts = try await firebaseClient.unwrapResult(
+                result: postsResult,
+                successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
+                failureAction: { try await self.swiftDataManager.getUserPosts(id: id) }
+            ),
+            let comments = try await firebaseClient.unwrapResult(
+                result: commentsResult,
+                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                failureAction: { try await swiftDataManager.getAllComments() }
+            ),
+            let user = try await firebaseClient.unwrapResult(
+                result: userResult,
+                successAction: { payload in try await self.swiftDataManager.setAllUsers(users: [payload]) },
+                failureAction: { try await swiftDataManager.getUser(id: id) }
+            ),
+            let status = try await firebaseClient.unwrapResult(
+                result: statusResult,
+                successAction: { payload in try await self.swiftDataManager.setAllStatuses(statuses: [payload]) },
+                failureAction: { try await swiftDataManager.getUserStatus(id: id) }
             )
-        } catch let e {
-            throw e
-        }
+        else { return nil }
+        
+        return makeProfile(
+            id: id,
+            user: user,
+            status: status,
+            posts: posts,
+            comments: comments
+        )
     }
     
     private func makeProfile(
@@ -111,9 +108,7 @@ final class ProfileRepository {
         var newsPosts: [NewsViewPost] = []
         
         for post in posts {
-            let commentCount = comments.filter { elem in
-                elem.postId == post.id
-            }.count
+            let commentCount = comments.filter { elem in elem.postId == post.id }.count
             let isLiked = post.likes.contains(currentUserId)
             
             var mediaContent: MediaContent?
@@ -159,7 +154,7 @@ final class ProfileRepository {
                 
             }
             try await self.firebaseClient.addPost(post)
-        case .failure(_):
+        case .failure:
             return
         }
     }

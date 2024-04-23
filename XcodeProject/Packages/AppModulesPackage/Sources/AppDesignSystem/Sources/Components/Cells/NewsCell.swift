@@ -32,7 +32,7 @@ public final class NewsCell: UITableViewCell {
             commentButtonTapAction: @escaping () -> Void,
             shareButtonTapAction: @escaping () -> Void,
             onAudioLoadingError: @escaping () -> Void,
-            isPremium: Bool, 
+            isPremium: Bool,
             likesModel: LikesModel,
             audioPlayer: AVPlayer
         ) {
@@ -173,14 +173,6 @@ public final class NewsCell: UITableViewCell {
         
     }
     
-    public func setup(_ model: Model) {
-        setupMediaContent(model: model)
-        setupUserData(model: model)
-        setupLikes(model.likesModel)
-        setupComments(model)
-        setupControlButtonsActions(model)
-    }
-    
     private func setupUserInfoConstraints() {
         userInfoContainerButton.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).inset(16)
@@ -201,6 +193,49 @@ public final class NewsCell: UITableViewCell {
             $0.centerY.equalTo(userImageView.snp.centerY).inset(8)
             $0.trailing.equalTo(contentView.snp.trailing).inset(16)
         }
+    }
+    
+    private func setupControlButtonConstraints() {
+        shareButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
+            $0.trailing.equalTo(contentView.snp.trailing).inset(8)
+            $0.bottom.equalTo(contentView.snp.bottom)
+        }
+        
+        commentButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
+            $0.trailing.equalTo(shareButton.snp.leading)
+            $0.centerY.equalTo(shareButton.snp.centerY)
+        }
+        
+        likeButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
+            $0.trailing.equalTo(commentButton.snp.leading)
+            $0.centerY.equalTo(shareButton.snp.centerY)
+        }
+    }
+}
+
+public extension NewsCell {
+    func startVideo() {
+        self.videoContainer.play()
+    }
+    
+    func stopVideo() {
+        self.videoContainer.pause()
+    }
+}
+
+public extension NewsCell {
+    func setup(_ model: Model) {
+        setupMediaContent(model: model)
+        setupUserData(model: model)
+        setupLikes(model.likesModel)
+        setupComments(model)
+        setupControlButtonsActions(model)
     }
     
     private func setupMediaContent(model: Model) {
@@ -318,29 +353,6 @@ public final class NewsCell: UITableViewCell {
         audioView.removeFromSuperview()
     }
     
-    private func setupControlButtonConstraints() {
-        shareButton.snp.makeConstraints {
-            $0.width.equalTo(48)
-            $0.height.equalTo(48)
-            $0.trailing.equalTo(contentView.snp.trailing).inset(8)
-            $0.bottom.equalTo(contentView.snp.bottom)
-        }
-        
-        commentButton.snp.makeConstraints {
-            $0.width.equalTo(48)
-            $0.height.equalTo(48)
-            $0.trailing.equalTo(shareButton.snp.leading)
-            $0.centerY.equalTo(shareButton.snp.centerY)
-        }
-        
-        likeButton.snp.makeConstraints {
-            $0.width.equalTo(48)
-            $0.height.equalTo(48)
-            $0.trailing.equalTo(commentButton.snp.leading)
-            $0.centerY.equalTo(shareButton.snp.centerY)
-        }
-    }
-    
     private func setupUserData(model: Model) {
         let text = NSMutableAttributedString(string: model.name + " ")
         if model.isPremium {
@@ -356,7 +368,7 @@ public final class NewsCell: UITableViewCell {
         self.userImageView.setImageUrl(url: model.userImageURL)
     }
     
-    public func setupLikes(_ model: LikesModel) {
+    func setupLikes(_ model: LikesModel) {
         let likesCount = String(model.likesCount)
         self.likeButton.setTitle(likesCount, for: .normal)
         
@@ -367,7 +379,7 @@ public final class NewsCell: UITableViewCell {
         }
     }
     
-    private func setupComments(_ model: Model ) {
+    func setupComments(_ model: Model) {
         let commentsCount = String(model.commentsCount)
         self.commentButton.setTitle(commentsCount, for: .normal)
     }
@@ -376,13 +388,5 @@ public final class NewsCell: UITableViewCell {
         commentButton.onTap = { model.commentButtonTapAction() }
         shareButton.onTap = { model.shareButtonTapAction() }
         likeButton.onTap = { model.likeButtonTapAction() }
-    }
-    
-    public func startVideo() {
-        self.videoContainer.play()
-    }
-    
-    public func stopVideo() {
-        self.videoContainer.pause()
     }
 }
