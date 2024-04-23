@@ -68,7 +68,7 @@ final class MapRepository {
         guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
-            personStatus = .offline(lastOnline: lastOnlineString)
+            personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))
         }
         let homePosition = firebaseClient.getHomePosition()
         if abs(position.lat - homePosition.lat) < 0.0001
