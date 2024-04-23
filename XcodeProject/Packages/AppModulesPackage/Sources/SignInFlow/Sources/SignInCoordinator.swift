@@ -24,7 +24,6 @@ public final class SignInCoordinator: EventCoordinator {
 
     private var eventSubject: PassthroughSubject<Event, Never> = .init()
 
-    private let signInInteractor: SignInInteractor
     private let authService: AuthService
     private var designSystem = appDesignSystem
 
@@ -33,7 +32,6 @@ public final class SignInCoordinator: EventCoordinator {
     public init(navigationController: UINavigationController, authService: AuthService) {
         self.navigationController = navigationController
         self.authService = authService
-        self.signInInteractor = SignInInteractor(authService: authService)
     }
 
     public func start() {

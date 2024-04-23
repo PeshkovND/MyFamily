@@ -17,6 +17,10 @@
 	<string>$(APP_API_PRODUCTION)</string>
 	<key>APP_API_STAGING</key>
 	<string>$(APP_API_STAGING)</string>
+	<key>VKID_CLIENT_ID</key>
+	<string>$(VKID_CLIENT_ID)</string>
+	<key>VKID_CLIENT_SECRET</key>
+	<string>$(VKID_CLIENT_SECRET)</string>
 	<key>BuildType</key>
 	<string>$(APP_BUILD_TYPE)</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -61,11 +65,6 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>NSContactsUsageDescription</key>
 	<string>App would Like to Access Your Contacts</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

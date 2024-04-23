@@ -4,6 +4,7 @@ import Foundation
 import AppServices
 import Utilities
 import StoreKit
+import AppEntities
 
 final class GetProRepository {
     private let firebaseClient: FirebaseClient
@@ -26,7 +27,7 @@ final class GetProRepository {
         self.defaultsStorage = defaultsStorage
     }
     
-    func getCurrentUserInfo() -> UserInfo? {
+    func getCurrentUserInfo() -> Account? {
         self.authService.account
     }
     
@@ -53,8 +54,9 @@ final class GetProRepository {
     }
     
     func setPro() async throws {
+        let key = "isPro"
         guard let userId = authService.account?.id else { return }
         try await firebaseClient.setProStatus(userId: userId, status: true)
-        defaultsStorage.add(object: true, forKey: "isPro")
+        defaultsStorage.add(object: true, forKey: key)
     }
 }

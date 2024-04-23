@@ -49,7 +49,10 @@ open class CachingPlayerItem: AVPlayerItem {
         var pendingRequests = Set<AVAssetResourceLoadingRequest>()
         weak var owner: CachingPlayerItem?
         
-        func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+        func resourceLoader(
+            _ resourceLoader: AVAssetResourceLoader,
+            shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest
+        ) -> Bool {
             
             if playingFromData {
                 
@@ -228,7 +231,12 @@ open class CachingPlayerItem: AVPlayerItem {
         
         addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name:NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playbackStalledHandler),
+            name: NSNotification.Name.AVPlayerItemPlaybackStalled,
+            object: self
+        )
         
     }
     
@@ -251,13 +259,23 @@ open class CachingPlayerItem: AVPlayerItem {
         
         addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name:NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playbackStalledHandler),
+            name: NSNotification.Name.AVPlayerItemPlaybackStalled,
+            object: self
+        )
         
     }
     
     // MARK: KVO
     
-    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    open override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         delegate?.playerItemReadyToPlay?(self)
     }
     

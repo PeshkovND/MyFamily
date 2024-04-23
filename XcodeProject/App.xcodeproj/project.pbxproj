@@ -10,7 +10,6 @@
 		5D9470F625DC348000DE488C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D9470F525DC348000DE488C /* InfoPlist.strings */; };
 		7E25F8F12BA961CE00EF37FC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7E25F8F02BA961CE00EF37FC /* GoogleService-Info.plist */; };
 		7E54F2672BC3AA4B00733B20 /* StoreKitConfig.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 7E54F2662BC3AA4B00733B20 /* StoreKitConfig.storekit */; };
-		7E6A77912BA2AF420097BA1A /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6A77902BA2AF420097BA1A /* DeeplinkManager.swift */; };
 		85D59EC32A2BC02900C2D91D /* UmbrellaPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 85D59EC22A2BC02900C2D91D /* UmbrellaPackage */; };
 		88BB91D725B05F3400D1B443 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BB91D625B05F3400D1B443 /* AppContainer.swift */; };
 		88D12C1E25AEC6C30001D30F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D12C1D25AEC6C30001D30F /* AppDelegate.swift */; };
@@ -36,7 +35,6 @@
 		5D9470F525DC348000DE488C /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 		7E25F8F02BA961CE00EF37FC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7E54F2662BC3AA4B00733B20 /* StoreKitConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreKitConfig.storekit; sourceTree = "<group>"; };
-		7E6A77902BA2AF420097BA1A /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
 		7E7E074C2BC536E100513687 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		85D59EC02A2BB9FA00C2D91D /* UmbrellaPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UmbrellaPackage; path = Packages/UmbrellaPackage; sourceTree = "<group>"; };
 		85D59EC12A2BBCA000C2D91D /* AppModulesPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AppModulesPackage; path = Packages/AppModulesPackage; sourceTree = "<group>"; };
@@ -146,7 +144,6 @@
 		88D12CB325AF18D80001D30F /* Infrastructure */ = {
 			isa = PBXGroup;
 			children = (
-				7E6A77902BA2AF420097BA1A /* DeeplinkManager.swift */,
 				88D12C1D25AEC6C30001D30F /* AppDelegate.swift */,
 				88BB91D625B05F3400D1B443 /* AppContainer.swift */,
 				88D12CB425AF19180001D30F /* AppCoordinator.swift */,
@@ -306,7 +303,6 @@
 				88D12CB525AF19180001D30F /* AppCoordinator.swift in Sources */,
 				88D12C1E25AEC6C30001D30F /* AppDelegate.swift in Sources */,
 				88BB91D725B05F3400D1B443 /* AppContainer.swift in Sources */,
-				7E6A77912BA2AF420097BA1A /* DeeplinkManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

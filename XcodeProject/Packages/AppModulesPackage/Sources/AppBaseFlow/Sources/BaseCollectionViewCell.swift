@@ -57,12 +57,3 @@ open class BaseCollectionViewCell: UICollectionViewCell {
         nil
     }
 }
-
-// MARK: - Example for custom cell
-
-//final class CustomCollectionViewCell: BaseCollectionViewCell {
-//
-//    var myContentView: MyContentView { typedGenericView() }
-//
-//    override func makeCellView() -> MyContentView { .init() }
-//}

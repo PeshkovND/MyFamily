@@ -1,5 +1,5 @@
-import UIKit
 import Combine
+import Foundation
 import AppEntities
 import AppServices
 import AppDesignSystem
@@ -17,8 +17,7 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
     private var userSurname = ""
     private var userPhotoUrl: URL?
     var isSaveButtonActive: Bool {
-        !(userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-          || userSurname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        !(userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || userSurname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
     
     init(repository: EditProfileRepository) {
@@ -49,6 +48,8 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
             self.userSurname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
         case .onBack:
             outputEventSubject.send(.onBack)
+        case .photoChoosed(let data):
+            uploadImage(image: data)
         }
     }
     
@@ -72,9 +73,9 @@ final class EditProfileViewModel: BaseViewModel<EditProfileViewEvent,
         }
     }
     
-    func uploadImage(image: Data) {
+    private func uploadImage(image: Data) {
         uploadDataTask?.cancel()
-        viewState = .imageloading
+        viewState = .imageloading(data: image)
         linkToMediaContent = userPhotoUrl
         uploadDataTask = Task.detached {
             do {

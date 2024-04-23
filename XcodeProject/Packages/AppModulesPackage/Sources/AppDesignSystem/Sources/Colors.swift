@@ -38,7 +38,7 @@ extension Colors {
     public var fillPrimary: UIColor { valueOrStub("fill_primary") }
     public var fillPrimaryVariant: UIColor { valueOrStub("fill_primary_variant") }
     
-    public var onlineStatusColor: UIColor  { valueOrStub("background_secondary_variant") }
+    public var onlineStatusColor: UIColor { valueOrStub("background_secondary_variant") }
     public var offlineStatusColor: UIColor { .gray }
     public var atHomeStatusColor: UIColor { .orange }
     
@@ -63,15 +63,27 @@ extension Colors {
             .init(color: labelSecondaryVariant, name: "labelSecondaryVariant", hexAndRgba: showHexAndRgba(from: labelSecondaryVariant)),
             .init(color: backgroundPrimary, name: "backgroundPrimary", hexAndRgba: showHexAndRgba(from: backgroundPrimary)),
             .init(color: backgroundSecondary, name: "backgroundSecondary", hexAndRgba: showHexAndRgba(from: backgroundSecondary)),
-            .init(color: backgroundSecondaryDisabled, name: "backgroundSecondaryDisabled", hexAndRgba: showHexAndRgba(from: backgroundSecondaryDisabled)),
-            .init(color: backgroundSecondaryVariant, name: "backgroundSecondaryVariant", hexAndRgba: showHexAndRgba(from: backgroundSecondaryVariant)),
+            .init(
+                color: backgroundSecondaryDisabled,
+                name: "backgroundSecondaryDisabled",
+                hexAndRgba: showHexAndRgba(from: backgroundSecondaryDisabled)
+            ),
+            .init(
+                color: backgroundSecondaryVariant,
+                name: "backgroundSecondaryVariant",
+                hexAndRgba: showHexAndRgba(from: backgroundSecondaryVariant)
+            ),
             .init(color: backgroundTertiary, name: "backgroundTertiary", hexAndRgba: showHexAndRgba(from: backgroundTertiary)),
             .init(color: backgorundBorderDisabled, name: "backgroundBorderDisabled", hexAndRgba: showHexAndRgba(from: backgorundBorderDisabled)),
             .init(color: fillPrimary, name: "fillPrimary", hexAndRgba: showHexAndRgba(from: fillPrimary)),
             .init(color: fillPrimaryVariant, name: "fillPrimaryVariant", hexAndRgba: showHexAndRgba(from: fillPrimaryVariant)),
             .init(color: onlineStatusColor, name: "onlineStatusColor", hexAndRgba: showHexAndRgba(from: onlineStatusColor)),
             .init(color: offlineStatusColor, name: "offlineStatusColor", hexAndRgba: showHexAndRgba(from: offlineStatusColor)),
-            .init(color: atHomeStatusColor, name: "atHomeStatusColor", hexAndRgba: showHexAndRgba(from: atHomeStatusColor)),
+            .init(
+                color: atHomeStatusColor,
+                name: "atHomeStatusColor",
+                hexAndRgba: showHexAndRgba(from: atHomeStatusColor)
+            )
         ]
     }
     

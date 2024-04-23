@@ -7,6 +7,7 @@ import FirebaseCore
 import AVFoundation
 import BackgroundTasks
 import FirebaseMessaging
+import AppEntities
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,7 +18,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     private let locationManager = AppContainer.provideLocationManager()
     private let authService = AppContainer.provideAuthService()
     private let appCoordinator = AppContainer.provideAppCoordinator()
-    
+    private let deeplinker = AppContainer.provideDeeplinker()
+    private let backgroundTasksManager = AppContainer.provideBackgroundTasksManager()
+    private let env = AppContainer.provideEnv()
 
     func application(
         _ application: UIApplication,
@@ -25,9 +28,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         initializeStartupServices()
         configureFirebaseMessaging(application: application)
+        backgroundTasksManager.registerTask(backgroundTaskId: env.geolocationBackgroundTaskId) { task in
+            self.handleTask(task: task)
+        }
         appCoordinator.start()
         logApplicationStartedEvent()
-
         return true
     }
     
@@ -43,11 +48,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             print("AVAudioSessionCategoryPlayback not work")
         }
         UNUserNotificationCenter.current().setBadgeCount(0, withCompletionHandler: nil)
-        Deeplinker.checkDeepLink()
+        deeplinker.checkDeepLink(coordinator: appCoordinator)
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [: ]) -> Bool {
-        return Deeplinker.handleDeeplink(url: url)
+        return deeplinker.handleDeeplink(url: url)
     }
     
     func application(
@@ -55,7 +60,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         performActionFor shortcutItem: UIApplicationShortcutItem,
         completionHandler: @escaping (Bool) -> Void
     ) {
-        completionHandler(Deeplinker.handleShortcut(item: shortcutItem))
+        completionHandler(deeplinker.handleShortcut(item: shortcutItem))
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -65,11 +70,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult
         ) -> Void
     ) {
-        Deeplinker.handleRemoteNotification(userInfo)
+        deeplinker.handleRemoteNotification(userInfo)
     }
 }
 
@@ -94,11 +99,45 @@ extension AppDelegate: MessagingDelegate, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().delegate = self
 
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-          options: authOptions,
-          completionHandler: { _, _ in }
-        )
-
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
         application.registerForRemoteNotifications()
+    }
+}
+
+private extension AppDelegate {
+    private func handleTask(task: BGProcessingTask) {
+        let fetchTask = Task {
+            await sendLocationInBackground(task)
+        }
+        
+        task.expirationHandler = {
+            task.setTaskCompleted(success: false)
+            fetchTask.cancel()
+            self.backgroundTasksManager.scheduleNewTask(backgroundTaskId: self.env.geolocationBackgroundTaskId)
+        }
+    }
+    
+    private func sendLocationInBackground(_ task: BGTask) async {
+        defer { backgroundTasksManager.scheduleNewTask(backgroundTaskId: env.geolocationBackgroundTaskId) }
+        
+        let count = UserDefaults.standard.integer(forKey: "teeest") + 1
+        UserDefaults.standard.set(count, forKey: "teeest")
+        print(count)
+        let locationManager = AppContainer.provideLocationManager()
+        locationManager.setup()
+        guard let user = authService.account, let location = locationManager.lastLocation else {
+            task.setTaskCompleted(success: false)
+            return
+        }
+        do {
+            try await self.firebaseClient.setUserCoordinates(
+                userId: user.id,
+                coordinates: Position(lat: location.latitude, lng: location.longitude)
+            )
+            task.setTaskCompleted(success: true)
+        } catch {
+            task.setTaskCompleted(success: false)
+            return
+        }
     }
 }

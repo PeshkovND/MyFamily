@@ -3,7 +3,7 @@ import UIKit
 import Kingfisher
 
 public extension UIImageView {
-    public func setImageUrl(url: URL?, complition: ((UIImage) -> Void)? = nil) {
+    func setImageUrl(url: URL?, complition: ((UIImage) -> Void)? = nil) {
         self.kf.indicatorType = .activity
         self.kf.setImage(with: url,
                          options: [.cacheOriginalImage]) { result in

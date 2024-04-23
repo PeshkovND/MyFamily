@@ -2,7 +2,6 @@ import Foundation
 import AppEntities
 import AppServices
 import AppBaseFlow
-import AVKit
 
 // MARK: - Context
 
@@ -27,7 +26,7 @@ enum EditProfileViewState: Stubable {
     }
 
     case initial(firstname: String, lastname: String, photoUrl: URL? )
-    case imageloading
+    case imageloading(data: Data)
     case imageLoaded
     case contentLoadingError
     case loading
@@ -55,4 +54,5 @@ enum EditProfileViewEvent {
     case saveButtonDidTapped
     case onBack
     case usernameDidChanged(firstname: String, lastName: String)
+    case photoChoosed(data: Data)
 }

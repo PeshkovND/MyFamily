@@ -5,9 +5,9 @@ import AppBaseFlow
 import AVKit
 
 final class AddPostViewController: BaseViewController<AddPostViewModel,
-                                AddPostViewEvent,
-                                AddPostViewState,
-                                AddPostViewController.ContentView> {
+                                   AddPostViewEvent,
+                                   AddPostViewState,
+                                   AddPostViewController.ContentView> {
     
     private let colors = appDesignSystem.colors
     
@@ -44,21 +44,20 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
         }
     }
-
+    
+    private var isTextEmpty: Bool {
+        self.textView.textColor == UIColor.lightGray || self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     private(set) lazy var addPhotoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
-            image: UIImage(systemName: "camera")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.camera, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.camera
+        ) { _ in self.open(.camera, for: UTType.image.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
-            image: UIImage(systemName: "photo.on.rectangle")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
+            image: appDesignSystem.icons.gallery) { _ in self.open(.photoLibrary, for: UTType.image.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
@@ -67,27 +66,22 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
     private(set) lazy var addVideoMenu: UIMenu = {
         let cameraAction = UIAction(
             title: appDesignSystem.strings.addPostCamera,
-            image: UIImage(systemName: "camera")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.camera, for: UTType.movie.identifier) }
+            image: appDesignSystem.icons.camera
+        ) { _ in self.open(.camera, for: UTType.movie.identifier) }
         
         let galleryAction = UIAction(
             title: appDesignSystem.strings.addPostGallery,
-            image: UIImage(systemName: "arrow.up.right.video")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )) { _ in self.open(.photoLibrary, for: UTType.movie.identifier) }
+            image: appDesignSystem.icons.videoGallery
+        ) { _ in self.open(.photoLibrary, for: UTType.movie.identifier) }
         
         let menu = UIMenu(options: .displayInline, children: [galleryAction, cameraAction])
         return menu
     }()
     
-    // MARK: - View Controller Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        configureButtons()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -164,20 +158,15 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
             alert.addAction(.cancelAction())
             self.present(alert, animated: true)
         }
-        
     }
     
     private func recordingDidBegin() {
-        let image = UIImage(systemName: "stop.circle")?
-            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        let image = appDesignSystem.icons.stopRecording.scaleImageToFitSize(size: .init(width: 30, height: 30))
         self.addAudioButton.setImage(image, for: .normal)
     }
     
     private func recordingDidEnd() {
-        let image = UIImage(systemName: "mic")?
-            .withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
-            .scaleImageToFitSize(size: .init(width: 30, height: 30))
+        let image = appDesignSystem.icons.microphone.scaleImageToFitSize(size: .init(width: 30, height: 30))
         self.addAudioButton.setImage(image, for: .normal)
     }
     
@@ -195,27 +184,24 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         viewModel.onViewEvent(.viewDidLoad)
         textView.delegate = self
         
-        addPhotoButton.menu = addPhotoMenu
-        addVideoButton.menu = addVideoMenu
-        
         imagePicker.delegate = self
         imagePicker.allowsEditing = true
-        
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
-        addMediaContainer.addGestureRecognizer(gesture)
-        navigationItem.leftBarButtonItem = backButton
-        
-        sendButton.onTap = {
-            self.viewModel.addPost()
-        }
-        
+    }
+    
+    private func configureButtons() {
+        sendButton.onTap = { self.viewModel.onViewEvent(.addPostTapped) }
         deleteContentButton.onTap = {
             self.viewModel.onViewEvent(.deleteContentDidTapped)
             self.sendButton.isEnabled = true
             self.deleteContent()
         }
-        
         addAudioButton.onTap = { self.viewModel.onViewEvent(.recordAudioDidTapped) }
+        
+        addPhotoButton.menu = addPhotoMenu
+        addVideoButton.menu = addVideoMenu
+        
+        addMediaContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
+        navigationItem.leftBarButtonItem = backButton
     }
     
     @objc
@@ -228,22 +214,56 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         self.viewModel.onViewEvent(.backTapped)
     }
     
-    private func deleteContent() {
-        contentImageView.snp.removeConstraints()
-        contentImageView.removeFromSuperview()
-        contentVideoView.snp.removeConstraints()
-        contentVideoView.removeFromSuperview()
-        contentAudioView.snp.removeConstraints()
-        contentAudioView.removeFromSuperview()
-        deleteContentButton.snp.removeConstraints()
-        deleteContentButton.removeFromSuperview()
+    private func showContentLoadingError() {
+        activityIndicator.stopAnimating()
+        errorImageView.alpha = 1
+    }
+}
+
+private extension AddPostViewController {
+    private func addVideo(_ url: URL) {
+        deleteContent()
         
-        self.mediaContentContainer.snp.remakeConstraints {
-            $0.height.equalTo(0)
-            $0.leading.equalToSuperview().inset(8)
+        contentVideoView.addVideoToPlayer(videoUrl: url)
+        contentVideoView.play()
+        mediaContentContainer.addSubview(contentVideoView)
+        contentVideoView.snp.makeConstraints {
+            $0.height.equalTo(80)
             $0.width.equalTo(80)
-            $0.bottom.equalTo(self.addMediaContainer.snp.top)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
+        
+        setupContentContainer()
+    }
+    
+    private func addAudio() {
+        deleteContent()
+        
+        mediaContentContainer.addSubview(contentAudioView)
+        contentAudioView.snp.makeConstraints {
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+        
+        setupContentContainer()
+    }
+    
+    private func addImage(_ image: UIImage) {
+        deleteContent()
+        
+        contentImageView.image = image
+        mediaContentContainer.addSubview(contentImageView)
+        contentImageView.snp.makeConstraints {
+            $0.height.equalTo(80)
+            $0.width.equalTo(80)
+            $0.leading.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
+        
+        setupContentContainer()
     }
     
     private func setupContentContainer() {
@@ -274,79 +294,42 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         }
     }
     
-    private func showContentLoadingError() {
-        activityIndicator.stopAnimating()
-        errorImageView.alpha = 1
-    }
-    
-    private func addImage(_ image: UIImage) {
-        deleteContent()
+    private func deleteContent() {
+        contentImageView.snp.removeConstraints()
+        contentImageView.removeFromSuperview()
+        contentVideoView.snp.removeConstraints()
+        contentVideoView.removeFromSuperview()
+        contentAudioView.snp.removeConstraints()
+        contentAudioView.removeFromSuperview()
+        deleteContentButton.snp.removeConstraints()
+        deleteContentButton.removeFromSuperview()
         
-        contentImageView.image = image
-        mediaContentContainer.addSubview(contentImageView)
-        contentImageView.snp.makeConstraints {
-            $0.height.equalTo(80)
+        self.mediaContentContainer.snp.remakeConstraints {
+            $0.height.equalTo(0)
+            $0.leading.equalToSuperview().inset(8)
             $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(self.addMediaContainer.snp.top)
         }
-        
-        setupContentContainer()
-    }
-    
-    private func addAudio() {
-        deleteContent()
-        
-        mediaContentContainer.addSubview(contentAudioView)
-        contentAudioView.snp.makeConstraints {
-            $0.height.equalTo(80)
-            $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
-        }
-        
-        setupContentContainer()
-    }
-    
-    private func addVideo(_ url: URL) {
-        deleteContent()
-        
-        contentVideoView.addVideoToPlayer(videoUrl: url)
-        contentVideoView.play()
-        mediaContentContainer.addSubview(contentVideoView)
-        contentVideoView.snp.makeConstraints {
-            $0.height.equalTo(80)
-            $0.width.equalTo(80)
-            $0.leading.equalToSuperview()
-            $0.bottom.equalToSuperview()
-        }
-        
-        setupContentContainer()
     }
 }
 
 extension AddPostViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor.lightGray {
+        if isTextEmpty {
             textView.text = nil
             textView.textColor = UIColor.black
         }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
+        if isTextEmpty {
             textView.text = appDesignSystem.strings.addPostScreenPlaceholder
             textView.textColor = UIColor.lightGray
         }
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        if self.textView.textColor == UIColor.lightGray ||
-            self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            self.viewModel.postText = nil
-        } else {
-            self.viewModel.postText = textView.text
-        }
+        self.viewModel.postText = isTextEmpty ? nil : textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -363,7 +346,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                     do {
                         let videoData = try Data(contentsOf: videoURL)
                         addVideo(videoURL)
-                        viewModel.uploadVideo(video: videoData)
+                        viewModel.onViewEvent(.mediaChoosed(data: videoData, contentType: .video))
                     } catch {
                         print("Error converting video to Data: \(error)")
                     }
@@ -372,7 +355,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
                     guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
                     addImage(image)
-                    viewModel.uploadImage(image: imageData)
+                    viewModel.onViewEvent(.mediaChoosed(data: imageData, contentType: .image))
                 }
             }
         }

@@ -1,6 +1,7 @@
 import Foundation
 import AppServices
 import Utilities
+import AppEntities
 
 final class MapRepository {
     private let firebaseClient: FirebaseClient

@@ -51,4 +51,5 @@ enum PostViewEvent {
     case pullToRefresh
     case profileTapped(id: Int)
     case shareTapped(id: String)
+    case addCommentTapped(text: String, onSucces: () -> Void)
 }

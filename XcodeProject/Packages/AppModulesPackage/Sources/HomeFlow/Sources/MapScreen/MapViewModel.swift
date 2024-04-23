@@ -11,7 +11,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
                           MapViewState,
                           MapOutputEvent> {
     
-    let mapDefaultZoom = 1000.0
+    let mapDefaultZoom = 1_000.0
     var persons: [MapViewData] = []
     var personsAtHome: [MapViewData] { persons.filter { $0.status == .atHome } }
     var personsNotAtHome: [MapViewData] { persons.filter { $0.status != .atHome } }
@@ -34,27 +34,14 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
         case .deinit:
             break
         case .viewDidLoad:
-            
-            locationManager.outputEventPublisher.sink { event in
-                switch event {
-                case .didUpdateLocation(location: let location):
-                    if self.needZoomToCurrentUser { self.currentUserLocationLoaded(location: location) }
-                case .locationServicesNotEnabled:
-                    break
-                case .checkAuthorizationFailed:
-                    break
-                case .observationStarted:
-                    break
-                }
-            }.store(in: &setCancelable)
-            
+            observeLocationManager()
             self.viewState = .loading
-            getUsers()
+            Task { await getUsers() }
             viewState = .initial
             
             if let location = locationManager.lastLocation, self.needZoomToCurrentUser { currentUserLocationLoaded(location: location) }
         case .pullToRefresh:
-            getUsers()
+            Task { await getUsers() }
         case .homeTapped:
             zoomToHome()
         case .userTapped(at: let index):
@@ -62,6 +49,21 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
         case .currentUserTapped:
             zoomToCurrentUser()
         }
+    }
+    
+    private func observeLocationManager() {
+        locationManager.outputEventPublisher.sink { event in
+            switch event {
+            case .didUpdateLocation(location: let location):
+                if self.needZoomToCurrentUser { self.currentUserLocationLoaded(location: location) }
+            case .locationServicesNotEnabled:
+                break
+            case .checkAuthorizationFailed:
+                break
+            case .observationStarted:
+                break
+            }
+        }.store(in: &setCancelable)
     }
     
     private func currentUserLocationLoaded(location: CLLocationCoordinate2D) {
@@ -94,24 +96,23 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
         viewState = .zoomedTo(location: location)
     }
     
-    private func getUsers() {
-        Task {
-            do {
-                self.persons = try await self.repository.getUsers()
-                self.homeCoordinate = self.repository.getHomePosition()
-                await MainActor.run {
-                    self.viewState = .loaded
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewState = .failed(
-                        error: self.makeScreenError(
-                            from: .custom(
-                                title: self.strings.contentLoadingErrorTitle,
-                                message: self.strings.contentLoadingErrorSubitle
-                            )
-                        ))
-                }
+    private func getUsers() async {
+        do {
+            self.persons = try await self.repository.getUsers()
+            self.homeCoordinate = self.repository.getHomePosition()
+            await MainActor.run {
+                self.viewState = .loaded
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .failed(
+                    error: self.makeScreenError(
+                        from: .custom(
+                            title: self.strings.contentLoadingErrorTitle,
+                            message: self.strings.contentLoadingErrorSubitle
+                        )
+                    )
+                )
             }
         }
     }

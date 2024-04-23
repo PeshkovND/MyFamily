@@ -5,12 +5,6 @@ import AppBaseFlow
 import AVKit
 import MobileCoreServices
 
-enum MediaContent {
-    case Image(url: URL?)
-    case Audio(url: URL?)
-    case Video(url: URL?)
-}
-
 struct NewsViewPost {
     let id: String
     let userId: Int
@@ -53,7 +47,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "plus")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal),
+            image: appDesignSystem.icons.plus,
             style: .done,
             target: self,
             action: #selector(addPostButtonDidTapped)
@@ -124,7 +118,7 @@ extension NewsViewController: UITableViewDataSource {
             },
             profileTapAction: { self.viewModel.onViewEvent(.userTapped(id: post.userId)) },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
             onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(
@@ -152,7 +146,8 @@ extension NewsViewController: UITableViewDelegate {
         switch viewModel.posts[indexPath.row].mediaContent {
         case .Video:
             cell.startVideo()
-        default: break
+        default:
+            break
         }
     }
     
@@ -161,7 +156,8 @@ extension NewsViewController: UITableViewDelegate {
         switch viewModel.posts[indexPath.row].mediaContent {
         case .Video:
             cell.stopVideo()
-        default: break
+        default:
+            break
         }
     }
 }

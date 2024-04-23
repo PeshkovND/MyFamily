@@ -33,6 +33,7 @@ final class GetProViewController: BaseViewController<GetProViewModel,
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        configureButtons()
         viewModel.onViewEvent(.viewDidLoad)
     }
     
@@ -40,39 +41,45 @@ final class GetProViewController: BaseViewController<GetProViewModel,
         switch viewState {
         case .loaded(let model):
             buyButton.setTitle(appDesignSystem.strings.getProBuy + " " + model.cost, for: .normal)
-            self.stackView.alpha = 1
-            self.activityIndicator.stopAnimating()
+            stackView.alpha = 1
+            activityIndicator.stopAnimating()
             isModalInPresentation = false
             purchaseProgressActivityIndicator.stopAnimating()
             closeButton.isEnabled = true
         case .loading:
             failedStackView.alpha = 0
-            self.activityIndicator.startAnimating()
+            activityIndicator.startAnimating()
             stackView.alpha = 0
         case .initial:
             break
         case .failed:
             failedStackView.alpha = 1
-            self.activityIndicator.stopAnimating()
+            activityIndicator.stopAnimating()
         case .purchaseInProgress:
             buyButton.setTitle("", for: .normal)
             purchaseProgressActivityIndicator.startAnimating()
             isModalInPresentation = true
             closeButton.isEnabled = false
         case .purchaseFailed:
-            let alert = UIAlertController(
-                title: appDesignSystem.strings.getProPurchaseFailedTitle,
-                message: appDesignSystem.strings.getProPurchaseFailedDescription,
-                preferredStyle: .alert
-            )
-            alert.addAction(.okAction())
-            self.present(alert, animated: true)
+            showErrorAlert()
         }
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: appDesignSystem.strings.getProPurchaseFailedTitle,
+            message: appDesignSystem.strings.getProPurchaseFailedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(.okAction())
+        self.present(alert, animated: true)
     }
     
     private func configureView() {
         self.contentView.backgroundColor = colors.backgroundPrimary
-        
+    }
+    
+    private func configureButtons() {
         closeButton.onTap = {
             self.viewModel.onViewEvent(.closeTapped)
         }

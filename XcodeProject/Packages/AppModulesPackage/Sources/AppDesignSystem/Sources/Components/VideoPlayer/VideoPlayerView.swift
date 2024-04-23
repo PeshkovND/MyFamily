@@ -2,11 +2,10 @@ import Foundation
 import AVKit
 import UIKit
 import AVFoundation
-import AppDesignSystem
 import Cache
 import Utilities
 
-final class VideoPlayerView: UIView {
+public final class VideoPlayerView: UIView {
     private let videoPlayerView = VideoPlayer()
     private var playerLooper: AVPlayerLooper?
     private var token: NSKeyValueObservation?
@@ -44,7 +43,7 @@ final class VideoPlayerView: UIView {
         return label
     }()
     
-    init(audioPlayer: AVPlayer? = nil) {
+    public init(audioPlayer: AVPlayer? = nil) {
         super.init(frame: .zero)
         self.addSubview(errorLabel)
         self.addSubview(activityIndicator)
@@ -115,8 +114,8 @@ final class VideoPlayerView: UIView {
         player.pause()
     }
     
-    func play() {
-        self.player.play()
+    public func play() {
+        player.play()
     }
     
     public func addVideoToPlayer(videoUrl: URL) {
@@ -163,14 +162,14 @@ final class VideoPlayerView: UIView {
         }
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         addSubview(videoPlayerView)
         videoPlayerView.frame = bounds
     }
 }
 
 extension VideoPlayerView: UIViewControllerTransitioningDelegate {
-    func animationController(forDismissed dismissed: UIViewController)
+    public func animationController(forDismissed dismissed: UIViewController)
     -> UIViewControllerAnimatedTransitioning? {
         self.player.play()
         self.player.volume = 0.0
@@ -180,16 +179,16 @@ extension VideoPlayerView: UIViewControllerTransitioningDelegate {
 }
 
 extension VideoPlayerView: CachingPlayerItemDelegate {
-    func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data) {
+    public func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data) {
         // A track is downloaded. Saving it to the cache asynchronously.
         storage?.async.setObject(data, forKey: playerItem.url.absoluteString) { _ in }
     }
     
-    func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
+    public func playerItem(_ playerItem: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf bytesExpected: Int) {
         print("\(bytesDownloaded) / \(bytesExpected)")
     }
     
-    func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
+    public func playerItem(_ playerItem: CachingPlayerItem, downloadingFailedWith error: Error) {
         player.replaceCurrentItem(with: nil)
         DispatchQueue.main.async {
             self.activityIndicator.stopAnimating()
@@ -199,7 +198,7 @@ extension VideoPlayerView: CachingPlayerItemDelegate {
         }
     }
     
-    func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
+    public func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
         if player.currentItem != nil {
             self.errorLabel.alpha = 0
             self.activityIndicator.stopAnimating()

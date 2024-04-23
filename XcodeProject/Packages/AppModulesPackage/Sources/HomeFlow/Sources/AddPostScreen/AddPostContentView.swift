@@ -25,15 +25,7 @@ extension AddPostViewController {
         
         private(set) lazy var sendButton: ActionButton = {
             let view = ActionButton()
-            var image = UIImage(systemName: "arrow.forward.circle")?.withTintColor(
-                colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            ).scaleImageToFitSize(
-                size: .init(
-                    width: 36,
-                    height: 36
-                )
-            )
+            var image = icons.sendIcon.scaleImageToFitSize(size: .init(width: 36, height: 36))
             view.setImage(image, for: .normal)
             
             return view
@@ -48,11 +40,7 @@ extension AddPostViewController {
         private(set) lazy var deleteContentButton: ActionButton = {
             let view = ActionButton()
             view.translatesAutoresizingMaskIntoConstraints = false
-            let image = UIImage(systemName: "x.circle.fill")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )
-                .scaleImageToFitSize(size: .init(width: 32, height: 32))
+            let image = icons.closeFill.scaleImageToFitSize(size: .init(width: 32, height: 32))
             view.setImage(image, for: .normal)
             view.contentMode = .scaleAspectFill
             view.clipsToBounds = true
@@ -63,15 +51,7 @@ extension AddPostViewController {
         
         private(set) lazy var addPhotoButton: ActionButton = {
             let button = ActionButton()
-            let image = UIImage(systemName: "photo")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            ).scaleImageToFitSize(
-                size: .init(
-                    width: 30,
-                    height: 30
-                )
-            )
+            let image = icons.photo.scaleImageToFitSize(size: .init(width: 30, height: 30))
             button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
@@ -94,7 +74,7 @@ extension AddPostViewController {
             view.backgroundColor = .black.withAlphaComponent(0.5)
             view.alpha = 0
             
-            let image = UIImage(systemName: "exclamationmark.triangle.fill")?
+            let image = icons.error
                 .withTintColor(appDesignSystem.colors.backgroundPrimary,
                                renderingMode: .alwaysOriginal)
                 .scaleImageToFitSize(size: .init(width: 36, height: 36))
@@ -109,15 +89,7 @@ extension AddPostViewController {
         
         private(set) lazy var addVideoButton: ActionButton = {
             let button = ActionButton()
-            let image = UIImage(systemName: "video")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            ).scaleImageToFitSize(
-                size: .init(
-                    width: 30,
-                    height: 30
-                )
-            )
+            let image = icons.video.scaleImageToFitSize(size: .init(width: 30, height: 30))
             button.showsMenuAsPrimaryAction = true
             button.setImage(image, for: .normal)
             return button
@@ -125,15 +97,7 @@ extension AddPostViewController {
         
         private(set) lazy var addAudioButton: ActionButton = {
             let button = ActionButton()
-            let image = UIImage(systemName: "mic")?.withTintColor(
-                appDesignSystem.colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            ).scaleImageToFitSize(
-                size: .init(
-                    width: 30,
-                    height: 30
-                )
-            )
+            let image = icons.microphone.scaleImageToFitSize(size: .init(width: 30, height: 30))
             button.setImage(image, for: .normal)
             return button
         }()
@@ -161,10 +125,7 @@ extension AddPostViewController {
             view.contentMode = .center
             view.backgroundColor = appDesignSystem.colors.backgroundTertiary
             
-            let image = UIImage(systemName: "music.note")?
-                .withTintColor(appDesignSystem.colors.backgroundSecondaryVariant,
-                               renderingMode: .alwaysOriginal)
-                .scaleImageToFitSize(size: .init(width: 36, height: 36))
+            let image = icons.music.scaleImageToFitSize(size: .init(width: 36, height: 36))
 
             view.image = image
             return view

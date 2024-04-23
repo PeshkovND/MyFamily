@@ -1,5 +1,3 @@
-//  
-
 import Foundation
 
 public enum Role: String, Codable {
@@ -45,7 +43,7 @@ public struct CommentPayload: Codable {
         self.date = date
     }
     
-    func dictionary() -> [String: Any] {
+    public func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
             "userId": userId,
@@ -67,7 +65,7 @@ public struct UserStatus: Codable {
         self.position = position
     }
     
-    func dictionary() -> [String: Any] {
+    public func dictionary() -> [String: Any] {
         return [
             "userId": userId,
             "lastOnline": lastOnline,
@@ -98,7 +96,16 @@ public struct UserPayload: Codable {
     public let role: Role
     public var pro: Bool
     
-    func dictionary() -> [String: Any] {
+    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, role: Role, pro: Bool) {
+        self.id = id
+        self.photoURL = photoURL
+        self.firstName = firstName
+        self.lastName = lastName
+        self.role = role
+        self.pro = pro
+    }
+    
+    public func dictionary() -> [String: Any] {
         return [
             "id": id,
             "photoURL": photoURL?.absoluteString as Any,
@@ -130,7 +137,7 @@ public struct PostPayload: Codable {
         self.likes = likes
     }
     
-    func dictionary() -> [String: Any] {
+    public func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
             "text": text as Any,

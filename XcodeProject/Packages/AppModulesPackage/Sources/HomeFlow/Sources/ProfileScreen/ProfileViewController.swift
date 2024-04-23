@@ -40,17 +40,17 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     
     private lazy var editProfileAction = UIAction(
         title: appDesignSystem.strings.profileEditProfile,
-        image: UIImage(systemName: "pencil")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+        image: appDesignSystem.icons.pencil
     ) { _ in self.editProfileTapped() }
     
     private lazy var getProAction = UIAction(
         title: appDesignSystem.strings.profileGetPro,
-        image: UIImage(systemName: "crown")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+        image: appDesignSystem.icons.premium.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
     ) { _ in self.viewModel.onViewEvent(.getProTapped) }
     
     private lazy var signOutAction = UIAction(
         title: appDesignSystem.strings.profileSignOut,
-        image: UIImage(systemName: "door.left.hand.open")?.withTintColor(colors.backgroundSecondaryVariant, renderingMode: .alwaysOriginal)
+        image: appDesignSystem.icons.door
     ) { _ in self.viewModel.onViewEvent(.signOut) }
     
     // MARK: - View Controller Lifecycle
@@ -103,10 +103,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
                 ? [editProfileAction, signOutAction]
                 : [editProfileAction, getProAction, signOutAction]
             )
-            let barImage = UIImage(systemName: "gearshape")?.withTintColor(
-                colors.backgroundSecondaryVariant,
-                renderingMode: .alwaysOriginal
-            )
+            let barImage = appDesignSystem.icons.setting
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: barImage, menu: menu)
         }
     }
@@ -143,7 +140,7 @@ extension ProfileViewController: UITableViewDataSource {
         let model = ProfileCell.Model(
             userImageURL: profile.userImageURL,
             name: profile.name,
-            status: profile.status, 
+            status: profile.status,
             isPro: profile.isPremium
         )
         cell.setup(model)
@@ -169,7 +166,7 @@ extension ProfileViewController: UITableViewDataSource {
             },
             profileTapAction: { },
             commentButtonTapAction: { self.viewModel.onViewEvent(.commentTapped(id: post.id)) },
-            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) }, 
+            shareButtonTapAction: { self.viewModel.onViewEvent(.shareTapped(id: post.id)) },
             onAudioLoadingError: { self.audioLoadingErrorSnackBar.showIn(view: self.view) },
             isPremium: post.isPremium,
             likesModel: NewsCell.LikesModel(

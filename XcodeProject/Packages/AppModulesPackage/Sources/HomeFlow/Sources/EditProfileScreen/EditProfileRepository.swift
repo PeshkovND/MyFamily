@@ -1,6 +1,7 @@
 import Foundation
 import AppServices
 import Utilities
+import AppEntities
 
 final class EditProfileRepository {
     private let firebaseClient: FirebaseClient
@@ -15,7 +16,7 @@ final class EditProfileRepository {
         return try await firebaseClient.uploadImage(image: image)
     }
     
-    func getUserInfo() -> UserInfo? {
+    func getUserInfo() -> Account? {
         return authService.account
     }
     

@@ -2,16 +2,22 @@
 import UIKit
 import Foundation
 import Utilities
-import AppDesignSystem
-import AVKit
+import AppEntities
 
-final class ProfileCell: UITableViewCell {
+public final class ProfileCell: UITableViewCell {
     
-    struct Model {
-        let userImageURL: URL?
-        let name: String
-        let status: PersonStatus
-        let isPro: Bool
+    public struct Model {
+        public let userImageURL: URL?
+        public let name: String
+        public let status: PersonStatus
+        public let isPro: Bool
+        
+        public init(userImageURL: URL?, name: String, status: PersonStatus, isPro: Bool) {
+            self.userImageURL = userImageURL
+            self.name = name
+            self.status = status
+            self.isPro = isPro
+        }
     }
     
     private enum Layout {
@@ -114,13 +120,13 @@ final class ProfileCell: UITableViewCell {
         }
     }
 
-    func setup(_ model: Model) {
+    public func setup(_ model: Model) {
         userImageView.setImageUrl(url: model.userImageURL)
         
         let text = NSMutableAttributedString(string: model.name + " ")
         if model.isPro {
             let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemName: "crown")?.withTintColor(appDesignSystem.colors.premiumColor)
+            imageAttachment.image = appDesignSystem.icons.premium
             text.append(NSAttributedString(attachment: imageAttachment))
         }
         

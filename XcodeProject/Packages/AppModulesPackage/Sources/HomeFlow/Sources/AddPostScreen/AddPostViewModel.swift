@@ -15,7 +15,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     private let strings = appDesignSystem.strings
     private let recorderSettings = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-        AVSampleRateKey: 12000,
+        AVSampleRateKey: 12_000,
         AVNumberOfChannelsKey: 1,
         AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
     ]
@@ -54,104 +54,67 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
             uploadDataTask?.cancel()
         case .backTapped:
             outputEventSubject.send(.finish(isPostAdded: false))
+        case .mediaChoosed(data: let data, contentType: let contentType):
+            switch contentType {
+            case .image:
+                self.setupUploadMediaTask(data: data, contentType: .image)
+            case .video:
+                self.setupUploadMediaTask(data: data, contentType: .video)
+            case .audio:
+                break
+            }
         }
     }
     
-    func addPost() {
-        if linkToMediaContent != nil || postText != nil {
-            self.viewState = .loading
-            Task {
-                do {
-                    try await self.repository.addPost(
-                        text: postText,
-                        contentURL: linkToMediaContent,
-                        contentType: contentType
-                    )
-                    
-                    await MainActor.run {
-                        outputEventSubject.send(.finish(isPostAdded: true))
-                    }
-                } catch {
-                    await MainActor.run {
-                        self.viewState = .error
-                    }
+    private func addPost() {
+        guard linkToMediaContent != nil || postText != nil else { return }
+        self.viewState = .loading
+        Task {
+            do {
+                try await self.repository.addPost(
+                    text: postText,
+                    contentURL: linkToMediaContent,
+                    contentType: contentType
+                )
+                
+                await MainActor.run {
+                    outputEventSubject.send(.finish(isPostAdded: true))
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .error
                 }
             }
         }
     }
     
-    func uploadImage(image: Data) {
+    func setupUploadMediaTask(data: Data, contentType: ContentType) {
         uploadDataTask?.cancel()
         viewState = .contentLoading
         linkToMediaContent = nil
-        uploadDataTask = Task.detached {
-            do {
-                let link = try await self.repository.uploadImage(image: image)
-                try Task.checkCancellation()
-                self.linkToMediaContent = link
-                self.contentType = .image
-                await MainActor.run {
-                    self.viewState = .contentLoaded
-                }
-            } catch let error as NSError {
-                await self.catchNSError(error: error)
-            } catch {
-                await MainActor.run { self.showContentError() }
+        uploadDataTask = Task.detached { await self.uploadMedia(data: data, contentType: contentType) }
+    }
+    
+    private func uploadMedia(data: Data, contentType: ContentType) async {
+        do {
+            let link = try await self.repository.uploadMedia(data: data, contentType: contentType)
+            try Task.checkCancellation()
+            self.linkToMediaContent = link
+            self.contentType = .image
+            await MainActor.run {
+                self.viewState = .contentLoaded
             }
-        }
-    }
-    
-    func uploadVideo(video: Data) {
-        uploadDataTask?.cancel()
-        viewState = .contentLoading
-        linkToMediaContent = nil
-        uploadDataTask = Task.detached {
-            do {
-                let link = try await self.repository.uploadVideo(video: video)
-                try Task.checkCancellation()
-                self.linkToMediaContent = link
-                self.contentType = .video
-                await MainActor.run {
-                    self.viewState = .contentLoaded
-                }
-            } catch let error as NSError {
-                await self.catchNSError(error: error)
-            } catch {
-                await MainActor.run { self.showContentError() }
+        } catch let error as NSError {
+            if error.domain == NSURLErrorDomain && error.code == -999 { // Проверяем закрытие таски
+                self.linkToMediaContent = nil
+                return
             }
+            await MainActor.run { self.showContentError() }
+        } catch {
+            await MainActor.run { self.showContentError() }
         }
     }
-    
-    func uploadAudio(url: URL?) {
-        guard let url = url else { return }
-        uploadDataTask?.cancel()
-        viewState = .contentLoading
-        linkToMediaContent = nil
-        uploadDataTask = Task.detached {
-            do {
-                let link = try await self.repository.uploadAudio(url: url)
-                try Task.checkCancellation()
-                self.linkToMediaContent = link
-                self.contentType = .audio
-                await MainActor.run {
-                    self.viewState = .contentLoaded
-                }
-            } catch let error as NSError {
-                await self.catchNSError(error: error)
-            } catch {
-                await MainActor.run { self.showContentError() }
-            }
-        }
-    }
-    
-    private func catchNSError(error: NSError) async {
-        if error.domain == NSURLErrorDomain && error.code == -999 {
-            self.linkToMediaContent = nil
-            return
-        }
-        await MainActor.run { self.showContentError() }
-    }
-    
+
     private func makeScreenError(from appError: AppError) -> AddPostContext.ScreenError? {
         switch appError {
         case .api(general: let generalError, specific: let specificErrors):
@@ -175,9 +138,8 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         }
     }
     
-    func startRecording() {
-        recordingSession.requestRecordPermission() { [unowned self] allowed in
-            
+    private func startRecording() {
+        recordingSession.requestRecordPermission { [unowned self] allowed in
             if allowed {
                 DispatchQueue.main.async {
                     let audioFilename = self.getDocumentsDirectory().appendingPathComponent("recording.m4a")
@@ -192,22 +154,26 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                         self.finishRecording(success: false)
                     }
                 }
-            } else {
-                // failed to record!
             }
         }
     }
     
-    func getDocumentsDirectory() -> URL {
+    private func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
     
-    func finishRecording(success: Bool) {
+    private func finishRecording(success: Bool) {
         viewState = .audioRecorded
         audioRecorder?.stop()
-        self.uploadAudio(url: audioRecorder?.url)
-        audioRecorder = nil
+        guard let url = audioRecorder?.url else { return }
+        do {
+            let data = try Data(contentsOf: url)
+            self.setupUploadMediaTask(data: data, contentType: .audio)
+            audioRecorder = nil
+        } catch {
+            return
+        }
     }
     
     private func recordTapped() {

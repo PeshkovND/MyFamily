@@ -4,12 +4,6 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 
-enum PersonStatus: Equatable {
-    case online
-    case atHome
-    case offline(lastOnline: String)
-}
-
 struct FamilyViewData {
     let id: Int
     let userImageURL: URL?
@@ -53,21 +47,29 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     override func onViewState(_ viewState: FamilyViewState) {
         switch viewState {
         case .loaded:
-            tableView.alpha = 1
-            failedStackView.alpha = 0
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
-            tableView.reloadData()
-            tableView.layoutIfNeeded()
+            showContent()
         case .failed:
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
-            failedStackView.alpha = 1
+            showError()
         case.loading:
             break
         case .initial:
             break
         }
+    }
+    
+    private func showContent() {
+        tableView.alpha = 1
+        failedStackView.alpha = 0
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+    }
+    
+    private func showError() {
+        activityIndicator.stopAnimating()
+        refreshControl.endRefreshing()
+        failedStackView.alpha = 1
     }
     
     private func configureView() {

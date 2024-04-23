@@ -45,9 +45,9 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             break
         case .viewDidLoad:
             viewState = .initial
-            getProfile()
+            Task { await getProfile() }
         case .pullToRefresh:
-            getProfile()
+            Task { await getProfile() }
         case .commentTapped(id: let id):
             outputEventSubject.send(.commentTapped(id: id))
         case .shareTapped(id: let id):
@@ -61,25 +61,23 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
         }
     }
     
-    private func getProfile() {
-        Task {
-            do {
-                self.profile = try await self.repository.getProfile(id: userId)
-                
-                await MainActor.run {
-                    self.viewState = .loaded
-                }
-            } catch {
-                await MainActor.run {
-                    self.viewState = .failed(
-                        error: self.makeScreenError(
-                            from: .custom(
-                                title: self.strings.contentLoadingErrorTitle,
-                                message: self.strings.contentLoadingErrorSubitle
-                            )
+    private func getProfile() async {
+        do {
+            self.profile = try await self.repository.getProfile(id: userId)
+            
+            await MainActor.run {
+                self.viewState = .loaded
+            }
+        } catch {
+            await MainActor.run {
+                self.viewState = .failed(
+                    error: self.makeScreenError(
+                        from: .custom(
+                            title: self.strings.contentLoadingErrorTitle,
+                            message: self.strings.contentLoadingErrorSubitle
                         )
                     )
-                }
+                )
             }
         }
     }

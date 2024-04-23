@@ -53,4 +53,5 @@ enum AddPostViewEvent {
     case recordAudioDidTapped
     case deleteContentDidTapped
     case backTapped
+    case mediaChoosed(data: Data, contentType: ContentType)
 }

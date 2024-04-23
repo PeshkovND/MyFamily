@@ -8,8 +8,8 @@ import AppDesignSystem
 import AppBaseFlow
 
 final class GetProViewModel: BaseViewModel<GetProViewEvent,
-                              GetProViewState,
-                              GetProOutputEvent> {
+                             GetProViewState,
+                             GetProOutputEvent> {
     
     private let strings = appDesignSystem.strings
     private let repository: GetProRepository
@@ -24,7 +24,8 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
     override func onViewEvent(_ event: GetProViewEvent) {
         switch event {
         case .buyTapped:
-            buy()
+            self.viewState = .purchaseInProgress
+            Task { await buy() }
         case .viewDidLoad:
             getInfo()
         case.deinit:
@@ -38,10 +39,9 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
         }
     }
     
-    private func buy() {
-        self.viewState = .purchaseInProgress
-        Task {
-            guard let product = self.product else { return }
+    private func buy() async {
+        guard let product = self.product else { return }
+        do {
             try await self.repository.purchase(
                 product,
                 completionHandler: setPro,
@@ -57,6 +57,11 @@ final class GetProViewModel: BaseViewModel<GetProViewEvent,
                     }
                 }
             )
+        } catch {
+            DispatchQueue.main.async {
+                self.viewState = .purchaseFailed
+                self.viewState = .loaded(.init(cost: product.displayPrice))
+            }
         }
     }
     

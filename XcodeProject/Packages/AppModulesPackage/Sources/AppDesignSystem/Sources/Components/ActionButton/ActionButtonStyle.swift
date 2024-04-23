@@ -288,7 +288,6 @@ public struct FilledActionStyle: ActionButtonStyle {
     private let parentStyle: ActionButtonStyle?
     private let colors: Colors
 
-    // TODO: It should be internal
     public init(parentStyle: ActionButtonStyle? = nil, colors: Colors) {
         self.parentStyle = parentStyle
         self.colors = colors

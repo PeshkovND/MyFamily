@@ -2,7 +2,6 @@ import Foundation
 import AVKit
 import UIKit
 import AVFoundation
-import AppDesignSystem
 import Utilities
 import Cache
 
@@ -32,15 +31,8 @@ final class AudioPlayerView: UIView {
         return button
     }()
     
-    private let playImage = UIImage(systemName: "play")?.withTintColor(
-        .white,
-        renderingMode: .alwaysOriginal
-    )
-    
-    private let pauseImage = UIImage(systemName: "pause")?.withTintColor(
-        .white,
-        renderingMode: .alwaysOriginal
-    )
+    private let playImage = appDesignSystem.icons.play
+    private let pauseImage = appDesignSystem.icons.pause
     
     private let slider: UISlider = {
         let view = UISlider()
@@ -84,7 +76,7 @@ final class AudioPlayerView: UIView {
            asset.url.lastPathComponent == audioURLLastPathComponent + ".mp3" {
             let time = CMTime(
                 seconds: Double(slider.value),
-                preferredTimescale: 1000
+                preferredTimescale: 1_000
             )
             
             player?.seek(to: time) { [weak self] _ in
@@ -102,7 +94,7 @@ final class AudioPlayerView: UIView {
         timeObserver = player?.addPeriodicTimeObserver(
             forInterval: CMTime(
                 seconds: 1,
-                preferredTimescale: 1000
+                preferredTimescale: 1_000
             ),
             queue: DispatchQueue.main
         ) { time in
@@ -197,7 +189,7 @@ final class AudioPlayerView: UIView {
     private func play() {
         let time = CMTime(
             seconds: Double(slider.value),
-            preferredTimescale: 1000
+            preferredTimescale: 1_000
         )
         player?.seek(to: time)
         player?.play()
