@@ -38,8 +38,6 @@ final class MapViewController: BaseViewController<MapViewModel,
         viewModel.onViewEvent(.deinit)
     }
     
-    private var needFocusOnUser: Bool = true
-    
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -51,14 +49,9 @@ final class MapViewController: BaseViewController<MapViewModel,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.delegate = self
-        tableView.dataSource = self
-        navigationController?.isNavigationBarHidden = true
         configureView()
+        configureButtons()
         viewModel.onViewEvent(.viewDidLoad)
-        mapView.delegate = self
-        navigationController?.navigationBar.backgroundColor = colors.backgroundPrimary
-        tabBarController?.tabBar.backgroundColor = colors.backgroundPrimary
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -68,17 +61,14 @@ final class MapViewController: BaseViewController<MapViewModel,
     override func onViewState(_ viewState: MapViewState) {
         switch viewState {
         case .loaded:
-            onDataLoaded()
+            hideLoading()
             failedStackView.alpha = 0
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
             showContent()
         case .loading:
             homeButton.alpha = 0
             meButton.alpha = 0
         case .failed:
-            activityIndicator.stopAnimating()
-            refreshControl.endRefreshing()
+            hideLoading()
             failedStackView.alpha = 1
         case .initial:
             break
@@ -95,13 +85,20 @@ final class MapViewController: BaseViewController<MapViewModel,
         }
     }
     
-    private func onDataLoaded() {
+    private func hideLoading() {
         activityIndicator.stopAnimating()
         refreshControl.endRefreshing()
     }
     
     private func showContent() {
         tableView.reloadData()
+        mapView.removeAnnotations(mapView.annotations)
+        setUsersAnnotations()
+        setHomeAnnotation()
+        homeButton.alpha = 1
+    }
+    
+    private func setUsersAnnotations() {
         viewModel.personsNotAtHome.forEach { elem in
             let annotation = MapQuickEventUserAnnotation(
                 coordinate: CLLocationCoordinate2D(
@@ -115,23 +112,9 @@ final class MapViewController: BaseViewController<MapViewModel,
             
             mapView.addAnnotation(annotation)
         }
-        
-        guard let coordinate = viewModel.homeCoordinate else { return }
-        
-        let annotation = MapHomeAnnotation(
-            coordinate: CLLocationCoordinate2D(
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude
-            ),
-            persons: viewModel.personsAtHome
-        )
-        homeButton.alpha = 1
-        mapView.addAnnotation(annotation)
     }
     
-    private func zoomToHome() {
-        guard let coordinate = self.viewModel.homeCoordinate else { return }
-        
+    private func setHomeAnnotation() {
         guard let coordinate = viewModel.homeCoordinate else { return }
         
         let annotation = MapHomeAnnotation(
@@ -141,14 +124,22 @@ final class MapViewController: BaseViewController<MapViewModel,
             ),
             persons: viewModel.personsAtHome
         )
-        homeButton.alpha = 1
         mapView.addAnnotation(annotation)
     }
     
     private func configureView() {
+        tableView.refreshControl = refreshControl
+        tableView.delegate = self
+        tableView.dataSource = self
+        navigationController?.isNavigationBarHidden = true
+        mapView.delegate = self
+        navigationController?.navigationBar.backgroundColor = colors.backgroundPrimary
+        tabBarController?.tabBar.backgroundColor = colors.backgroundPrimary
+    }
+    
+    private func configureButtons() {
         meButton.onTap = { self.viewModel.onViewEvent(.currentUserTapped) }
         homeButton.onTap = { self.viewModel.onViewEvent(.homeTapped) }
-        tableView.refreshControl = refreshControl
     }
     
     @objc
@@ -200,7 +191,9 @@ extension MapViewController: UITableViewDataSource {
         cell.setup(model)
         return cell
     }
-    
+}
+
+extension MapViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         68
     }
@@ -209,5 +202,3 @@ extension MapViewController: UITableViewDataSource {
         viewModel.onViewEvent(.userTapped(at: indexPath.row))
     }
 }
-
-extension MapViewController: UITableViewDelegate { }

@@ -110,7 +110,8 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
                                 title: self.strings.contentLoadingErrorTitle,
                                 message: self.strings.contentLoadingErrorSubitle
                             )
-                        ))
+                        )
+                    )
                 }
             }
         }

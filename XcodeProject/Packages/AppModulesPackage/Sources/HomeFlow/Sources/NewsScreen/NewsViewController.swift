@@ -4,7 +4,6 @@ import AppDesignSystem
 import AppBaseFlow
 import AVKit
 import MobileCoreServices
-import AppEntities
 
 struct NewsViewPost {
     let id: String
