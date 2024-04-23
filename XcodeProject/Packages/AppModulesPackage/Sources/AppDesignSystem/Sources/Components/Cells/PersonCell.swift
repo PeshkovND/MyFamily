@@ -1,5 +1,6 @@
 import UIKit
 import AppEntities
+import Utilities
 
 public final class PersonCell: UITableViewCell {
     public struct Model {
