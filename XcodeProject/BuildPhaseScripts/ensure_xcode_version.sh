@@ -1,6 +1,6 @@
 #!/bin/sh
 
-XCODE_VERSION_CONSTRAINT="1520"
+XCODE_VERSION_CONSTRAINT="1620"
 
 echo "Max Allowed Xcode Version = ${XCODE_VERSION_CONSTRAINT}"
 echo "Current Xcode Version = ${XCODE_VERSION_ACTUAL}"

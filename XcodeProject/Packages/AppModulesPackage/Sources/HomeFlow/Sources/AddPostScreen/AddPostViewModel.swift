@@ -5,6 +5,8 @@ import AppEntities
 import AppServices
 import AppDesignSystem
 import AppBaseFlow
+import Vision
+import ImageIO
 
 final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                               AddPostViewState,
@@ -22,6 +24,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
     private var linkToMediaContent: URL?
     private var recordingSession = AVAudioSession.sharedInstance()
     private var audioRecorder: AVAudioRecorder?
+    private let ImageCheckingQueue = DispatchQueue(label: "imageChecking")
     
     var contentType: ContentType?
     var postText: String?
@@ -57,11 +60,36 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         case .mediaChoosed(data: let data, contentType: let contentType):
             switch contentType {
             case .image:
-                self.setupUploadMediaTask(data: data, contentType: .image)
+                loadImage(data: data)
             case .video:
                 self.setupUploadMediaTask(data: data, contentType: .video)
             case .audio:
                 break
+            }
+        }
+    }
+    
+    private func loadImage(data: Data) {
+        guard let uiImage = UIImage(data: data), let ciImage = CIImage(image: uiImage) else {
+            showContentError()
+            return
+        }
+        let handler = VNImageRequestHandler(ciImage: ciImage, orientation: .up, options: [:])
+        ImageCheckingQueue.sync {
+            do {
+                try handler.perform([ImageNSFWDetector.classificationRequest(compeltionHandler: { isSafe in
+                    if isSafe {
+                        self.setupUploadMediaTask(data: data, contentType: .image)
+                    } else {
+                        DispatchQueue.main.async {
+                            self.showContentError()
+                        }
+                    }
+                })])
+            } catch {
+                DispatchQueue.main.async {
+                    self.showContentError()
+                }
             }
         }
     }

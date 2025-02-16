@@ -353,7 +353,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 }
             } else if mediaType == UTType.image.identifier { // Проверка на изображение
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-                    guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
+                    guard let imageData = image.jpegData(compressionQuality: 0.9), let ciImage = image.cgImage else { return }
                     addImage(image)
                     viewModel.onViewEvent(.mediaChoosed(data: imageData, contentType: .image))
                 }
