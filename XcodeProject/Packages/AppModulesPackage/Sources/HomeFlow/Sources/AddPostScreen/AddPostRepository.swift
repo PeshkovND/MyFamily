@@ -6,10 +6,12 @@ import AppEntities
 final class AddPostRepository {
     private let firebaseClient: FirebaseClient
     private let authService: AuthService
+    private let textToxicityChecker: TextToxicityChecker
     
-    init(firebaseClient: FirebaseClient, authService: AuthService) {
+    init(firebaseClient: FirebaseClient, authService: AuthService, textToxicityChecker: TextToxicityChecker) {
         self.firebaseClient = firebaseClient
         self.authService = authService
+        self.textToxicityChecker = textToxicityChecker
     }
     
     func uploadMedia(data: Data, contentType: ContentType) async throws -> URL {
@@ -37,5 +39,17 @@ final class AddPostRepository {
             likes: []
         )
         try await firebaseClient.addPost(post)
+    }
+    
+    func checkTextToxicity(
+        inputText: String,
+        onSuccess: @escaping (Bool) -> Void,
+        onFailure: @escaping () -> Void
+    ) {
+        textToxicityChecker.checkToxicity(
+            inputText: inputText,
+            onSuccess: onSuccess,
+            onFailure: onFailure
+        )
     }
 }

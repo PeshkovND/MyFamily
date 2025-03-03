@@ -36,6 +36,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let sharePostDeeplinkBody = "mf://post/"
     private let purchaseManager: PurchaseManager
     private let defaultsStorage: DefaultsStorage
+    private let textToxicityChecker: TextToxicityChecker
     
     public init(
         navigationController: UINavigationController,
@@ -46,7 +47,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         locationManager: AppLocationManager,
         swiftDataManager: SwiftDataManager,
         purchaseManager: PurchaseManager,
-        defaultsStorage: DefaultsStorage
+        defaultsStorage: DefaultsStorage,
+        textToxicityChecker: TextToxicityChecker
     ) {
         self.navigationController = navigationController
         self.authService = authService
@@ -57,6 +59,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
         self.swiftDataManager = swiftDataManager
         self.purchaseManager = purchaseManager
         self.defaultsStorage = defaultsStorage
+        self.textToxicityChecker = textToxicityChecker
     }
     
     public func start() {
@@ -231,7 +234,11 @@ private extension HomeCoordinator {
     }
     
     private func openAddPostScreen() {
-        let repository = AddPostRepository(firebaseClient: firebaseClient, authService: authService)
+        let repository = AddPostRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            textToxicityChecker: textToxicityChecker
+        )
         let viewModel = AddPostViewModel(repository: repository)
         viewModel.outputEventPublisher .sink { [weak self] event in
             guard let self = self else { return }

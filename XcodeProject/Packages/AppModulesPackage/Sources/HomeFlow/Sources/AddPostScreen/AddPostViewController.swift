@@ -148,11 +148,11 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         case .loading:
             isLoadingShowing = true
             closeKeyboard()
-        case .error:
+        case let .error(title, subtitle):
             isLoadingShowing = false
             let alert = UIAlertController(
-                title: appDesignSystem.strings.editProfileErrorTitle,
-                message: appDesignSystem.strings.editProfileErrorSubtitle,
+                title: title,
+                message: subtitle,
                 preferredStyle: .alert
             )
             alert.addAction(.cancelAction())

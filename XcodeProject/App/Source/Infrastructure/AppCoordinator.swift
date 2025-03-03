@@ -37,6 +37,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private let purchaseManager = AppContainer.providePurchaseManager()
     private let deeplinker = AppContainer.provideDeeplinker()
     private let backgroundTasksManager = AppContainer.provideBackgroundTasksManager()
+    private let textToxicityChecker = AppContainer.provideTextToxicityChecker()
     private var timer: DispatchSourceTimer?
     private var setCancelable = Set<AnyCancellable>()
     
@@ -117,7 +118,8 @@ private extension AppCoordinator {
             locationManager: locationManager,
             swiftDataManager: swiftDataManager,
             purchaseManager: purchaseManager,
-            defaultsStorage: defaultsStorage
+            defaultsStorage: defaultsStorage,
+            textToxicityChecker: textToxicityChecker
         )
         
         let token = coordinator.events.sink { event in

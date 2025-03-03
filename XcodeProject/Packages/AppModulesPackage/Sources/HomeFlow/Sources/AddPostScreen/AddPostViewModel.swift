@@ -48,7 +48,35 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
         case .viewDidLoad:
             viewState = .initial
         case .addPostTapped:
-            addPost()
+            guard linkToMediaContent != nil || postText != nil else { return }
+            self.viewState = .loading
+            if let postText {
+                repository.checkTextToxicity(
+                    inputText: postText,
+                    onSuccess: { [weak self] isToxic in
+                        DispatchQueue.main.async {
+                            if isToxic {
+                                self?.viewState = .error(
+                                    title: appDesignSystem.strings.addPostErrorTitle,
+                                    subtitle: appDesignSystem.strings.toxicTextWarningSubtitle
+                                )
+                            } else {
+                                self?.addPost()
+                            }
+                        }
+                    },
+                    onFailure: { [weak self] in
+                        DispatchQueue.main.async {
+                            self?.viewState = .error(
+                                title: appDesignSystem.strings.addPostErrorTitle,
+                                subtitle: appDesignSystem.strings.toxicTextErrorSubtitle
+                            )
+                        }
+                    }
+                )
+            } else {
+                addPost()
+            }
         case .recordAudioDidTapped:
             recordTapped()
         case .deleteContentDidTapped:
@@ -83,20 +111,26 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                     } else {
                         DispatchQueue.main.async {
                             self.showContentError()
+                            self.viewState = .error(
+                                title: appDesignSystem.strings.addPostErrorTitle,
+                                subtitle: appDesignSystem.strings.nsfwImageWarningSubtitle
+                            )
                         }
                     }
                 })])
             } catch {
                 DispatchQueue.main.async {
                     self.showContentError()
+                    self.viewState = .error(
+                        title: appDesignSystem.strings.addPostErrorTitle,
+                        subtitle: appDesignSystem.strings.nsfwImageErrorSubtitle
+                    )
                 }
             }
         }
     }
     
     private func addPost() {
-        guard linkToMediaContent != nil || postText != nil else { return }
-        self.viewState = .loading
         Task {
             do {
                 try await self.repository.addPost(
@@ -110,7 +144,10 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
                 }
             } catch {
                 await MainActor.run {
-                    self.viewState = .error
+                    self.viewState = .error(
+                        title: appDesignSystem.strings.addPostErrorTitle,
+                        subtitle: appDesignSystem.strings.addPostErrorSubtitle
+                    )
                 }
             }
         }
