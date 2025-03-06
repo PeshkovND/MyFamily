@@ -128,6 +128,11 @@ extension StringsLibrary {
     public var addPostErrorTitle: String { localized("add_post_error_title") }
     public var addPostErrorSubtitle: String { localized("add_post_error_subtitle") }
     
+    public var toxicTextErrorSubtitle: String { localized("toxic_text_error_subtitle") }
+    public var toxicTextWarningSubtitle: String { localized("toxic_text_warning_subtitle") }
+    public var nsfwImageWarningSubtitle: String { localized("nsfw_image_warning_subtitle") }
+    public var nsfwImageErrorSubtitle: String { localized("nsfw_image_error_subtitle") }
+    
     public var editProfileScreenTitle: String { localized("edit_profile_screen_title") }
     public var editProfileNameTitle: String { localized("edit_profile_name_title") }
     public var editProfileSurnameTitle: String { localized("edit_profile_surname_title") }

@@ -148,11 +148,11 @@ final class AddPostViewController: BaseViewController<AddPostViewModel,
         case .loading:
             isLoadingShowing = true
             closeKeyboard()
-        case .error:
+        case let .error(title, subtitle):
             isLoadingShowing = false
             let alert = UIAlertController(
-                title: appDesignSystem.strings.editProfileErrorTitle,
-                message: appDesignSystem.strings.editProfileErrorSubtitle,
+                title: title,
+                message: subtitle,
                 preferredStyle: .alert
             )
             alert.addAction(.cancelAction())
@@ -353,7 +353,7 @@ extension AddPostViewController: UIImagePickerControllerDelegate, UINavigationCo
                 }
             } else if mediaType == UTType.image.identifier { // Проверка на изображение
                 if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-                    guard let imageData = image.jpegData(compressionQuality: 0.9) else { return }
+                    guard let imageData = image.jpegData(compressionQuality: 0.9), let ciImage = image.cgImage else { return }
                     addImage(image)
                     viewModel.onViewEvent(.mediaChoosed(data: imageData, contentType: .image))
                 }

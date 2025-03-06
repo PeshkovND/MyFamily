@@ -74,6 +74,11 @@
 "add_post_error_title" = "Error";
 "add_post_error_subtitle" = "Please check your internet connection";
 
+"toxic_text_warning_subtitle" = "Your text has not passed automatic verification";
+"toxic_text_error_subtitle" = "Text verification error, please try again";
+"nsfw_image_warning_subtitle" = "Your image has not passed automatic verification";
+"nsfw_image_error_subtitle" = "Automatic image verification error, please try again";
+
 "edit_profile_screen_title" = "Edit profile";
 "edit_profile_name_title" = "Name";
 "edit_profile_surname_title" = "Surname";

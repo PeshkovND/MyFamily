@@ -95,6 +95,10 @@ struct AppContainer {
         return httpClient
     }()
     
+    private static let textToxicityChecker: TextToxicityChecker = {
+        TextToxicityChecker(httpClient: alamofireHttpClient)
+    }()
+    
     // INFO: Providing httpClient lazily to avoid reference cycle during init phase
     private static let authService: AppAuthService = .init(
         providingHttpClient: { alamofireHttpClient },
@@ -131,6 +135,7 @@ extension AppContainer {
     static func providePurchaseManager() -> PurchaseManager { purchaseManager }
     static func provideDeeplinker() -> DeepLinkManager { deeplinker }
     static func provideBackgroundTasksManager() -> BackgroundTasksManager { backgroundTasksManager }
+    static func provideTextToxicityChecker() -> TextToxicityChecker { textToxicityChecker }
 }
 
 // MARK: - Providing Loggers

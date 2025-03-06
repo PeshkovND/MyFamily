@@ -33,7 +33,7 @@ enum AddPostViewState: Stubable {
     case audioRecording
     case audioRecorded
     case loading
-    case error
+    case error(title: String, subtitle: String)
 
     static var stub: AddPostViewState { .initial }
 }
