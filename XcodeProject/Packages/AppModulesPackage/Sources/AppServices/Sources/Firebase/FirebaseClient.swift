@@ -39,6 +39,18 @@ public class FirebaseClient {
 
 public extension FirebaseClient {
     
+    func addFamily(_ family: FamilyPayload) async throws {
+        let test = try await getAllUsers()
+        switch test {
+        case .success:
+            try await self.fs.collection(Collections.comments)
+                .document(family.id.uuidString)
+                .setData(family.dictionary())
+        case .failure(let e):
+            throw e
+        }
+    }
+    
     func addUser(_ user: UserInfo) async throws -> Result<UserInfo, FirebaseClientError> {
         let dbUserResult = try await getUser(user.id)
         switch dbUserResult {
@@ -47,7 +59,8 @@ public extension FirebaseClient {
                 id: dbUser.id,
                 photoURL: dbUser.photoURL,
                 firstName: dbUser.firstName,
-                lastName: dbUser.lastName
+                lastName: dbUser.lastName,
+                familyId: dbUser.familyId
             )
             return .success(userInfo)
         case .failure(let e):
@@ -61,7 +74,8 @@ public extension FirebaseClient {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     role: .regular,
-                    pro: false
+                    pro: false,
+                    familyId: user.familyId
                 )
                 try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
                 return .success(user)
@@ -90,7 +104,8 @@ public extension FirebaseClient {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: document.role,
-                pro: document.pro
+                pro: document.pro,
+                familyId: user.familyId
             )
             try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
         case .failure(let e):

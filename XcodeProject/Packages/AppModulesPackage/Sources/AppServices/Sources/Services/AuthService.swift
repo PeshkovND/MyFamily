@@ -58,12 +58,15 @@ public final class AppAuthService: AuthService {
         let hasFirstName = profile?.firstName.isNotEmpty ?? false
         let hasLastName = profile?.lastName.isNotEmpty ?? false
         let hasDisplayName = profile?.firstName != nil
+        let hasFamily = profile?.familyId != nil
 
-        return hasFirstName && hasLastName && hasDisplayName
+        return hasFirstName && hasLastName && hasDisplayName && hasFamily
     }
 
     public var credentials: Credentials? { provideCredentials() }
-    public var account: Account? { provideAccount() }
+    public var account: Account? {
+        provideAccount()
+    }
 
     public var onLogoutCompleted: () -> Void = {}
     public var onAuthErrorOccured: () -> Void = {}

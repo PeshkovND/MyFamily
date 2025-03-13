@@ -170,7 +170,8 @@ public class SwiftDataManager {
                     firstName: elem.firstName,
                     lastName: elem.lastName,
                     role: elem.role,
-                    pro: elem.pro
+                    pro: elem.pro,
+                    familyId: elem.familyId
                 )
             }
         }
@@ -188,7 +189,8 @@ public class SwiftDataManager {
                 firstName: model.firstName,
                 lastName: model.lastName,
                 role: model.role,
-                pro: model.pro
+                pro: model.pro,
+                familyId: model.familyId
             )
         }
     }
@@ -202,7 +204,8 @@ public class SwiftDataManager {
                     firstName: elem.firstName,
                     lastName: elem.lastName,
                     role: elem.role,
-                    pro: elem.pro
+                    pro: elem.pro,
+                    familyId: elem.familyId
                 )
                 context?.insert(model)
             }

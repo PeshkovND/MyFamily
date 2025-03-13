@@ -79,12 +79,14 @@ public struct UserInfo: Codable {
     public let photoURL: URL?
     public let firstName: String
     public let lastName: String
+    public let familyId: String?
     
-    public init(id: Int, photoURL: URL?, firstName: String, lastName: String) {
+    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, familyId: String?) {
         self.id = id
         self.photoURL = photoURL
         self.firstName = firstName
         self.lastName = lastName
+        self.familyId = familyId
     }
 }
 
@@ -95,14 +97,16 @@ public struct UserPayload: Codable {
     public let lastName: String
     public let role: Role
     public var pro: Bool
+    public var familyId: String?
     
-    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, role: Role, pro: Bool) {
+    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, role: Role, pro: Bool, familyId: String?) {
         self.id = id
         self.photoURL = photoURL
         self.firstName = firstName
         self.lastName = lastName
         self.role = role
         self.pro = pro
+        self.familyId = familyId
     }
     
     public func dictionary() -> [String: Any] {
@@ -112,7 +116,26 @@ public struct UserPayload: Codable {
             "firstName": firstName,
             "lastName": lastName,
             "role": role.rawValue,
-            "pro": pro
+            "pro": pro,
+            "familyId": familyId as Any
+        ]
+    }
+
+}
+
+public struct FamilyPayload: Codable {
+    public let id: UUID
+    public let name: String
+    
+    public init(id: UUID, name: String) {
+        self.id = id
+        self.name = name
+    }
+    
+    public func dictionary() -> [String: Any] {
+        return [
+            "id": id.uuidString,
+            "name": name
         ]
     }
 
