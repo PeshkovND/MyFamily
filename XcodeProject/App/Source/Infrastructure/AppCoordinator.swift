@@ -71,13 +71,7 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
 private extension AppCoordinator {
     
     private func startAuthorizedFlow() {
-        
-        if authService.hasFilledProfile {
-            registerShortcuts(isAuthorized: true)
-            startHomeFlow()
-        } else {
-            startAddFamilyFlow()
-        }
+        startFamilyCheckingFlow()
     }
     
     private func configureSignInCoordinator() -> SignInCoordinator {
@@ -102,10 +96,10 @@ private extension AppCoordinator {
         return coordinator
     }
     
-    private func startAddFamilyFlow() {
+    private func startFamilyCheckingFlow() {
         registerShortcuts(isAuthorized: false)
         let coordinator = configureSignInCoordinator()
-        coordinator.start(screenType: .addFamily)
+        coordinator.start(screenType: .familyChecking)
     }
     
     private func startSignInFlow() {
@@ -119,6 +113,8 @@ private extension AppCoordinator {
         switch authState {
         case .signIn:
             startAuthorizedFlow()
+        case .fullfilled:
+            startHomeFlow()
         }
     }
     

@@ -126,16 +126,22 @@ public struct UserPayload: Codable {
 public struct FamilyPayload: Codable {
     public let id: UUID
     public let name: String
+    public let homeLongitude: Double
+    public let homeLatitude: Double
     
-    public init(id: UUID, name: String) {
+    public init(id: UUID, name: String, homeLongitude: Double, homeLatitude: Double) {
         self.id = id
         self.name = name
+        self.homeLatitude = homeLatitude
+        self.homeLongitude = homeLongitude
     }
     
     public func dictionary() -> [String: Any] {
         return [
             "id": id.uuidString,
-            "name": name
+            "name": name,
+            "homeLatitude": homeLatitude,
+            "homeLongitude": homeLongitude
         ]
     }
 

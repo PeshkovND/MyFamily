@@ -19,6 +19,7 @@ final class AddFamilyViewController: BaseViewController<AddFamilyViewModel,
     private var backButton: ActionButton { contentView.backButton }
     private var loadingView: UIView { contentView.loadingView }
     private var nameInputField: UITextField { contentView.nameInputField }
+    private var addressInputField: UITextField { contentView.addressInputField }
     
     private var isLoadingShowing = false {
         willSet {
@@ -51,6 +52,17 @@ final class AddFamilyViewController: BaseViewController<AddFamilyViewModel,
             isLoadingShowing = false
         case .loading:
             isLoadingShowing = true
+        case .addressConfirmation(address: let address):
+            isLoadingShowing = false
+            let alert = UIAlertController(title: "Подтвердите адрес", message: address, preferredStyle: .alert)
+            alert.addAction(.init(title: "Верно", style: .default, handler: { _ in
+                guard let name = self.nameInputField.text else { return }
+                self.viewModel.onViewEvent(
+                    .addressConfirmed(name: name)
+                )
+            }))
+            alert.addAction(.cancelAction())
+            self.present(alert, animated: true)
         }
     }
     
@@ -59,9 +71,13 @@ final class AddFamilyViewController: BaseViewController<AddFamilyViewModel,
 
             addFamilyButton.touchUpInsidePublisher
                 .sink { [weak self] _ in
-                    guard let self = self, let name = self.nameInputField.text else { return }
+                    guard
+                        let self = self,
+                        let name = self.nameInputField.text,
+                        let address = self.addressInputField.text
+                    else { return }
                     self.viewModel.onViewEvent(
-                        .addFamilyTapped(name: name)
+                        .addFamilyTapped(address: address)
                     )
                 }
                 .store(in: &cancelableSet)

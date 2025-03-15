@@ -14,10 +14,15 @@ final class AddFamilyRepository {
         self.authService = authService
     }
     
-    func addFamily(name: String) async throws {
+    func addFamily(name: String, homeLongitude: Double, homeLatitude: Double) async throws {
         guard let account = authService.account else { return }
         let familyId = UUID()
-        try await firebaseClient.addFamily(.init(id: familyId, name: name))
+        try await firebaseClient.addFamily(.init(
+            id: familyId,
+            name: name,
+            homeLongitude: homeLongitude,
+            homeLatitude: homeLatitude
+        ))
         try await firebaseClient.updateUser(.init(
             id: account.id,
             photoURL: account.photoURL,

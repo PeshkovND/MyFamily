@@ -41,7 +41,7 @@ extension AddFamilyViewController {
             return button
         }()
         
-        private(set) lazy var title: UILabel = {
+        private(set) lazy var enterFamilyNameTitle: UILabel = {
             let label = UILabel()
             label.text = "Enter the family name"
             label.font = typography.headline
@@ -51,7 +51,29 @@ extension AddFamilyViewController {
             return label
         }()
         
+        private(set) lazy var enterHomeAddressTitle: UILabel = {
+            let label = UILabel()
+            label.text = "Enter home address"
+            label.font = typography.headline
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textAlignment = .center
+            
+            return label
+        }()
+        
         private(set) var nameInputField: TextFieldWithInsets = {
+            let view = TextFieldWithInsets()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.font = appDesignSystem.typography.body
+            view.layer.borderWidth = 1
+            view.layer.borderColor = appDesignSystem.colors.labelPrimary.cgColor
+            view.layer.cornerRadius = 12
+            view.textInsets = .init(top: 0, left: 8, bottom: 0, right: 8)
+            view.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+            return view
+        }()
+        
+        private(set) var addressInputField: TextFieldWithInsets = {
             let view = TextFieldWithInsets()
             view.translatesAutoresizingMaskIntoConstraints = false
             view.font = appDesignSystem.typography.body
@@ -93,8 +115,10 @@ extension AddFamilyViewController {
             addSubview(loadingView)
             container.addSubview(backButton)
             container.addSubview(stack)
-            stack.addArrangedSubview(title)
+            stack.addArrangedSubview(enterFamilyNameTitle)
             stack.addArrangedSubview(nameInputField)
+            stack.addArrangedSubview(enterHomeAddressTitle)
+            stack.addArrangedSubview(addressInputField)
             stack.addArrangedSubview(addFamilyButton)
             
             loadingView.snp.makeConstraints {
@@ -133,6 +157,10 @@ extension AddFamilyViewController {
             }
             
             nameInputField.snp.makeConstraints {
+                $0.height.equalTo(48)
+            }
+            
+            addressInputField.snp.makeConstraints {
                 $0.height.equalTo(48)
             }
         }

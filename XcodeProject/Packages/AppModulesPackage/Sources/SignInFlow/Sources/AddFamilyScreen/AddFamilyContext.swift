@@ -24,6 +24,7 @@ enum AddFamilyViewState: Stubable {
     case initial
     case loading
     case error(title: String, subtitle: String)
+    case addressConfirmation(address: String)
 
     static var stub: AddFamilyViewState { .initial }
 }
@@ -39,6 +40,7 @@ enum AddFamilyOutputEvent {
 
 enum AddFamilyViewEvent {
     case viewDidLoad
-    case addFamilyTapped(name: String)
+    case addressConfirmed(name: String)
+    case addFamilyTapped(address: String)
     case backButtonTapped
 }

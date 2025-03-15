@@ -7,6 +7,7 @@ import AppEntities
 // MARK: - AuthState
 public enum AuthState {
     case signIn
+    case fullfilled
 }
 
 // MARK: - CredentialsProvider

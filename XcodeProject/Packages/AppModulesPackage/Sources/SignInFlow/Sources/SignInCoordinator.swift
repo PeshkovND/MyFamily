@@ -12,6 +12,7 @@ public final class SignInCoordinator: EventCoordinator {
     public enum ScreenType {
         case signIn
         case addFamily
+        case familyChecking
     }
 
     public enum SignInEvent {
@@ -51,6 +52,8 @@ public final class SignInCoordinator: EventCoordinator {
             startSignInScreen()
         case .addFamily:
             startAddFamilyForkScreen()
+        case .familyChecking:
+            startFamilyCheckingScreen()
         }
     }
 }
@@ -70,7 +73,7 @@ private extension SignInCoordinator {
                 switch event {
                 case .signedIn:
                     if authService.hasFilledProfile {
-                        self.eventSubject.send(.finish(authState: .signIn))
+                        self.eventSubject.send(.finish(authState: .fullfilled))
                     } else {
                         setCancelable = []
                         startAddFamilyForkScreen(animated: false)
@@ -124,7 +127,7 @@ private extension SignInCoordinator {
                 
                 switch event {
                 case .familyCreated:
-                    self.eventSubject.send(.finish(authState: .signIn))
+                    self.eventSubject.send(.finish(authState: .fullfilled))
                 case .back: startAddFamilyForkScreen(animated: false)
                 }
             }
@@ -132,5 +135,25 @@ private extension SignInCoordinator {
         
         navigationController?.setViewControllers([viewController], animated: false)
         navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
+    private func startFamilyCheckingScreen() {
+        let repository = FamilyCheckingRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = FamilyCheckingViewModel(repository: repository)
+        let screen = FamilyCheckingViewController(viewModel: viewModel)
+        
+        viewModel.outputEventPublisher.sink { [weak self] event in
+            switch event {
+            case .familyFound:
+                self?.eventSubject.send(.finish(authState: .fullfilled))
+            case .familyNotFound:
+                self?.setCancelable = []
+                self?.startAddFamilyForkScreen()
+            }
+        }
+        .store(in: &setCancelable)
+        
+        navigationController?.setViewControllers([screen], animated: true)
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 }

@@ -11,6 +11,7 @@ private final class Collections {
     static let users = "Users"
     static let comments = "Comments"
     static let statuses = "Statuses"
+    static let families = "Families"
 }
 
 public enum FirebaseClientError: Error {
@@ -43,7 +44,7 @@ public extension FirebaseClient {
         let test = try await getAllUsers()
         switch test {
         case .success:
-            try await self.fs.collection(Collections.comments)
+            try await self.fs.collection(Collections.families)
                 .document(family.id.uuidString)
                 .setData(family.dictionary())
         case .failure(let e):
