@@ -30,6 +30,8 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             Task { await getUsers() }
         case .profileTapped(id: let id):
             outputEventSubject.send(.personCardTapped(id: id))
+        case .addUserTapped:
+            outputEventSubject.send(.addUserTapped)
         }
     }
     

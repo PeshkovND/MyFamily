@@ -12,11 +12,13 @@ private final class Collections {
     static let comments = "Comments"
     static let statuses = "Statuses"
     static let families = "Families"
+    static let invitations = "Invitations"
 }
 
 public enum FirebaseClientError: Error {
     case parsingError
     case fetchingError
+    case documentAlreadyExists
 }
 
 public class FirebaseClient {
@@ -80,6 +82,8 @@ public extension FirebaseClient {
                 )
                 try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
                 return .success(user)
+            case .documentAlreadyExists:
+                return .failure(.documentAlreadyExists)
             }
         }
     }
@@ -90,6 +94,58 @@ public extension FirebaseClient {
         case .success(var user):
             user.pro = status
             try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
+        case .failure(let e):
+            throw e
+        }
+    }
+    
+    func getInvitations(familyId: String) async throws -> Result<[InvitePayload], FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.invitations)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments(source: .server)
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [InvitePayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let user = try doc.data(as: InvitePayload.self)
+                    result.append(user)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
+    func addInvitations(invitePayload: InvitePayload) async throws {
+        let dbInvitationResult = try await getInvitation(invitePayload.id)
+        switch dbInvitationResult {
+        case .success(let dbUser):
+            throw FirebaseClientError.documentAlreadyExists
+        case .failure(let e):
+            switch e {
+            case .fetchingError:
+                throw FirebaseClientError.fetchingError
+            case .parsingError:
+                try await self.fs.collection(Collections.invitations).document(invitePayload.id).setData(invitePayload.dictionary())
+            case .documentAlreadyExists:
+                break
+            }
+        }
+    }
+    
+    func deleteInvitations(id: String) async throws {
+        let test = try await getAllUsers()
+        switch test {
+        case .success:
+            try await self.fs.collection(Collections.invitations)
+                .document(id)
+                .delete()
         case .failure(let e):
             throw e
         }
@@ -121,6 +177,20 @@ public extension FirebaseClient {
                 return .failure(FirebaseClientError.fetchingError)
             }
             return .success(try snapshot.data(as: UserPayload.self))
+        } catch _ as DecodingError {
+            return .failure(.parsingError)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
+    func getInvitation(_ id: String) async throws -> Result<InvitePayload, FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.invitations).document(String(id)).getDocument()
+            if snapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+            return .success(try snapshot.data(as: InvitePayload.self))
         } catch _ as DecodingError {
             return .failure(.parsingError)
         } catch {

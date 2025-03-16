@@ -73,16 +73,27 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     }
     
     private func configureView() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: appDesignSystem.icons.plus,
+            style: .done,
+            target: self,
+            action: #selector(addUserDidTapped)
+        )
         self.contentView.backgroundColor = colors.backgroundPrimary
         tableView.dataSource = self
         tableView.delegate = self
         tableView.refreshControl = refreshControl
     }
-
+    
     @objc
     private func onPullToRefresh() {
         refreshControl.beginRefreshing()
         viewModel.onViewEvent(.pullToRefresh)
+    }
+
+    @objc
+    private func addUserDidTapped() {
+        viewModel.onViewEvent(.addUserTapped)
     }
 }
 

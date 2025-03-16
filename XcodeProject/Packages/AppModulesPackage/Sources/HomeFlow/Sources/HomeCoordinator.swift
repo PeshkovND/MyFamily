@@ -222,14 +222,14 @@ private extension HomeCoordinator {
         viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
         
         viewModel.outputEventPublisher.sink { [weak self] event in
-            guard self != nil else { return }
+            guard let self else { return }
             switch event {
             case .personCardTapped(let id):
-                guard
-                    let vc = self?.makeProfileViewController(userId: id),
-                    let nvc = viewController.navigationController
-                else { return }
+                let vc = self.makeProfileViewController(userId: id)
+                guard let nvc = viewController.navigationController else { return }
                 nvc.pushViewController(vc, animated: true)
+            case .addUserTapped:
+                self.openFamilyInvitationsScreen()
             }
         }.store(in: &setCancelable)
         return viewController
@@ -280,6 +280,29 @@ private extension HomeCoordinator {
         viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return viewController
+    }
+    
+    private func openFamilyInvitationsScreen() {
+        let repository = FamilyInvitationRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
+        let viewModel = FamilyInvitationViewModel(repository: repository)
+
+        viewModel.outputEventPublisher.sink { [weak self] event in
+            guard let self = self else { return }
+            switch event {
+            case .onBack:
+                self.navigationController?.isNavigationBarHidden = true
+                self.navigationController?.popViewController(animated: true)
+            }
+        }.store(in: &setCancelable)
+        
+        let viewController = FamilyInvitationViewController(viewModel: viewModel)
+        navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.isNavigationBarHidden = false
     }
     
     private func makeGetProScreen() -> GetProViewController {

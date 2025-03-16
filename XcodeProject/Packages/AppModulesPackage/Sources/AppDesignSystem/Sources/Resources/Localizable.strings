@@ -102,3 +102,5 @@
 "get_pro_purchase_failed_description" = "Something went wrong. Something went wrong. Please try again, or try to restore your purchase.";
 "get_pro_content_loading_error" = "Product loading error";
 "get_pro_retry" = "Retry";
+
+"invitations_screen_title" = "Invitation Codes";

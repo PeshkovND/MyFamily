@@ -145,4 +145,6 @@ extension StringsLibrary {
     
     public var contentLoadingErrorTitle: String { localized("content_loading_error_title") }
     public var contentLoadingErrorSubitle: String { localized("content_loading_error_subtitle") }
+    
+    public var invitationsScreenTitle: String { localized("invitations_screen_title") }
 }

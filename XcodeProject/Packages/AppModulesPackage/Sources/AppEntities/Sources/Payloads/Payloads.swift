@@ -123,6 +123,27 @@ public struct UserPayload: Codable {
 
 }
 
+public struct InvitePayload: Codable {
+    public let id: String
+    public let dateCreated: String
+    public let familyId: String
+    
+    public init(id: String, dateCreated: String, familyId: String) {
+        self.id = id
+        self.dateCreated = dateCreated
+        self.familyId = familyId
+    }
+    
+    public func dictionary() -> [String: Any] {
+        return [
+            "id": id,
+            "dateCreated": dateCreated,
+            "familyId": familyId
+        ]
+    }
+
+}
+
 public struct FamilyPayload: Codable {
     public let id: UUID
     public let name: String
