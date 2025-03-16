@@ -128,6 +128,29 @@ public extension FirebaseClient {
         }
     }
     
+    func getAllUsers(familyId: String) async throws -> Result<[UserPayload], FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.users)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments(source: .server)
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [UserPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let user = try doc.data(as: UserPayload.self)
+                    result.append(user)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
     func getAllUsers() async throws -> Result<[UserPayload], FirebaseClientError> {
         do {
             let snapshot = try await fs.collection(Collections.users).getDocuments(source: .server)
@@ -294,6 +317,48 @@ public extension FirebaseClient {
             throw e
         }
     }
+    
+    func getAllPosts(forFamilyId familyId: String) async throws -> Result<[PostPayload], FirebaseClientError> {
+        do {
+            let usersSnapshot = try await fs.collection(Collections.users)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments()
+
+            if usersSnapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+
+            let userIds = usersSnapshot.documents.map { Int($0.documentID) }
+
+            if userIds.isEmpty {
+                return .success([])
+            }
+
+            let postsSnapshot = try await fs.collection(Collections.posts)
+                .whereField("userId", in: userIds) // Используем оператор "in" для фильтрации по userId
+                .order(by: "date", descending: true)
+                .getDocuments()
+
+            if postsSnapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+
+            var result: [PostPayload] = []
+            for doc in postsSnapshot.documents {
+                do {
+                    let post = try doc.data(as: PostPayload.self)
+                    result.append(post)
+                } catch {
+                    continue
+                }
+            }
+
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
     
     func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {
         do {

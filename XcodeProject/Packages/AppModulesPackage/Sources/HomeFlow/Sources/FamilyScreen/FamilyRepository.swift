@@ -41,7 +41,8 @@ final class FamilyRepository {
     
     func getUsers() async throws -> [FamilyViewData] {
         do {
-            async let usersTask = firebaseClient.getAllUsers()
+            guard let familyId = authService.account?.familyId else { return [] }
+            async let usersTask = firebaseClient.getAllUsers(familyId: familyId)
             async let statusesTask = firebaseClient.getAllUsersStatuses()
             
             let usersResult = try await usersTask
@@ -50,7 +51,7 @@ final class FamilyRepository {
             guard let users = try await firebaseClient.unwrapResult(
                 result: usersResult,
                 successAction: { users in try await swiftDataManager.setAllUsers(users: users) },
-                failureAction: { try await swiftDataManager.getAllUsers() }
+                failureAction: { try await swiftDataManager.getAllUsers(familyId: familyId) }
             ) else {
                 return []
             }

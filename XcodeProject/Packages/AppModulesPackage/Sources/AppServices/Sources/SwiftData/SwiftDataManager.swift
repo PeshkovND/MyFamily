@@ -40,6 +40,42 @@ public class SwiftDataManager {
         }
     }
     
+    public func getAllPosts(forFamilyId familyId: String) async throws -> [PostPayload]? {
+        try queue.sync {
+            let userDescriptor = FetchDescriptor<UserModel>(
+                predicate: #Predicate { $0.familyId == familyId }
+            )
+            
+            guard let userModels = try context?.fetch(userDescriptor), !userModels.isEmpty else {
+                throw SwiftDataManagerError.dataNotFound
+            }
+            
+            let userIds = userModels.map { $0.id }
+            
+            let postDescriptor = FetchDescriptor<PostModel>(
+                predicate: #Predicate { userIds.contains($0.userId) }
+            )
+            
+            guard let postModels = try context?.fetch(postDescriptor), !postModels.isEmpty else {
+                throw SwiftDataManagerError.dataNotFound
+            }
+            
+            return postModels
+                .sorted { $0.date > $1.date }
+                .map { elem in
+                    PostPayload(
+                        id: elem.id,
+                        text: elem.text,
+                        contentURL: elem.contentURL,
+                        contentType: elem.contentType,
+                        userId: elem.userId,
+                        date: elem.date,
+                        likes: elem.likes
+                    )
+                }
+        }
+    }
+    
     public func getPost(id: UUID) async throws -> PostPayload? {
         try queue.sync {
             let predicate = #Predicate<PostModel> { $0.id == id }
@@ -158,6 +194,28 @@ public class SwiftDataManager {
     public func getAllUsers() async throws -> [UserPayload]? {
         try queue.sync {
             let descriptor = FetchDescriptor<UserModel>()
+            
+            guard
+                let models = try context?.fetch(descriptor),
+                !models.isEmpty
+            else { throw SwiftDataManagerError.dataNotFound }
+            return models.map { elem in
+                UserPayload(
+                    id: elem.id,
+                    photoURL: elem.photoURL,
+                    firstName: elem.firstName,
+                    lastName: elem.lastName,
+                    role: elem.role,
+                    pro: elem.pro,
+                    familyId: elem.familyId
+                )
+            }
+        }
+    }
+    
+    public func getAllUsers(familyId: String) async throws -> [UserPayload]? {
+        try queue.sync {
+            let descriptor = FetchDescriptor<UserModel>(predicate: #Predicate { $0.familyId == familyId })
             
             guard
                 let models = try context?.fetch(descriptor),

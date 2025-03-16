@@ -16,7 +16,8 @@ final class MapRepository {
     
     func getUsers() async throws -> [MapViewData] {
         do {
-            async let usersTask = firebaseClient.getAllUsers()
+            guard let familyId = authService.account?.familyId else { return [] }
+            async let usersTask = firebaseClient.getAllUsers(familyId: familyId)
             async let statusesTask = firebaseClient.getAllUsersStatuses()
             
             let usersResult = try await usersTask
@@ -26,7 +27,7 @@ final class MapRepository {
                 let users = try await firebaseClient.unwrapResult(
                     result: usersResult,
                     successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
-                    failureAction: { try await swiftDataManager.getAllUsers() }
+                    failureAction: { try await swiftDataManager.getAllUsers(familyId: familyId) }
                 ),
                 let statuses = try await firebaseClient.unwrapResult(
                     result: statusesResult,
