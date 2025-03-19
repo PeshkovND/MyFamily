@@ -303,8 +303,17 @@ public extension FirebaseClient {
 
 public extension FirebaseClient {
     
-    func getHomePosition() -> Position {
-        return Position(lat: 37.78, lng: -122.40)
+    func getHomePosition(familyId: String) async throws -> Result<Position, FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.families).document(familyId).getDocument()
+            if snapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+            let family = try snapshot.data(as: FamilyPayload.self)
+            return .success(.init(lat: family.homeLatitude, lng: family.homeLongitude))
+        } catch {
+            return .failure(.fetchingError)
+        }
     }
     
     func setUserStatus(_ userStatus: UserStatus) async throws {

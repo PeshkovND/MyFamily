@@ -16,7 +16,8 @@ final class FamilyRepository {
     
     private func parseUsers(
         users: [UserPayload],
-        statuses: [UserStatus]
+        statuses: [UserStatus],
+        homePosition: Position
     ) -> [FamilyViewData] {
         guard let userId = authService.account?.id else { return [] }
         var result: [FamilyViewData] = []
@@ -24,7 +25,7 @@ final class FamilyRepository {
             guard
                 user.id != userId,
                 let status = statuses.first(where: { $0.userId == user.id }),
-                let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position)
+                let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position, homePosition: homePosition)
             else { continue }
             let userData = FamilyViewData(
                 id: user.id,
@@ -44,9 +45,11 @@ final class FamilyRepository {
             guard let familyId = authService.account?.familyId else { return [] }
             async let usersTask = firebaseClient.getAllUsers(familyId: familyId)
             async let statusesTask = firebaseClient.getAllUsersStatuses()
+            async let positionTask = firebaseClient.getHomePosition(familyId: familyId)
             
             let usersResult = try await usersTask
             let statusesResult = try await statusesTask
+            let positionResult = try await positionTask
             
             guard let users = try await firebaseClient.unwrapResult(
                 result: usersResult,
@@ -65,20 +68,27 @@ final class FamilyRepository {
                 return []
             }
             
-            return parseUsers(users: users, statuses: statuses)
+            guard let homePosition = try await firebaseClient.unwrapResult(
+                result: positionResult,
+                successAction: { _ in },
+                failureAction: { throw FirebaseClientError.fetchingError }
+            ) else {
+                throw FirebaseClientError.fetchingError
+            }
+            
+            return parseUsers(users: users, statuses: statuses, homePosition: homePosition)
         } catch let e {
             throw e
         }
     }
     
-    private func makeStatus(lastOnlineString: String, position: Position) -> PersonStatus? {
+    private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
         guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
             personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))
         }
-        let homePosition = firebaseClient.getHomePosition()
         if abs(position.lat - homePosition.lat) < 0.0001
             && abs(position.lng - homePosition.lng) < 0.0001 {
             personStatus = .atHome

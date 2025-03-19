@@ -47,15 +47,23 @@ final class ProfileRepository {
                 result: statusResult,
                 successAction: { payload in try await self.swiftDataManager.setAllStatuses(statuses: [payload]) },
                 failureAction: { try await swiftDataManager.getUserStatus(id: id) }
+            ),
+            let familyId = user.familyId,
+            let homePosition = try await firebaseClient.unwrapResult(
+                result: try await firebaseClient.getHomePosition(familyId: familyId),
+                successAction: { _ in },
+                failureAction: { throw FirebaseClientError.fetchingError }
             )
         else { return nil }
+         
         
         return makeProfile(
             id: id,
             user: user,
             status: status,
             posts: posts,
-            comments: comments
+            comments: comments,
+            homePosition: homePosition
         )
     }
     
@@ -64,12 +72,14 @@ final class ProfileRepository {
         user: UserPayload,
         status: UserStatus,
         posts: [PostPayload],
-        comments: [CommentPayload]
+        comments: [CommentPayload],
+        homePosition: Position
     ) -> Profile? {
         guard let userId = authService.account?.id,
               let personStatus = makeStatus(
                 lastOnlineString: status.lastOnline,
-                position: status.position
+                position: status.position,
+                homePosition: homePosition
               ) else { return nil }
         let newsPosts = makePosts(posts: posts, comments: comments, currentUserId: userId, user: user)
         let profile = Profile(
@@ -84,14 +94,13 @@ final class ProfileRepository {
         return profile
     }
     
-    private func makeStatus(lastOnlineString: String, position: Position) -> PersonStatus? {
+    private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
         guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
             personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))
         }
-        let homePosition = firebaseClient.getHomePosition()
         if abs(position.lat - homePosition.lat) < 0.0001
             && abs(position.lng - homePosition.lng) < 0.0001 {
             personStatus = .atHome

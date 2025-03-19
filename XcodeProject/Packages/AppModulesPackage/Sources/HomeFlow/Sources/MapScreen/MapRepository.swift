@@ -14,7 +14,7 @@ final class MapRepository {
         self.swiftDataManager = swiftDataManager
     }
     
-    func getUsers() async throws -> [MapViewData] {
+    func getUsers(homePosition: Position) async throws -> [MapViewData] {
         do {
             guard let familyId = authService.account?.familyId else { return [] }
             async let usersTask = firebaseClient.getAllUsers(familyId: familyId)
@@ -35,13 +35,13 @@ final class MapRepository {
                     failureAction: { try await swiftDataManager.getAllStatuses() }
                 )
             else { return [] }
-            return parseData(users: users, statuses: statuses)
+            return parseData(users: users, statuses: statuses, homePosition: homePosition)
         } catch let e {
             throw e
         }
     }
     
-    private func parseData(users: [UserPayload], statuses: [UserStatus]) -> [MapViewData] {
+    private func parseData(users: [UserPayload], statuses: [UserStatus], homePosition: Position) -> [MapViewData] {
         guard let userId = authService.account?.id else { return [] }
         var result: [MapViewData] = []
         
@@ -49,7 +49,7 @@ final class MapRepository {
             guard
                 user.id != userId,
                 let status = statuses.first(where: { $0.userId == user.id }),
-                let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position)
+                let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position, homePosition: homePosition)
             else { continue }
             let userData = MapViewData(
                 id: user.id,
@@ -64,14 +64,13 @@ final class MapRepository {
         return result
     }
     
-    private func makeStatus(lastOnlineString: String, position: Position) -> PersonStatus? {
+    private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
         guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
             personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))
         }
-        let homePosition = firebaseClient.getHomePosition()
         if abs(position.lat - homePosition.lat) < 0.0001
             && abs(position.lng - homePosition.lng) < 0.0001 {
             personStatus = .atHome
@@ -79,8 +78,14 @@ final class MapRepository {
         return personStatus
     }
     
-    func getHomePosition() -> Coordinate {
-        let coordinates = firebaseClient.getHomePosition()
-        return Coordinate(latitude: coordinates.lat, longitude: coordinates.lng)
+    func getHomePosition() async throws -> Coordinate {
+        guard let familyId = authService.account?.familyId else { throw AppError.unathorized }
+        let coordinates = try await firebaseClient.getHomePosition(familyId: familyId)
+        switch coordinates {
+        case .success(let success):
+            return Coordinate(latitude: success.lat, longitude: success.lng)
+        case .failure(let failure):
+            throw failure
+        }
     }
 }
