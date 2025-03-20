@@ -100,7 +100,7 @@ private extension SignInCoordinator {
                 case .openAddNewFamilyScreen:
                     startAddFamilyScreen()
                 case .openEnterExistingFamilyScreen:
-                    break
+                    startJoinFamilyScreen()
                 case .logOut:
                     self.authService.logout(
                         onSuccess: {
@@ -127,6 +127,27 @@ private extension SignInCoordinator {
                 
                 switch event {
                 case .familyCreated:
+                    self.eventSubject.send(.finish(authState: .fullfilled))
+                case .back: startAddFamilyForkScreen(animated: false)
+                }
+            }
+            .store(in: &setCancelable)
+        
+        navigationController?.setViewControllers([viewController], animated: false)
+        navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
+    private func startJoinFamilyScreen() {
+        let repository = JoinFamilyRepository(firebaseClient: firebaseClient, authService: authService)
+        let viewModel = JoinFamilyViewModel(repository: repository)
+        let viewController = JoinFamilyViewController(viewModel: viewModel)
+        
+        viewModel.outputEventPublisher
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                
+                switch event {
+                case .familyJoined:
                     self.eventSubject.send(.finish(authState: .fullfilled))
                 case .back: startAddFamilyForkScreen(animated: false)
                 }
