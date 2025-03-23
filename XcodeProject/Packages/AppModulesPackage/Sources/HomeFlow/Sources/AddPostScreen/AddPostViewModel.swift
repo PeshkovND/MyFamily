@@ -165,7 +165,7 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
             let link = try await self.repository.uploadMedia(data: data, contentType: contentType)
             try Task.checkCancellation()
             self.linkToMediaContent = link
-            self.contentType = .image
+            self.contentType = contentType
             await MainActor.run {
                 self.viewState = .contentLoaded
             }
