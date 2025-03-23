@@ -28,8 +28,11 @@ enum FamilyViewState: Stubable {
 
     case initial
     case loading
+    case fullscreenLoading
     case loaded(content: [FamilyViewData])
     case failed(error: FamilyContext.ScreenError?)
+    case alert(title: String, subtitle: String)
+    case deleteConfirmation(FamilyViewData)
 
     static var stub: FamilyViewState { .initial }
 }
@@ -38,6 +41,7 @@ enum FamilyViewState: Stubable {
 
 enum FamilyOutputEvent {
     case personCardTapped(id: Int)
+    case addUserTapped
 }
 
 // MARK: - View Event
@@ -47,4 +51,7 @@ enum FamilyViewEvent {
     case `deinit`
     case pullToRefresh
     case profileTapped(id: Int)
+    case addUserTapped
+    case deleteUserTapped(id: Int)
+    case deleteUserConfirmationTapped(user: FamilyViewData)
 }

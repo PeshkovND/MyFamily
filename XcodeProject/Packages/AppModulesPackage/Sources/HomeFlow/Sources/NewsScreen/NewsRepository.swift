@@ -15,7 +15,8 @@ final class NewsRepository {
     
     func getPosts() async throws -> [NewsViewPost] {
         do {
-            async let postsTask = firebaseClient.getAllPosts()
+            guard let account = authService.account, let familyId = account.familyId else { return [] }
+            async let postsTask = firebaseClient.getAllPosts(forFamilyId: familyId)
             async let commentsTask = firebaseClient.getAllComments()
             async let usersTask = firebaseClient.getAllUsers()
             
@@ -37,7 +38,7 @@ final class NewsRepository {
                 let posts = try await firebaseClient.unwrapResult(
                     result: postsResult,
                     successAction: { payload in try await self.swiftDataManager.setAllPosts(posts: payload) },
-                    failureAction: { try await self.swiftDataManager.getAllPosts() }
+                    failureAction: { try await self.swiftDataManager.getAllPosts(forFamilyId: familyId) }
                 )
             else { return [] }
             

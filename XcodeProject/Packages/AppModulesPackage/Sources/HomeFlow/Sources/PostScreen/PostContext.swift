@@ -32,6 +32,7 @@ enum PostViewState: Stubable {
     case failed
     case addCommentLoading
     case addCommentFailed
+    case noAccessError
 
     static var stub: PostViewState { .initial }
 }
@@ -41,6 +42,7 @@ enum PostViewState: Stubable {
 enum PostOutputEvent {
     case personCardTapped(id: Int)
     case shareTapped(id: String)
+    case accessError
 }
 
 // MARK: - View Event
@@ -52,4 +54,5 @@ enum PostViewEvent {
     case profileTapped(id: Int)
     case shareTapped(id: String)
     case addCommentTapped(text: String, onSucces: () -> Void)
+    case noAccessConfirmTapped
 }

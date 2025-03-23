@@ -40,14 +40,16 @@ public class UserModel {
     public let lastName: String
     public let role: Role
     public var pro: Bool
+    public var familyId: String?
     
-    init(id: Int, photoURL: URL?, firstName: String, lastName: String, role: Role, pro: Bool) {
+    init(id: Int, photoURL: URL?, firstName: String, lastName: String, role: Role, pro: Bool, familyId: String?) {
         self.id = id
         self.photoURL = photoURL
         self.firstName = firstName
         self.lastName = lastName
         self.role = role
         self.pro = pro
+        self.familyId = familyId
     }
 }
 

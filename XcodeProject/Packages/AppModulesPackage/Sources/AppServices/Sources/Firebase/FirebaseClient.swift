@@ -11,11 +11,14 @@ private final class Collections {
     static let users = "Users"
     static let comments = "Comments"
     static let statuses = "Statuses"
+    static let families = "Families"
+    static let invitations = "Invitations"
 }
 
 public enum FirebaseClientError: Error {
     case parsingError
     case fetchingError
+    case documentAlreadyExists
 }
 
 public class FirebaseClient {
@@ -39,6 +42,18 @@ public class FirebaseClient {
 
 public extension FirebaseClient {
     
+    func addFamily(_ family: FamilyPayload) async throws {
+        let test = try await getAllUsers()
+        switch test {
+        case .success:
+            try await self.fs.collection(Collections.families)
+                .document(family.id.uuidString)
+                .setData(family.dictionary())
+        case .failure(let e):
+            throw e
+        }
+    }
+    
     func addUser(_ user: UserInfo) async throws -> Result<UserInfo, FirebaseClientError> {
         let dbUserResult = try await getUser(user.id)
         switch dbUserResult {
@@ -47,7 +62,9 @@ public extension FirebaseClient {
                 id: dbUser.id,
                 photoURL: dbUser.photoURL,
                 firstName: dbUser.firstName,
-                lastName: dbUser.lastName
+                lastName: dbUser.lastName,
+                familyId: dbUser.familyId,
+                role: dbUser.role
             )
             return .success(userInfo)
         case .failure(let e):
@@ -60,11 +77,14 @@ public extension FirebaseClient {
                     photoURL: user.photoURL,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    role: .regular,
-                    pro: false
+                    role: user.role,
+                    pro: false,
+                    familyId: user.familyId
                 )
                 try await self.fs.collection(Collections.users).document(String(user.id)).setData(userPayload.dictionary())
                 return .success(user)
+            case .documentAlreadyExists:
+                return .failure(.documentAlreadyExists)
             }
         }
     }
@@ -80,6 +100,58 @@ public extension FirebaseClient {
         }
     }
     
+    func getInvitations(familyId: String) async throws -> Result<[InvitePayload], FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.invitations)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments(source: .server)
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [InvitePayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let user = try doc.data(as: InvitePayload.self)
+                    result.append(user)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
+    func addInvitations(invitePayload: InvitePayload) async throws {
+        let dbInvitationResult = try await getInvitation(invitePayload.id)
+        switch dbInvitationResult {
+        case .success(let dbUser):
+            throw FirebaseClientError.documentAlreadyExists
+        case .failure(let e):
+            switch e {
+            case .fetchingError:
+                throw FirebaseClientError.fetchingError
+            case .parsingError:
+                try await self.fs.collection(Collections.invitations).document(invitePayload.id).setData(invitePayload.dictionary())
+            case .documentAlreadyExists:
+                break
+            }
+        }
+    }
+    
+    func deleteInvitations(id: String) async throws {
+        let test = try await getAllUsers()
+        switch test {
+        case .success:
+            try await self.fs.collection(Collections.invitations)
+                .document(id)
+                .delete()
+        case .failure(let e):
+            throw e
+        }
+    }
+    
     func updateUser(_ user: UserInfo) async throws {
         let result = try await getUser(user.id)
         switch result {
@@ -89,8 +161,9 @@ public extension FirebaseClient {
                 photoURL: user.photoURL,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                role: document.role,
-                pro: document.pro
+                role: user.role,
+                pro: document.pro,
+                familyId: user.familyId
             )
             try await self.fs.collection(Collections.users).document(String(user.id)).setData(user.dictionary())
         case .failure(let e):
@@ -107,6 +180,43 @@ public extension FirebaseClient {
             return .success(try snapshot.data(as: UserPayload.self))
         } catch _ as DecodingError {
             return .failure(.parsingError)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
+    func getInvitation(_ id: String) async throws -> Result<InvitePayload, FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.invitations).document(String(id)).getDocument()
+            if snapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+            return .success(try snapshot.data(as: InvitePayload.self))
+        } catch _ as DecodingError {
+            return .failure(.parsingError)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
+    func getAllUsers(familyId: String) async throws -> Result<[UserPayload], FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.users)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments(source: .server)
+            if snapshot.metadata.isFromCache {
+                return .failure(.fetchingError)
+            }
+            var result: [UserPayload] = []
+            for doc in snapshot.documents {
+                do {
+                    let user = try doc.data(as: UserPayload.self)
+                    result.append(user)
+                } catch {
+                    continue
+                }
+            }
+            return .success(result)
         } catch {
             return .failure(.fetchingError)
         }
@@ -194,8 +304,17 @@ public extension FirebaseClient {
 
 public extension FirebaseClient {
     
-    func getHomePosition() -> Position {
-        return Position(lat: 37.78, lng: -122.40)
+    func getHomePosition(familyId: String) async throws -> Result<Position, FirebaseClientError> {
+        do {
+            let snapshot = try await fs.collection(Collections.families).document(familyId).getDocument()
+            if snapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+            let family = try snapshot.data(as: FamilyPayload.self)
+            return .success(.init(lat: family.homeLatitude, lng: family.homeLongitude))
+        } catch {
+            return .failure(.fetchingError)
+        }
     }
     
     func setUserStatus(_ userStatus: UserStatus) async throws {
@@ -278,6 +397,48 @@ public extension FirebaseClient {
             throw e
         }
     }
+    
+    func getAllPosts(forFamilyId familyId: String) async throws -> Result<[PostPayload], FirebaseClientError> {
+        do {
+            let usersSnapshot = try await fs.collection(Collections.users)
+                .whereField("familyId", isEqualTo: familyId)
+                .getDocuments()
+
+            if usersSnapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+
+            let userIds = usersSnapshot.documents.map { Int($0.documentID) }
+
+            if userIds.isEmpty {
+                return .success([])
+            }
+
+            let postsSnapshot = try await fs.collection(Collections.posts)
+                .whereField("userId", in: userIds) // Используем оператор "in" для фильтрации по userId
+                .order(by: "date", descending: true)
+                .getDocuments()
+
+            if postsSnapshot.metadata.isFromCache {
+                return .failure(FirebaseClientError.fetchingError)
+            }
+
+            var result: [PostPayload] = []
+            for doc in postsSnapshot.documents {
+                do {
+                    let post = try doc.data(as: PostPayload.self)
+                    result.append(post)
+                } catch {
+                    continue
+                }
+            }
+
+            return .success(result)
+        } catch {
+            return .failure(.fetchingError)
+        }
+    }
+    
     
     func getAllPosts() async throws -> Result<[PostPayload], FirebaseClientError> {
         do {

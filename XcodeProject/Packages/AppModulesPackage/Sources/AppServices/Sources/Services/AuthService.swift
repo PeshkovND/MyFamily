@@ -7,6 +7,7 @@ import AppEntities
 // MARK: - AuthState
 public enum AuthState {
     case signIn
+    case fullfilled
 }
 
 // MARK: - CredentialsProvider
@@ -58,12 +59,15 @@ public final class AppAuthService: AuthService {
         let hasFirstName = profile?.firstName.isNotEmpty ?? false
         let hasLastName = profile?.lastName.isNotEmpty ?? false
         let hasDisplayName = profile?.firstName != nil
+        let hasFamily = profile?.familyId != nil
 
-        return hasFirstName && hasLastName && hasDisplayName
+        return hasFirstName && hasLastName && hasDisplayName && hasFamily
     }
 
     public var credentials: Credentials? { provideCredentials() }
-    public var account: Account? { provideAccount() }
+    public var account: Account? {
+        provideAccount()
+    }
 
     public var onLogoutCompleted: () -> Void = {}
     public var onAuthErrorOccured: () -> Void = {}
@@ -72,12 +76,12 @@ public final class AppAuthService: AuthService {
     private let requestFactory: HttpRequestFactory
     private let defaultsStorage: DefaultsStorage
 
-    private var deviceIdKey: String { "\(Self.self).deviceIdKey" }
+    private var deviceIdKey: String { "deviceIdKey" }
     private var deviceId: String { provideDeviceId() }
     private var uiDevice: UIDevice { .current }
 
-    private var accountKey: String { "\(Self.self).accountKey" }
-    private var credentialsKey: String { "\(Self.self).credentialsKey" }
+    private var accountKey: String { "accountKey" }
+    private var credentialsKey: String { "credentialsKey" }
 
     private var httpClient: AlamofireHttpClient { providingHttpClient() }
     private let vkIdClient: VKIDClient

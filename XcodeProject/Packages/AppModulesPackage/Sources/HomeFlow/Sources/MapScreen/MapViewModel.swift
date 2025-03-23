@@ -98,8 +98,9 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
     
     private func getUsers() async {
         do {
-            self.persons = try await self.repository.getUsers()
-            self.homeCoordinate = self.repository.getHomePosition()
+            let coordinate = try await self.repository.getHomePosition()
+            self.homeCoordinate = coordinate
+            self.persons = try await self.repository.getUsers(homePosition: .init(lat: coordinate.latitude, lng: coordinate.longitude))
             await MainActor.run {
                 self.viewState = .loaded
             }

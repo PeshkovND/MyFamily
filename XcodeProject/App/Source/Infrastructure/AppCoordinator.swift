@@ -38,15 +38,12 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
     private let deeplinker = AppContainer.provideDeeplinker()
     private let backgroundTasksManager = AppContainer.provideBackgroundTasksManager()
     private let textToxicityChecker = AppContainer.provideTextToxicityChecker()
-    private var timer: DispatchSourceTimer?
     private var setCancelable = Set<AnyCancellable>()
     
     // Debug panel for testing
     private var inAppDebugger: InAppDebugger?
     private var notificationCenter: NotificationCenter { .default }
     private var switchingEnvSubscription: AnyCancellable?
-    
-    private let queue = DispatchQueue(label: "com.domain.app.timer")
 
     func start() {
         initWindow()
@@ -74,15 +71,14 @@ final class AppCoordinator: BaseCoordinator, Coordinator {
 private extension AppCoordinator {
     
     private func startAuthorizedFlow() {
-        registerShortcuts(isAuthorized: true)
-        startHomeFlow()
+        startFamilyCheckingFlow()
     }
     
-    private func startSignInFlow() {
-        registerShortcuts(isAuthorized: false)
+    private func configureSignInCoordinator() -> SignInCoordinator {
         let coordinator = SignInCoordinator(
             navigationController: navigationController,
-            authService: authService
+            authService: authService,
+            firebaseClient: firebaseClient
         )
         
         let token = coordinator.events.sink { [weak self, weak coordinator] event in
@@ -97,6 +93,18 @@ private extension AppCoordinator {
             }
         }
         addDependency(coordinator, token: token)
+        return coordinator
+    }
+    
+    private func startFamilyCheckingFlow() {
+        registerShortcuts(isAuthorized: false)
+        let coordinator = configureSignInCoordinator()
+        coordinator.start(screenType: .familyChecking)
+    }
+    
+    private func startSignInFlow() {
+        registerShortcuts(isAuthorized: false)
+        let coordinator = configureSignInCoordinator()
         coordinator.start()
     }
     
@@ -105,6 +113,8 @@ private extension AppCoordinator {
         switch authState {
         case .signIn:
             startAuthorizedFlow()
+        case .fullfilled:
+            startHomeFlow()
         }
     }
     
@@ -138,7 +148,6 @@ private extension AppCoordinator {
         
         addDependency(coordinator, token: token)
         backgroundTasksManager.scheduleNewTask(backgroundTaskId: env.geolocationBackgroundTaskId)
-        setupLocationManager()
         showHome(coordinator: coordinator)
     }
     
@@ -158,70 +167,6 @@ private extension AppCoordinator {
             coordinator.start()
         }
         deeplinker.deeplinkType = nil
-    }
-
-    private func setupSendUserStatusTimer() {
-        timer = DispatchSource.makeTimerSource(queue: queue)
-        guard let timer = self.timer else { return }
-        timer.schedule(deadline: .now(), repeating: .seconds(300))
-        timer.setEventHandler {
-            Task {
-               try await self.updateUserStatus()
-            }
-        }
-        timer.resume()
-    }
-    
-    private func setupLocationManager() {
-        locationManager.outputEventPublisher.sink { event in
-            switch event {
-            case .checkAuthorizationFailed:
-                self.showAlert(title: "Error", text: "Please enable always-on location")
-                self.setupSendUserStatusTimer()
-            case .locationServicesNotEnabled:
-                self.showAlert(title: "Error", text: "Please enable location services")
-                self.setupSendUserStatusTimer()
-            case .didUpdateLocation:
-                break
-            case .observationStarted:
-                self.setupSendUserStatusTimer()
-            }
-        }.store(in: &setCancelable)
-        locationManager.setup()
-    }
-    
-    private func showAlert(title: String, text: String) {
-        let alert = UIAlertController(
-            title: title,
-            message: text,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
-        self.navigationController.present(alert, animated: true)
-    }
-    
-    private func updateUserStatus() async throws {
-        guard await UIApplication.shared.applicationState == .active else { return }
-        let currentDate = Date()
-        let calendar = Calendar.current
-        var dateComponents = DateComponents()
-        dateComponents.minute = 5
-        guard let newDate = calendar.date(byAdding: dateComponents, to: currentDate), let userId = self.authService.account?.id else { return }
-        let dateFormatter = AppDateFormatter()
-        let dateString = dateFormatter.toString(newDate)
-        var userStatus = UserStatus(userId: userId, lastOnline: dateString, position: Position(lat: 0, lng: 0))
-        if let location = locationManager.lastLocation {
-            userStatus.position = Position(lat: location.latitude, lng: location.longitude)
-        } else {
-            let lastUserStatusResult = try await firebaseClient.getUserStatus(userId)
-            switch lastUserStatusResult {
-            case .success(let lastUserStatus):
-                userStatus.position = lastUserStatus.position
-            case .failure:
-                return
-            }
-        }
-        try await self.firebaseClient.setUserStatus(userStatus)
     }
 
     private func registerShortcuts(isAuthorized: Bool) {

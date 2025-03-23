@@ -7,6 +7,8 @@ import AppBaseFlow
 import AppDevTools
 import AppServices
 import AVFoundation
+import AppEntities
+import Utilities
 
 public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
@@ -37,6 +39,8 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     private let purchaseManager: PurchaseManager
     private let defaultsStorage: DefaultsStorage
     private let textToxicityChecker: TextToxicityChecker
+    private var timer: DispatchSourceTimer?
+    private let queue = DispatchQueue(label: "com.domain.app.timer")
     
     public init(
         navigationController: UINavigationController,
@@ -97,6 +101,70 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
 
 private extension HomeCoordinator {
     
+    private func setupLocationManager() {
+        locationManager.outputEventPublisher.sink { event in
+            switch event {
+            case .checkAuthorizationFailed:
+                self.showAlert(title: "Error", text: "Please enable always-on location")
+                self.setupSendUserStatusTimer()
+            case .locationServicesNotEnabled:
+                self.showAlert(title: "Error", text: "Please enable location services")
+                self.setupSendUserStatusTimer()
+            case .didUpdateLocation:
+                break
+            case .observationStarted:
+                self.setupSendUserStatusTimer()
+            }
+        }.store(in: &setCancelable)
+        locationManager.setup()
+    }
+    
+    private func showAlert(title: String, text: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: text,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        self.navigationController?.present(alert, animated: true)
+    }
+    
+    private func setupSendUserStatusTimer() {
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        guard let timer = self.timer else { return }
+        timer.schedule(deadline: .now(), repeating: .seconds(300))
+        timer.setEventHandler {
+            Task {
+               try await self.updateUserStatus()
+            }
+        }
+        timer.resume()
+    }
+    
+    private func updateUserStatus() async throws {
+        guard await UIApplication.shared.applicationState == .active else { return }
+        let currentDate = Date()
+        let calendar = Calendar.current
+        var dateComponents = DateComponents()
+        dateComponents.minute = 5
+        guard let newDate = calendar.date(byAdding: dateComponents, to: currentDate), let userId = self.authService.account?.id else { return }
+        let dateFormatter = AppDateFormatter()
+        let dateString = dateFormatter.toString(newDate)
+        var userStatus = UserStatus(userId: userId, lastOnline: dateString, position: Position(lat: 0, lng: 0))
+        if let location = locationManager.lastLocation {
+            userStatus.position = Position(lat: location.latitude, lng: location.longitude)
+        } else {
+            let lastUserStatusResult = try await firebaseClient.getUserStatus(userId)
+            switch lastUserStatusResult {
+            case .success(let lastUserStatus):
+                userStatus.position = lastUserStatus.position
+            case .failure:
+                return
+            }
+        }
+        try await self.firebaseClient.setUserStatus(userStatus)
+    }
+    
     private func startHomeScreen() {
         tabBarController.tabBar.standardAppearance = appDesignSystem.components.tabbarStandardAppearance
         tabBarController.viewControllers = [
@@ -110,6 +178,7 @@ private extension HomeCoordinator {
         navigationController?.setViewControllers([tabBarController], animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
         updatePurchaseStatus()
+        setupLocationManager()
     }
     
     private func makeNewsViewController() -> UIViewController {
@@ -153,14 +222,14 @@ private extension HomeCoordinator {
         viewController.tabBarItem = appDesignSystem.components.familyTabBarItem
         
         viewModel.outputEventPublisher.sink { [weak self] event in
-            guard self != nil else { return }
+            guard let self else { return }
             switch event {
             case .personCardTapped(let id):
-                guard
-                    let vc = self?.makeProfileViewController(userId: id),
-                    let nvc = viewController.navigationController
-                else { return }
+                let vc = self.makeProfileViewController(userId: id)
+                guard let nvc = viewController.navigationController else { return }
                 nvc.pushViewController(vc, animated: true)
+            case .addUserTapped:
+                self.openFamilyInvitationsScreen()
             }
         }.store(in: &setCancelable)
         return viewController
@@ -211,6 +280,29 @@ private extension HomeCoordinator {
         viewController.navigationItem.backButtonTitle = ""
         viewController.title = appDesignSystem.strings.tabBarProfileTitle
         return viewController
+    }
+    
+    private func openFamilyInvitationsScreen() {
+        let repository = FamilyInvitationRepository(
+            firebaseClient: firebaseClient,
+            authService: authService,
+            swiftDataManager: swiftDataManager
+        )
+        let viewModel = FamilyInvitationViewModel(repository: repository)
+
+        viewModel.outputEventPublisher.sink { [weak self] event in
+            guard let self = self else { return }
+            switch event {
+            case .onBack:
+                self.navigationController?.isNavigationBarHidden = true
+                self.navigationController?.popViewController(animated: true)
+            }
+        }.store(in: &setCancelable)
+        
+        let viewController = FamilyInvitationViewController(viewModel: viewModel)
+        navigationController?.navigationBar.tintColor = appDesignSystem.colors.backgroundSecondaryVariant
+        navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.isNavigationBarHidden = false
     }
     
     private func makeGetProScreen() -> GetProViewController {
@@ -298,6 +390,8 @@ private extension HomeCoordinator {
                 nvc.pushViewController(vc, animated: true)
             case .shareTapped(id: let id):
                 self?.showSharePostViewController(id: id)
+            case .accessError:
+                self?.start()
             }
         }.store(in: &setCancelable)
         

@@ -5,7 +5,7 @@ import AppBaseFlow
 import AppDesignSystem
 import Utilities
 
-extension FamilyViewController {
+extension FamilyInvitationViewController {
 
     final class ContentView: BaseView {
 
@@ -14,7 +14,7 @@ extension FamilyViewController {
             tableView.translatesAutoresizingMaskIntoConstraints = false
             tableView.backgroundColor = .none
             tableView.showsVerticalScrollIndicator = false
-            tableView.register(PersonCell.self, forCellReuseIdentifier: String(describing: PersonCell.self))
+            tableView.register(InviteCodeCell.self, forCellReuseIdentifier: String(describing: InviteCodeCell.self))
             tableView.separatorStyle = .none
             return tableView
         }()
@@ -27,15 +27,15 @@ extension FamilyViewController {
             return activityIndicator
         }()
         
-        private(set) lazy var loadingView: UIView = {
-            return LoadingView()
-        }()
-        
         private(set) lazy var failedStackView: UIStackView = {
             return FailedStackView(
                 title: appDesignSystem.strings.contentLoadingErrorTitle,
                 subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
             )
+        }()
+        
+        private(set) var loadingView: UIView = {
+            return LoadingView()
         }()
         
         override func setLayout() {
@@ -44,10 +44,6 @@ extension FamilyViewController {
             addSubview(failedStackView)
             addSubview(loadingView)
           
-            loadingView.snp.makeConstraints {
-                $0.edges.equalToSuperview()
-            }
-            
             tableView.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalToSuperview()
@@ -65,6 +61,10 @@ extension FamilyViewController {
             failedStackView.snp.makeConstraints {
                 $0.width.equalToSuperview().multipliedBy(0.85)
                 $0.center.equalToSuperview()
+            }
+            
+            loadingView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
             }
         }
     }

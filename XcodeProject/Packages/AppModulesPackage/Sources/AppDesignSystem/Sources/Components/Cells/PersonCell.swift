@@ -8,12 +8,19 @@ public final class PersonCell: UITableViewCell {
         public let name: String
         public let status: PersonStatus
         public let isPro: Bool
+        public let onTapDelete: (() -> Void)?
         
-        public init(userImageURL: URL?, name: String, status: PersonStatus, isPro: Bool) {
+        public init(
+            userImageURL: URL?,
+            name: String,
+            status: PersonStatus, isPro: Bool,
+            onTapDelete: (() -> Void)? = nil
+        ) {
             self.userImageURL = userImageURL
             self.name = name
             self.status = status
             self.isPro = isPro
+            self.onTapDelete = onTapDelete
         }
     }
     
@@ -44,6 +51,18 @@ public final class PersonCell: UITableViewCell {
         return usernameLabel
     }()
     
+    private let deleteButton: ActionButton = {
+        var filled = UIButton.Configuration.borderless()
+        filled.imagePlacement = .leading
+        filled.imagePadding = 4
+        filled.baseForegroundColor = .red
+        
+        let button = ActionButton(configuration: filled, primaryAction: nil)
+        let icon = UIImage(systemName: "trash")
+        button.setImage(icon, for: .normal)
+        return button
+    }()
+    
     private let container: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
@@ -63,6 +82,12 @@ public final class PersonCell: UITableViewCell {
         contentView.addSubview(container)
         container.addArrangedSubview(usernameLabel)
         container.addArrangedSubview(statusLabel)
+        contentView.addSubview(deleteButton)
+        
+        deleteButton.snp.makeConstraints {
+            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            $0.centerY.equalToSuperview()
+        }
         
         userImageView.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).inset(16)
@@ -74,7 +99,7 @@ public final class PersonCell: UITableViewCell {
         container.snp.makeConstraints {
             $0.leading.equalTo(userImageView.snp.trailing).inset(-8)
             $0.centerY.equalToSuperview()
-            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            $0.trailing.equalTo(deleteButton.snp.leading).inset(4)
         }
     }
     
@@ -91,6 +116,14 @@ public final class PersonCell: UITableViewCell {
             imageAttachment.image = appDesignSystem.icons.premium
             text.append(NSAttributedString(attachment: imageAttachment))
         }
+        if let onTapDelete = model.onTapDelete {
+            deleteButton.isHidden = false
+            deleteButton.onTap = onTapDelete
+        } else {
+            deleteButton.isHidden = true
+            deleteButton.onTap = nil
+        }
+        
         usernameLabel.attributedText = text
         usernameLabel.textColor = model.isPro
         ? appDesignSystem.colors.premiumColor
