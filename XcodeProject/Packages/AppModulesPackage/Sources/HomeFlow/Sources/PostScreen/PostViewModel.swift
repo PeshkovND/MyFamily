@@ -41,6 +41,8 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
         case .addCommentTapped(let text, let onSucces):
             viewState = .addCommentLoading
             Task { await addComment(text: text, onSuccess: onSucces) }
+        case .noAccessConfirmTapped:
+            outputEventSubject.send(.accessError)
         }
     }
     
@@ -79,8 +81,15 @@ final class PostViewModel: BaseViewModel<PostViewEvent,
             await MainActor.run {
                 self.viewState = .loaded
             }
-        } catch {
+        } catch let e {
             await MainActor.run {
+                if let repositoryError = e as? PostRepositoryError {
+                    switch repositoryError {
+                    case .noAccess:
+                        self.viewState = .noAccessError
+                        return
+                    }
+                }
                 self.viewState = .failed
             }
         }

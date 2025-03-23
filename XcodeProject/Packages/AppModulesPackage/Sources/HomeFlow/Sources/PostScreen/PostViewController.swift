@@ -119,6 +119,18 @@ final class PostViewController: BaseViewController<PostViewModel,
             )
             alert.addAction(.cancelAction())
             self.present(alert, animated: true)
+        case .noAccessError:
+            let alert = UIAlertController(
+                title: "Access error",
+                message: "You don't have access to this post.",
+                preferredStyle: .alert
+            )
+            
+            alert.addAction(.cancelAction(action: { [weak self] in
+                self?.viewModel.onViewEvent(.noAccessConfirmTapped)
+            }))
+            
+            present(alert, animated: true)
         }
     }
     

@@ -390,6 +390,8 @@ private extension HomeCoordinator {
                 nvc.pushViewController(vc, animated: true)
             case .shareTapped(id: let id):
                 self?.showSharePostViewController(id: id)
+            case .accessError:
+                self?.start()
             }
         }.store(in: &setCancelable)
         

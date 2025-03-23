@@ -17,39 +17,38 @@ final class PostRepository {
     }
     
     func getPostData(id: UUID) async throws -> (NewsViewPost?, [Comment]) {
-        do {
-            async let postTask = firebaseClient.getPost(id)
-            async let commentsTask = firebaseClient.getCommentsOnPost(id)
-            async let usersTask = firebaseClient.getAllUsers()
-            
-            let postResult = try await postTask
-            let commentsResult = try await commentsTask
-            let usersResult = try await usersTask
-            
-            guard
-                let users = try await firebaseClient.unwrapResult(
-                    result: usersResult,
-                    successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
-                    failureAction: { try await swiftDataManager.getAllUsers() }
-                ),
-                let post = try await firebaseClient.unwrapResult(
-                    result: postResult,
-                    successAction: { payload in try await swiftDataManager.setAllPosts(posts: [payload]) },
-                    failureAction: { try await swiftDataManager.getPost(id: id) }
-                ),
-                let comments = try await firebaseClient.unwrapResult(
-                    result: commentsResult,
-                    successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
-                    failureAction: { try await swiftDataManager.getPostComments(id: id) }
-                )
-            else { return (nil, []) }
-            
-            let newsPost = makePost(post: post, comments: comments, users: users)
-            let newsComments = makeComments(comments: comments, users: users)
-            return (newsPost, newsComments)
-        } catch let e {
-            throw e
+        guard let currentFamilyId = authService.account?.familyId else { throw AppError.unathorized }
+        async let postTask = firebaseClient.getPost(id)
+        async let commentsTask = firebaseClient.getCommentsOnPost(id)
+        async let usersTask = firebaseClient.getAllUsers()
+        
+        let postResult = try await postTask
+        let commentsResult = try await commentsTask
+        let usersResult = try await usersTask
+        
+        guard
+            let users = try await firebaseClient.unwrapResult(
+                result: usersResult,
+                successAction: { payload in try await swiftDataManager.setAllUsers(users: payload) },
+                failureAction: { try await swiftDataManager.getAllUsers(familyId: currentFamilyId) }
+            ),
+            let post = try await firebaseClient.unwrapResult(
+                result: postResult,
+                successAction: { payload in try await swiftDataManager.setAllPosts(posts: [payload]) },
+                failureAction: { try await swiftDataManager.getPost(id: id) }
+            ),
+            let comments = try await firebaseClient.unwrapResult(
+                result: commentsResult,
+                successAction: { payload in try await swiftDataManager.setAllComments(comments: payload) },
+                failureAction: { try await swiftDataManager.getPostComments(id: id) }
+            )
+        else { return (nil, []) }
+        guard let user = users.first(where: { user in user.id == post.userId }), user.familyId == currentFamilyId else {
+            throw PostRepositoryError.noAccess
         }
+        let newsPost = makePost(post: post, comments: comments, users: users)
+        let newsComments = makeComments(comments: comments, users: users)
+        return (newsPost, newsComments)
     }
     
     private func makePost(post: PostPayload, comments: [CommentPayload], users: [UserPayload]) -> NewsViewPost? {
@@ -89,8 +88,12 @@ final class PostRepository {
     }
     
     private func makeComments(comments: [CommentPayload], users: [UserPayload]) -> [Comment] {
+        let usersIDs = users.map { $0.id }
+        let filteredComments = comments.filter {
+            usersIDs.contains($0.userId)
+        }
         var newsComments: [Comment] = []
-        for comment in comments {
+        for comment in filteredComments {
             guard let user = users.first(where: { elem in
                 elem.id == comment.userId
             }) else { continue }
@@ -147,4 +150,8 @@ final class PostRepository {
             throw e
         }
     }
+}
+
+enum PostRepositoryError: Error {
+    case noAccess
 }

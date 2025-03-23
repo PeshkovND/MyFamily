@@ -25,7 +25,8 @@ final class FamilyCheckingRepository {
                     photoURL: success.photoURL,
                     firstName: success.firstName,
                     lastName: success.lastName,
-                    familyId: success.familyId
+                    familyId: success.familyId,
+                    role: success.role
                 ))
             return success.familyId != nil
         case .failure:

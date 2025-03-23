@@ -51,7 +51,8 @@ public final class VKIDClient {
             photoURL: session.user.avatarURL,
             firstName: session.user.firstName,
             lastName: session.user.lastName,
-            familyId: nil
+            familyId: nil,
+            role: .regular
         )
         Task {
             do {

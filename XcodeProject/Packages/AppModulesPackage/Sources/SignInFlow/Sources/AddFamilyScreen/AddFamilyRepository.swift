@@ -28,14 +28,16 @@ final class AddFamilyRepository {
             photoURL: account.photoURL,
             firstName: account.firstName,
             lastName: account.lastName,
-            familyId: familyId.uuidString
+            familyId: familyId.uuidString,
+            role: .owner
         ))
         authService.updateAccount(.init(
             id: account.id,
             photoURL: account.photoURL,
             firstName: account.firstName,
             lastName: account.lastName,
-            familyId: familyId.uuidString
+            familyId: familyId.uuidString,
+            role: .owner
         ))
     }
 }

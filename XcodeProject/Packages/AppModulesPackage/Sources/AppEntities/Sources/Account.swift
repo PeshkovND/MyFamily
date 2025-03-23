@@ -8,13 +8,15 @@ public struct Account: Codable {
     public let firstName: String
     public let lastName: String
     public let familyId: String?
+    public let role: Role
     
-    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, familyId: String?) {
+    public init(id: Int, photoURL: URL?, firstName: String, lastName: String, familyId: String?, role: Role) {
         self.id = id
         self.photoURL = photoURL
         self.firstName = firstName
         self.lastName = lastName
         self.familyId = familyId
+        self.role = role
     }
 }
 

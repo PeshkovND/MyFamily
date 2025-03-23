@@ -28,6 +28,7 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     private var tableView: UITableView { contentView.tableView }
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var failedStackView: UIStackView { contentView.failedStackView }
+    private var loadingView: UIView { contentView.loadingView }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -36,17 +37,28 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
         return refreshControl
     }()
     
+    private var isLoadingShowing = false {
+        willSet {
+            UIView.animate {
+                loadingView.alpha = newValue ? 1 : 0
+            }
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
+        }
+    }
+    
     // MARK: - View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
         viewModel.onViewEvent(.viewDidLoad)
+        loadingView.alpha = 0
     }
     
     override func onViewState(_ viewState: FamilyViewState) {
         switch viewState {
         case .loaded:
+            self.isLoadingShowing = false
             showContent()
         case .failed:
             showError()
@@ -54,7 +66,38 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
             break
         case .initial:
             break
+        case let .deleteConfirmation(user):
+            showDeleteConfirmationAlert(user: user)
+        case .fullscreenLoading:
+            self.isLoadingShowing = true
+        case .alert(title: let title, subtitle: let subtitle):
+            let alert = UIAlertController(
+                title: title,
+                message: subtitle,
+                preferredStyle: .alert
+            )
+            present(alert, animated: true, completion: nil)
         }
+    }
+    
+    private func showDeleteConfirmationAlert(user: FamilyViewData) {
+        let alert = UIAlertController(
+            title: "Attention",
+            message: "Do you really want to remove user \(user.name) from the family",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(
+            UIAlertAction(
+                title: "Yes",
+                style: .default,
+                handler: { [weak self] _ in
+                    self?.viewModel.onViewEvent(.deleteUserConfirmationTapped(user: user))
+                }
+            )
+        )
+        alert.addAction(.cancelAction())
+        present(alert, animated: true, completion: nil)
     }
     
     private func showContent() {
@@ -73,12 +116,14 @@ final class FamilyViewController: BaseViewController<FamilyViewModel,
     }
     
     private func configureView() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: appDesignSystem.icons.plus,
-            style: .done,
-            target: self,
-            action: #selector(addUserDidTapped)
-        )
+        if viewModel.isEnoughPermissions {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                image: appDesignSystem.icons.plus,
+                style: .done,
+                target: self,
+                action: #selector(addUserDidTapped)
+            )
+        }
         self.contentView.backgroundColor = colors.backgroundPrimary
         tableView.dataSource = self
         tableView.delegate = self
@@ -111,7 +156,10 @@ extension FamilyViewController: UITableViewDataSource {
             userImageURL: person.userImageURL,
             name: person.name,
             status: person.status,
-            isPro: person.isPro
+            isPro: person.isPro,
+            onTapDelete: viewModel.isEnoughPermissions ? { [weak self] in
+                self?.viewModel.onViewEvent(.deleteUserTapped(id: person.id))
+            } : nil
         )
         cell.setup(model)
         return cell

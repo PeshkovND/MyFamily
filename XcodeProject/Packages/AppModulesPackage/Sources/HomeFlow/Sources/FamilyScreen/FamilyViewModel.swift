@@ -14,6 +14,13 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
     private let repository: FamilyRepository
     var persons: [FamilyViewData] = []
     
+    var isEnoughPermissions: Bool {
+        switch repository.getUserRole() {
+        case .owner: true
+        case .regular: false
+        }
+    }
+    
     init(repository: FamilyRepository) {
         self.repository = repository
     }
@@ -32,6 +39,32 @@ final class FamilyViewModel: BaseViewModel<FamilyViewEvent,
             outputEventSubject.send(.personCardTapped(id: id))
         case .addUserTapped:
             outputEventSubject.send(.addUserTapped)
+        case .deleteUserTapped(id: let id):
+            showDeleteConfirmationAlert(id: id)
+        case .deleteUserConfirmationTapped(user: let user):
+            deleteFamilyForUser(id: user.id)
+        }
+    }
+    
+    private func showDeleteConfirmationAlert(id: Int) {
+        guard let user = self.persons.first(where: { user in user.id == id }) else { return }
+        self.viewState = .deleteConfirmation(user)
+    }
+    
+    private func deleteFamilyForUser(id: Int) {
+        self.viewState = .fullscreenLoading
+        Task {
+            do {
+                try await repository.deleteFamilyForUser(id: id)
+                self.persons = self.persons.filter { $0.id != id }
+                await MainActor.run {
+                    self.viewState = .loaded(content: persons)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .alert(title: "User deletion error", subtitle: "Please^ try againg")
+                }
+            }
         }
     }
     

@@ -63,7 +63,8 @@ public extension FirebaseClient {
                 photoURL: dbUser.photoURL,
                 firstName: dbUser.firstName,
                 lastName: dbUser.lastName,
-                familyId: dbUser.familyId
+                familyId: dbUser.familyId,
+                role: dbUser.role
             )
             return .success(userInfo)
         case .failure(let e):
@@ -76,7 +77,7 @@ public extension FirebaseClient {
                     photoURL: user.photoURL,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    role: .regular,
+                    role: user.role,
                     pro: false,
                     familyId: user.familyId
                 )
@@ -160,7 +161,7 @@ public extension FirebaseClient {
                 photoURL: user.photoURL,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                role: document.role,
+                role: user.role,
                 pro: document.pro,
                 familyId: user.familyId
             )

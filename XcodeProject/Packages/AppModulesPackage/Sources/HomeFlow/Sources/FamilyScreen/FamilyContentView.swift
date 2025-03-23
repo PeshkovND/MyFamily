@@ -27,6 +27,10 @@ extension FamilyViewController {
             return activityIndicator
         }()
         
+        private(set) lazy var loadingView: UIView = {
+            return LoadingView()
+        }()
+        
         private(set) lazy var failedStackView: UIStackView = {
             return FailedStackView(
                 title: appDesignSystem.strings.contentLoadingErrorTitle,
@@ -38,7 +42,12 @@ extension FamilyViewController {
             addSubview(tableView)
             addSubview(activityIndicator)
             addSubview(failedStackView)
+            addSubview(loadingView)
           
+            loadingView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+            
             tableView.snp.makeConstraints {
                 $0.top.equalToSuperview()
                 $0.bottom.equalToSuperview()

@@ -82,6 +82,27 @@ final class FamilyRepository {
         }
     }
     
+    func getUserRole() -> Role {
+        authService.account?.role ?? .regular
+    }
+    
+    func deleteFamilyForUser(id: Int) async throws {
+        let user = try await firebaseClient.getUser(id)
+        switch user {
+        case .success(let success):
+            try await firebaseClient.updateUser(.init(
+                id: success.id,
+                photoURL: success.photoURL,
+                firstName: success.firstName,
+                lastName: success.lastName,
+                familyId: nil,
+                role: .regular
+            ))
+        case .failure(let failure):
+            throw failure
+        }
+    }
+    
     private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
         guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }

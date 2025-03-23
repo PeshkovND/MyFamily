@@ -24,14 +24,16 @@ final class JoinFamilyRepository {
                 photoURL: account.photoURL,
                 firstName: account.firstName,
                 lastName: account.lastName,
-                familyId: success.familyId
+                familyId: success.familyId,
+                role: .regular
             ))
             authService.updateAccount(.init(
                 id: account.id,
                 photoURL: account.photoURL,
                 firstName: account.firstName,
                 lastName: account.lastName,
-                familyId: success.familyId
+                familyId: success.familyId,
+                role: .regular
             ))
         case .failure(let failure):
             throw failure

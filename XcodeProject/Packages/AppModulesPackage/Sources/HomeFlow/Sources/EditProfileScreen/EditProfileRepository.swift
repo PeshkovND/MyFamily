@@ -28,7 +28,8 @@ final class EditProfileRepository {
             photoURL: imageURL,
             firstName: name,
             lastName: surname,
-            familyId: currentUserInfo.familyId
+            familyId: currentUserInfo.familyId,
+            role: currentUserInfo.role
         )
         
         try await self.firebaseClient.updateUser(userInfo)
