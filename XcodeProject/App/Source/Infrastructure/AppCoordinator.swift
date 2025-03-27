@@ -119,6 +119,7 @@ private extension AppCoordinator {
     }
     
     private func startHomeFlow() {
+        registerShortcuts(isAuthorized: true)
         let coordinator = HomeCoordinator(
             navigationController: navigationController,
             authService: authService,
@@ -143,6 +144,10 @@ private extension AppCoordinator {
                     },
                     onFailure: { }
                 )
+            case .deleteFamily:
+                self.removeAll()
+                self.backgroundTasksManager.cancelTask(backgroundTaskId: self.env.geolocationBackgroundTaskId)
+                self.startAuthorizedFlow()
             }
         }
         

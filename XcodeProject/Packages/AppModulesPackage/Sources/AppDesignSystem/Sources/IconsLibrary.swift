@@ -156,7 +156,12 @@ extension IconsLibrary {
             renderingMode: .alwaysOriginal
         ))
     }
-    
+    public var walkingPerson: UIImage {
+        valueOrStub(UIImage(systemName: "figure.walk")?.withTintColor(
+            appDesignSystem.colors.backgroundSecondaryVariant,
+            renderingMode: .alwaysOriginal
+        ))
+    }
 }
 
 // SFSymbols Example

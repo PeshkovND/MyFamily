@@ -39,6 +39,11 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
         return repository.isCurrentUser(id: id)
     }
     
+    var needShowLeavefamilyButton: Bool {
+        guard let id = profile?.id else { return false }
+        return repository.isCurrentUser(id: id) && repository.isOwner() == false
+    }
+    
     override func onViewEvent(_ event: ProfileViewEvent) {
         switch event {
         case .deinit:
@@ -58,6 +63,24 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             outputEventSubject.send(.editProfile)
         case .getProTapped:
             outputEventSubject.send(.getPro)
+        case .leaveFamilyTapped:
+            viewState = .fullscreenLoading
+            removeFamily()
+        }
+    }
+    
+    private func removeFamily() {
+        Task {
+            do {
+                try await repository.removeFamily()
+                await MainActor.run {
+                    self.outputEventSubject.send(.deleteFamily)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .alert(title: "Error", subtitle: "Please, try again")
+                }
+            }
         }
     }
     

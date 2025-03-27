@@ -14,6 +14,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
     public enum HomeEvent {
         case signOut
+        case deleteFamily
     }
     
     public var events: AnyPublisher<HomeEvent, Never> {
@@ -273,6 +274,8 @@ private extension HomeCoordinator {
             case .getPro:
                 let vc = makeGetProScreen()
                 self.tabBarController.present(vc, animated: true)
+            case .deleteFamily:
+                eventSubject.send(.deleteFamily)
             }
         }.store(in: &setCancelable)
         
