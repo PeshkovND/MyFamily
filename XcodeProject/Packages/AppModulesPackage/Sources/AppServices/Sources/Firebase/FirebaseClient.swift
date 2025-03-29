@@ -152,6 +152,18 @@ public extension FirebaseClient {
         }
     }
     
+    func deletePost(id: String) async throws {
+        let test = try await getAllUsers()
+        switch test {
+        case .success:
+            try await self.fs.collection(Collections.posts)
+                .document(id)
+                .delete()
+        case .failure(let e):
+            throw e
+        }
+    }
+    
     func updateUser(_ user: UserInfo) async throws {
         let result = try await getUser(user.id)
         switch result {

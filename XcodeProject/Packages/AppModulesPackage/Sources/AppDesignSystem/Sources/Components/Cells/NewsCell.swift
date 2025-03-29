@@ -21,6 +21,7 @@ public final class NewsCell: UITableViewCell {
         public let isPremium: Bool
         public var likesModel: LikesModel
         public let audioPlayer: AVPlayer
+        public let moreButtonMenu: UIMenu?
         
         public init(
             userImageURL: URL?,
@@ -34,7 +35,8 @@ public final class NewsCell: UITableViewCell {
             onAudioLoadingError: @escaping () -> Void,
             isPremium: Bool,
             likesModel: LikesModel,
-            audioPlayer: AVPlayer
+            audioPlayer: AVPlayer,
+            moreButtonMenu: UIMenu?
         ) {
             self.userImageURL = userImageURL
             self.name = name
@@ -49,6 +51,7 @@ public final class NewsCell: UITableViewCell {
             self.isPremium = isPremium
             self.likesModel = likesModel
             self.audioPlayer = audioPlayer
+            self.moreButtonMenu = moreButtonMenu
         }
     }
     
@@ -155,6 +158,15 @@ public final class NewsCell: UITableViewCell {
         return view
     }()
     
+    private(set) lazy var moreButton: ActionButton = {
+        let button = ActionButton()
+        let image = appDesignSystem.icons.ellipsis
+        button.showsMenuAsPrimaryAction = true
+        button.setImage(image, for: .normal)
+        button.isHidden = false
+        return button
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -162,6 +174,7 @@ public final class NewsCell: UITableViewCell {
         contentView.addSubview(commentButton)
         contentView.addSubview(shareButton)
         contentView.addSubview(userInfoContainerButton)
+        contentView.addSubview(moreButton)
         userInfoContainerButton.addSubview(userImageView)
         userInfoContainerButton.addSubview(usernameLabel)
         setupUserInfoConstraints()
@@ -176,7 +189,7 @@ public final class NewsCell: UITableViewCell {
     private func setupUserInfoConstraints() {
         userInfoContainerButton.snp.makeConstraints {
             $0.leading.equalTo(contentView.snp.leading).inset(16)
-            $0.trailing.equalTo(contentView.snp.trailing).inset(16)
+            $0.trailing.equalTo(moreButton.snp.trailing).inset(16)
             $0.top.equalTo(contentView.snp.top).inset(8)
             $0.height.equalTo(40)
         }
@@ -215,6 +228,13 @@ public final class NewsCell: UITableViewCell {
             $0.height.equalTo(48)
             $0.trailing.equalTo(commentButton.snp.leading)
             $0.centerY.equalTo(shareButton.snp.centerY)
+        }
+        
+        moreButton.snp.makeConstraints {
+            $0.width.equalTo(48)
+            $0.height.equalTo(48)
+            $0.trailing.equalTo(contentView.snp.trailing)
+            $0.centerY.equalTo(userInfoContainerButton.snp.centerY)
         }
     }
 }
@@ -388,5 +408,7 @@ public extension NewsCell {
         commentButton.onTap = { model.commentButtonTapAction() }
         shareButton.onTap = { model.shareButtonTapAction() }
         likeButton.onTap = { model.likeButtonTapAction() }
+        moreButton.isHidden = model.moreButtonMenu == nil
+        moreButton.menu = model.moreButtonMenu
     }
 }

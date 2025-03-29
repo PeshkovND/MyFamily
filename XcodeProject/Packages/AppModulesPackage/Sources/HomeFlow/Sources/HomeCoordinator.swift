@@ -14,6 +14,7 @@ public final class HomeCoordinator: BaseCoordinator, EventCoordinator {
     
     public enum HomeEvent {
         case signOut
+        case deleteFamily
     }
     
     public var events: AnyPublisher<HomeEvent, Never> {
@@ -187,7 +188,7 @@ private extension HomeCoordinator {
             authService: authService,
             swiftDataManager: swiftDataManager
         )
-        let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository)
+        let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository, defaultsStorage: defaultsStorage)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
         viewController.navigationItem.backButtonTitle = ""
@@ -255,7 +256,7 @@ private extension HomeCoordinator {
             authService: authService,
             swiftDataManager: swiftDataManager
         )
-        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository)
+        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository, defaultsStorage: defaultsStorage)
         let viewController = ProfileViewController(viewModel: viewModel)
         
         viewModel.outputEventPublisher.sink { [weak self] event in
@@ -273,6 +274,8 @@ private extension HomeCoordinator {
             case .getPro:
                 let vc = makeGetProScreen()
                 self.tabBarController.present(vc, animated: true)
+            case .deleteFamily:
+                eventSubject.send(.deleteFamily)
             }
         }.store(in: &setCancelable)
         

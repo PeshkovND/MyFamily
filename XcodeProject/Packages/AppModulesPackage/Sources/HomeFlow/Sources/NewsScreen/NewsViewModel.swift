@@ -12,12 +12,17 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
     
     private var strings = appDesignSystem.strings
     private let repository: NewsRepository
+    private let defaultsStorage: DefaultsStorage
     var audioPlayer: AVPlayer
     var posts: [NewsViewPost] = []
+    var currentUserId: Int? {
+        repository.currentUserId
+    }
     
-    init(audioPlayer: AVPlayer, repository: NewsRepository) {
+    init(audioPlayer: AVPlayer, repository: NewsRepository, defaultsStorage: DefaultsStorage) {
         self.audioPlayer = audioPlayer
         self.repository = repository
+        self.defaultsStorage = defaultsStorage
         super.init()
     }
     
@@ -53,6 +58,34 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             outputEventSubject.send(.commentTapped(id: id))
         case .shareTapped(id: let id):
             outputEventSubject.send(.shareTapped(id: id))
+        case .deletePostTapped(id: let id):
+            viewState = .fullscreenLoading
+            deletePost(id: id)
+        case .viewWillAppear:
+            let needUpdatePosts: Bool?
+            needUpdatePosts = defaultsStorage.primitiveValue(forKey: "needUpdatePostsInNews")
+            if needUpdatePosts == true {
+                self.posts = []
+                viewState = .initial
+                Task { await getPosts() }
+            }
+        }
+    }
+    
+    private func deletePost(id: String) {
+        Task {
+            do {
+                try await repository.deletePost(id: id)
+                self.posts = self.posts.filter { $0.id != id }
+                await MainActor.run {
+                    defaultsStorage.add(primitiveValue: true, forKey: "needUpdatePostsInProfile")
+                    self.viewState = .loaded(content: posts)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .alert(title: "Error", subtitle: "Please, try again")
+                }
+            }
         }
     }
     
@@ -61,6 +94,7 @@ final class NewsViewModel: BaseViewModel<NewsViewEvent,
             let posts = try await repository.getPosts()
             self.posts = posts
             await MainActor.run {
+                defaultsStorage.removeObject(forKey: "needUpdatePostsInNews")
                 self.viewState = .loaded(content: posts)
             }
         } catch {

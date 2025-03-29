@@ -30,6 +30,8 @@ enum NewsViewState: Stubable {
     case loading
     case loaded(content: [NewsViewPost])
     case failed(error: NewsContext.ScreenError?)
+    case fullscreenLoading
+    case alert(title: String, subtitle: String)
 
     static var stub: NewsViewState { .initial }
 }
@@ -49,8 +51,10 @@ enum NewsViewEvent {
     case viewDidLoad
     case `deinit`
     case addPostTapped
+    case deletePostTapped(id: String)
     case pullToRefresh
     case userTapped(id: Int)
     case commentTapped(id: String)
     case shareTapped(id: String)
+    case viewWillAppear
 }

@@ -156,7 +156,24 @@ extension IconsLibrary {
             renderingMode: .alwaysOriginal
         ))
     }
-    
+    public var walkingPerson: UIImage {
+        valueOrStub(UIImage(systemName: "figure.walk")?.withTintColor(
+            appDesignSystem.colors.backgroundSecondaryVariant,
+            renderingMode: .alwaysOriginal
+        ))
+    }
+    public var ellipsis: UIImage {
+        valueOrStub(UIImage(systemName: "ellipsis")?.withTintColor(
+            appDesignSystem.colors.labelPrimary,
+            renderingMode: .alwaysOriginal
+        ))
+    }
+    public var trash: UIImage {
+        valueOrStub(UIImage(systemName: "trash")?.withTintColor(
+            appDesignSystem.colors.backgroundSecondaryVariant,
+            renderingMode: .alwaysOriginal
+        ))
+    }
 }
 
 // SFSymbols Example

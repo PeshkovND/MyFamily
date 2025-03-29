@@ -171,4 +171,26 @@ final class ProfileRepository {
     public func isCurrentUser(id: Int) -> Bool {
         self.authService.account?.id == id
     }
+    
+    public func isOwner() -> Bool {
+        self.authService.account?.role == .owner
+    }
+    
+    func deletePost(id: String) async throws {
+        try await firebaseClient.deletePost(id: id)
+    }
+    
+    func removeFamily() async throws {
+        guard let currentUser = authService.account else { throw AppError.unathorized }
+        let newAccounntInfo = UserInfo(
+            id: currentUser.id,
+            photoURL: currentUser.photoURL,
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            familyId: nil,
+            role: .regular
+        )
+        try await firebaseClient.updateUser(newAccounntInfo)
+        authService.updateAccount(newAccounntInfo)
+    }
 }

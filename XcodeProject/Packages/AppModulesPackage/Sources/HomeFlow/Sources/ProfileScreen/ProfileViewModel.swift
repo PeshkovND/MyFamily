@@ -14,12 +14,14 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     private let strings = appDesignSystem.strings
     private let userId: Int
     private let repository: ProfileRepository
+    private let defaultsStorage: DefaultsStorage
     var audioPlayer: AVPlayer
     
-    init(userId: Int, audioPlayer: AVPlayer, repository: ProfileRepository) {
+    init(userId: Int, audioPlayer: AVPlayer, repository: ProfileRepository,  defaultsStorage: DefaultsStorage) {
         self.audioPlayer = audioPlayer
         self.userId = userId
         self.repository = repository
+        self.defaultsStorage = defaultsStorage
         super.init()
     }
     
@@ -37,6 +39,11 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
     func isCurrentUser() -> Bool {
         guard let id = profile?.id else { return false }
         return repository.isCurrentUser(id: id)
+    }
+    
+    var needShowLeavefamilyButton: Bool {
+        guard let id = profile?.id else { return false }
+        return repository.isCurrentUser(id: id) && repository.isOwner() == false
     }
     
     override func onViewEvent(_ event: ProfileViewEvent) {
@@ -58,6 +65,55 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             outputEventSubject.send(.editProfile)
         case .getProTapped:
             outputEventSubject.send(.getPro)
+        case .leaveFamilyTapped:
+            viewState = .fullscreenLoading
+            removeFamily()
+        case .deletePostTapped(id: let id):
+            viewState = .fullscreenLoading
+            deletePost(id: id)
+        case .viewWillAppear:
+            let needUpdatePosts: Bool?
+            needUpdatePosts = defaultsStorage.primitiveValue(forKey: "needUpdatePostsInProfile")
+            if needUpdatePosts == true {
+                self.profile?.posts = []
+                viewState = .initial
+                Task { await getProfile() }
+            }
+        }
+    }
+    
+    private func removeFamily() {
+        Task {
+            do {
+                try await repository.removeFamily()
+                await MainActor.run {
+                    self.outputEventSubject.send(.deleteFamily)
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .alert(title: "Error", subtitle: "Please, try again")
+                }
+            }
+        }
+    }
+    
+    
+    private func deletePost(id: String) {
+        Task {
+            do {
+                try await repository.deletePost(id: id)
+                if let posts = self.profile?.posts.filter({ post in post.id != id }) {
+                    self.profile?.posts = posts
+                }
+                await MainActor.run {
+                    defaultsStorage.add(primitiveValue: true, forKey: "needUpdatePostsInNews")
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                    self.viewState = .alert(title: "Error", subtitle: "Please, try again")
+                }
+            }
         }
     }
     
@@ -66,6 +122,7 @@ final class ProfileViewModel: BaseViewModel<ProfileViewEvent,
             self.profile = try await self.repository.getProfile(id: userId)
             
             await MainActor.run {
+                defaultsStorage.removeObject(forKey: "needUpdatePostsInProfile")
                 self.viewState = .loaded
             }
         } catch {

@@ -30,6 +30,7 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
     private var failedStackView: UIStackView { contentView.failedStackView }
+    private var loadingView: UIView { contentView.loadingView }
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -38,10 +39,24 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         return refreshControl
     }()
     
+    private var isLoadingShowing = false {
+        willSet {
+            UIView.animate {
+                loadingView.alpha = newValue ? 1 : 0
+            }
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
+        }
+    }
+    
     private lazy var editProfileAction = UIAction(
         title: appDesignSystem.strings.profileEditProfile,
         image: appDesignSystem.icons.pencil
     ) { _ in self.editProfileTapped() }
+    
+    private lazy var leaveFamilyAction = UIAction(
+        title: "Get out of the family",
+        image: appDesignSystem.icons.walkingPerson
+    ) { _ in self.leaveFamilyTapped() }
     
     private lazy var getProAction = UIAction(
         title: appDesignSystem.strings.profileGetPro,
@@ -59,32 +74,57 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         super.viewDidLoad()
         configureView()
         viewModel.onViewEvent(.viewDidLoad)
+        loadingView.alpha = 0
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.viewModel.onViewEvent(.viewWillAppear)
     }
     
     override func onViewState(_ viewState: ProfileViewState) {
         switch viewState {
         case .loaded:
+            isLoadingShowing = false
             failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
             setupEditProfileButton()
-            
         case .failed:
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             failedStackView.alpha = 1
+            isLoadingShowing = false
         case .initial:
-            break
+            isLoadingShowing = false
+            failedStackView.alpha = 0
+            tableView.reloadData()
+            tableView.layoutIfNeeded()
+            activityIndicator.startAnimating()
+            refreshControl.endRefreshing()
+            setupEditProfileButton()
         case .loading:
-            break
+            isLoadingShowing = false
+        case .fullscreenLoading:
+            isLoadingShowing = true
+        case let .alert(title, subtitle):
+            let alert = UIAlertController(title: title, message: subtitle, preferredStyle: .alert)
+            alert.addAction(.cancelAction())
+            
+            present(alert, animated: true)
         }
     }
     
     @objc
     private func editProfileTapped() {
         viewModel.onViewEvent(.editProfileTapped)
+    }
+    
+    @objc
+    private func leaveFamilyTapped() {
+        viewModel.onViewEvent(.leaveFamilyTapped)
     }
     
     private func configureView() {
@@ -97,11 +137,17 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
     private func setupEditProfileButton() {
         guard let profile = viewModel.profile else { return }
         if viewModel.isCurrentUser() {
+            var actions: [UIAction] = [editProfileAction]
+            if profile.isPremium == false {
+                actions.append(getProAction)
+            }
+            if viewModel.needShowLeavefamilyButton {
+                actions.append(leaveFamilyAction)
+            }
+            actions.append(signOutAction)
             let menu = UIMenu(
                 options: .displayInline,
-                children: profile.isPremium
-                ? [editProfileAction, signOutAction]
-                : [editProfileAction, getProAction, signOutAction]
+                children: actions
             )
             let barImage = appDesignSystem.icons.setting
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: barImage, menu: menu)
@@ -173,7 +219,18 @@ extension ProfileViewController: UITableViewDataSource {
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
             ),
-            audioPlayer: viewModel.audioPlayer
+            audioPlayer: viewModel.audioPlayer,
+            moreButtonMenu: {
+                if viewModel.isCurrentUser() {
+                    let deleteAction = UIAction(
+                        title: "Delete",
+                        image: appDesignSystem.icons.trash) { [weak self] _ in
+                            self?.viewModel.onViewEvent(.deletePostTapped(id: post.id))
+                        }
+                    return UIMenu(options: .displayInline, children: [deleteAction])
+                }
+                return nil
+            }()
         )
         cell.setup(model)
         return cell

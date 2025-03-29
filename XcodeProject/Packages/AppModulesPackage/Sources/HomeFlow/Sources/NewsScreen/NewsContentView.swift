@@ -37,11 +37,20 @@ extension NewsViewController {
                 subtitle: appDesignSystem.strings.contentLoadingErrorSubitle
             )
         }()
+        
+        private(set) lazy var loadingView: UIView = {
+            return LoadingView()
+        }()
                 
         override func setLayout() {
             addSubview(tableView)
             addSubview(activityIndicator)
             addSubview(failedStackView)
+            addSubview(loadingView)
+          
+            loadingView.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
 
             tableView.snp.makeConstraints {
                 $0.top.equalToSuperview()

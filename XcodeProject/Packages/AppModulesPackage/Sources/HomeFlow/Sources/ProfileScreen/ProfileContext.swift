@@ -29,7 +29,9 @@ enum ProfileViewState: Stubable {
     case initial
     case loading
     case loaded
+    case fullscreenLoading
     case failed(error: ProfileContext.ScreenError?)
+    case alert(title: String, subtitle: String)
 
     static var stub: ProfileViewState { .initial }
 }
@@ -42,6 +44,7 @@ enum ProfileOutputEvent {
     case signOut
     case editProfile
     case getPro
+    case deleteFamily
 }
 
 // MARK: - View Event
@@ -55,4 +58,7 @@ enum ProfileViewEvent {
     case signOut
     case getProTapped
     case editProfileTapped
+    case leaveFamilyTapped
+    case deletePostTapped(id: String)
+    case viewWillAppear
 }
