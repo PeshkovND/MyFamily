@@ -221,7 +221,8 @@ extension PostViewController: UITableViewDataSource {
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
             ),
-            audioPlayer: viewModel.audioPlayer
+            audioPlayer: viewModel.audioPlayer,
+            moreButtonMenu: nil
         )
         cell.setup(model)
         return cell

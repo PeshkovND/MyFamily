@@ -188,7 +188,7 @@ private extension HomeCoordinator {
             authService: authService,
             swiftDataManager: swiftDataManager
         )
-        let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository)
+        let viewModel = NewsViewModel(audioPlayer: audioPlayer, repository: repository, defaultsStorage: defaultsStorage)
         let viewController = NewsViewController(viewModel: viewModel)
         viewController.title = appDesignSystem.strings.tabBarNewsTitle
         viewController.navigationItem.backButtonTitle = ""
@@ -256,7 +256,7 @@ private extension HomeCoordinator {
             authService: authService,
             swiftDataManager: swiftDataManager
         )
-        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository)
+        let viewModel = ProfileViewModel(userId: userId, audioPlayer: audioPlayer, repository: repository, defaultsStorage: defaultsStorage)
         let viewController = ProfileViewController(viewModel: viewModel)
         
         viewModel.outputEventPublisher.sink { [weak self] event in

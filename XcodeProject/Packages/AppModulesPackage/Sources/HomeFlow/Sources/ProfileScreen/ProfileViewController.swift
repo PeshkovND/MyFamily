@@ -77,24 +77,34 @@ final class ProfileViewController: BaseViewController<ProfileViewModel,
         loadingView.alpha = 0
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.viewModel.onViewEvent(.viewWillAppear)
+    }
+    
     override func onViewState(_ viewState: ProfileViewState) {
         switch viewState {
         case .loaded:
+            isLoadingShowing = false
             failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
             setupEditProfileButton()
-            isLoadingShowing = false
-            
         case .failed:
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             failedStackView.alpha = 1
             isLoadingShowing = false
         case .initial:
-            break
+            isLoadingShowing = false
+            failedStackView.alpha = 0
+            tableView.reloadData()
+            tableView.layoutIfNeeded()
+            activityIndicator.startAnimating()
+            refreshControl.endRefreshing()
+            setupEditProfileButton()
         case .loading:
             isLoadingShowing = false
         case .fullscreenLoading:
@@ -209,7 +219,18 @@ extension ProfileViewController: UITableViewDataSource {
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
             ),
-            audioPlayer: viewModel.audioPlayer
+            audioPlayer: viewModel.audioPlayer,
+            moreButtonMenu: {
+                if viewModel.isCurrentUser() {
+                    let deleteAction = UIAction(
+                        title: "Delete",
+                        image: appDesignSystem.icons.trash) { [weak self] _ in
+                            self?.viewModel.onViewEvent(.deletePostTapped(id: post.id))
+                        }
+                    return UIMenu(options: .displayInline, children: [deleteAction])
+                }
+                return nil
+            }()
         )
         cell.setup(model)
         return cell

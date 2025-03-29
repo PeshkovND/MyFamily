@@ -48,6 +48,10 @@ final class NewsRepository {
         }
     }
     
+    func deletePost(id: String) async throws {
+        try await firebaseClient.deletePost(id: id)
+    }
+    
     private func parsePosts(posts: [PostPayload], users: [UserPayload], comments: [CommentPayload]) -> [NewsViewPost] {
         guard let userId = authService.account?.id else { return [] }
         var result: [NewsViewPost] = []
@@ -103,5 +107,9 @@ final class NewsRepository {
         case .failure:
             return
         }
+    }
+    
+    var currentUserId: Int? {
+        authService.account?.id
     }
 }

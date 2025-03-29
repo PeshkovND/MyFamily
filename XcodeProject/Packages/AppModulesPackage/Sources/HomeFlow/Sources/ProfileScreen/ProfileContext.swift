@@ -59,4 +59,6 @@ enum ProfileViewEvent {
     case getProTapped
     case editProfileTapped
     case leaveFamilyTapped
+    case deletePostTapped(id: String)
+    case viewWillAppear
 }

@@ -25,8 +25,6 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     
     private let colors = appDesignSystem.colors
     
-    private lazy var loadingViewHelper = appDesignSystem.components.loadingViewHelper
-    
     deinit {
         viewModel.onViewEvent(.deinit)
     }
@@ -35,6 +33,7 @@ final class NewsViewController: BaseViewController<NewsViewModel,
     private var activityIndicator: UIActivityIndicatorView { contentView.activityIndicator }
     private var audioLoadingErrorSnackBar: AppSnackBar { contentView.audioLoadingErrorSnackBar }
     private var failedStackView: UIStackView { contentView.failedStackView }
+    private var loadingView: UIView { contentView.loadingView }
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(onPullToRefresh), for: .valueChanged)
@@ -42,10 +41,20 @@ final class NewsViewController: BaseViewController<NewsViewModel,
         return refreshControl
     }()
     
+    private var isLoadingShowing = false {
+        willSet {
+            UIView.animate {
+                loadingView.alpha = newValue ? 1 : 0
+            }
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = !newValue
+        }
+    }
+    
     // MARK: - View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadingView.alpha = 0
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: appDesignSystem.icons.plus,
             style: .done,
@@ -56,22 +65,43 @@ final class NewsViewController: BaseViewController<NewsViewModel,
         viewModel.onViewEvent(.viewDidLoad)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.viewModel.onViewEvent(.viewWillAppear)
+    }
+    
     override func onViewState(_ viewState: NewsViewState) {
         switch viewState {
         case .loaded:
+            isLoadingShowing = false
             failedStackView.alpha = 0
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             tableView.reloadData()
             tableView.layoutIfNeeded()
         case .failed:
+            isLoadingShowing = false
             activityIndicator.stopAnimating()
             refreshControl.endRefreshing()
             failedStackView.alpha = 1
         case .initial:
+            isLoadingShowing = false
+            failedStackView.alpha = 0
+            tableView.reloadData()
+            tableView.layoutIfNeeded()
+            activityIndicator.startAnimating()
+            refreshControl.endRefreshing()
             break
         case .loading:
+            isLoadingShowing = false
             break
+        case .fullscreenLoading:
+            isLoadingShowing = true
+        case .alert(title: let title, subtitle: let subtitle):
+            isLoadingShowing = false
+            let alert = UIAlertController(title: title, message: subtitle, preferredStyle: .alert)
+            alert.addAction(.closeAction())
+            present(alert, animated: true)
         }
     }
     
@@ -125,7 +155,18 @@ extension NewsViewController: UITableViewDataSource {
                 likesCount: post.likesCount,
                 isLiked: post.isLiked
             ),
-            audioPlayer: viewModel.audioPlayer
+            audioPlayer: viewModel.audioPlayer,
+            moreButtonMenu: {
+                if post.userId == viewModel.currentUserId {
+                    let deleteAction = UIAction(
+                        title: "Delete",
+                        image: appDesignSystem.icons.trash) { [weak self] _ in
+                            self?.viewModel.onViewEvent(.deletePostTapped(id: post.id))
+                        }
+                    return UIMenu(options: .displayInline, children: [deleteAction])
+                }
+                return nil
+            }()
         )
         cell.setup(model)
         return cell
@@ -153,11 +194,13 @@ extension NewsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? NewsCell else { return }
-        switch viewModel.posts[indexPath.row].mediaContent {
-        case .Video:
-            cell.stopVideo()
-        default:
-            break
+        if indexPath.row < viewModel.posts.count {
+            switch viewModel.posts[indexPath.row].mediaContent {
+            case .Video:
+                cell.stopVideo()
+            default:
+                break
+            }
         }
     }
 }
