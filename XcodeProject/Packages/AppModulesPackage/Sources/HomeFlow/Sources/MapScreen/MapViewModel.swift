@@ -19,6 +19,7 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
     private let locationManager: AppLocationManager
     private var needZoomToCurrentUser = true
     private var setCancelable = Set<AnyCancellable>()
+    private let lock = NSLock()
     
     init(repository: MapRepository, locationManager: AppLocationManager) {
         self.repository = repository
@@ -104,6 +105,16 @@ final class MapViewModel: BaseViewModel<MapViewEvent,
             await MainActor.run {
                 self.viewState = .loaded
             }
+            repository.observeAllUsersStatuses(usersIds: persons.map { $0.id }, onDataChange: { [weak self] userStatus in
+                guard let self else { return }
+                self.lock.lock()
+                guard let personIndex = self.persons.firstIndex(where: { $0.id == userStatus.userId }) else { return }
+                self.persons[personIndex].coordinate = .init(latitude: userStatus.position.lat, longitude: userStatus.position.lng)
+                self.lock.unlock()
+                DispatchQueue.main.async {
+                    self.viewState = .loaded
+                }
+            })
         } catch {
             await MainActor.run {
                 self.viewState = .failed(

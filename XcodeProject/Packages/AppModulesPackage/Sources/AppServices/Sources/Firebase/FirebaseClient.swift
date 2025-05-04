@@ -397,6 +397,20 @@ public extension FirebaseClient {
             return .failure(.fetchingError)
         }
     }
+    
+    func observeAllUsersStatuses(usersIds: [Int], onDataChange: @escaping (UserStatus) -> Void) {
+        for userId in usersIds {
+            self.db.child(Collections.statuses).child(String(userId)).observe(.value) { snapshot in
+                guard let value = snapshot.value,
+                      let dict = value as? NSDictionary,
+                      let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: []),
+                      let result = try? JSONDecoder().decode(UserStatus.self, from: jsonData) else {
+                    return
+                }
+                onDataChange(result)
+            }
+        }
+    }
 }
 
 public extension FirebaseClient {

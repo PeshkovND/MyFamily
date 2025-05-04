@@ -15,7 +15,7 @@ struct MapViewData {
     let userImageURL: URL?
     let name: String
     let status: PersonStatus
-    let coordinate: Coordinate
+    var coordinate: Coordinate
     let isPro: Bool
 }
 

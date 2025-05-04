@@ -88,4 +88,8 @@ final class MapRepository {
             throw failure
         }
     }
+    
+    func observeAllUsersStatuses(usersIds: [Int], onDataChange: @escaping (UserStatus) -> Void) {
+        firebaseClient.observeAllUsersStatuses(usersIds: usersIds, onDataChange: onDataChange)
+    }
 }
