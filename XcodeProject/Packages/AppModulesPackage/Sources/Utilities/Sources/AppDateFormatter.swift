@@ -6,15 +6,25 @@ public class AppDateFormatter {
     
     public init() {
         self.dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
     }
     
-    public func toString(_ date: Date) -> String {
-        dateFormatter.string(from: date)
+    public func toServerFormat(_ date: Date) -> Double? {
+        let gmt0DateString = dateFormatter.string(from: date)
+        guard let gmt0Date = dateFormatter.date(from: gmt0DateString) else { return nil }
+        return gmt0Date.timeIntervalSince1970
     }
     
-    public func toDate(_ string: String) -> Date? {
-        dateFormatter.date(from: string)
+    public func toString(_ double: Double) -> String {
+        let date = Date(timeIntervalSince1970: double)
+        return dateFormatter.string(from: date)
+    }
+    
+    public func toDate(_ double: Double) -> Date? {
+        let date = Date(timeIntervalSince1970: double)
+        let dateString = dateFormatter.string(from: date)
+        return dateFormatter.date(from: dateString)
     }
     
     public func get(_ components: [Calendar.Component], calendar: Calendar = Calendar.current, date: Date) -> DateComponents {
@@ -32,10 +42,10 @@ public class AppDateFormatter {
             let month = components.month,
             let year = components.year,
             let hour = components.hour,
-            let minute = components.day
+            let minute = components.minute
         else { return "" }
         if day == get(.day, date: Date()) {
-            return "\(hour):\(minute)"
+            return "\(hour):\(minute < 10 ? "0":"")\(minute)"
         } else {
             return "\(day).\(month).\(year), \(hour):\(minute)"
         }

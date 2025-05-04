@@ -8,9 +8,9 @@ public class CommentModel {
     public let userId: Int
     public let postId: UUID
     public let text: String
-    public let date: String
+    public let date: Double
     
-    public init(id: UUID, userId: Int, postId: UUID, text: String, date: String) {
+    public init(id: UUID, userId: Int, postId: UUID, text: String, date: Double) {
         self.id = id
         self.userId = userId
         self.postId = postId
@@ -22,10 +22,10 @@ public class CommentModel {
 @Model
 public class UserStatusModel {
     @Attribute(.unique) public let userId: Int
-    public let lastOnline: String
+    public let lastOnline: Double
     public let position: Position
     
-    public init(userId: Int, lastOnline: String, position: Position) {
+    public init(userId: Int, lastOnline: Double, position: Position) {
         self.userId = userId
         self.lastOnline = lastOnline
         self.position = position
@@ -60,10 +60,10 @@ public class PostModel {
     public let contentURL: URL?
     public let contentType: ContentType?
     public let userId: Int
-    public let date: String
+    public let date: Double
     public var likes: [Int]
     
-    public init(id: UUID, text: String?, contentURL: URL?, contentType: ContentType?, userId: Int, date: String, likes: [Int]) {
+    public init(id: UUID, text: String?, contentURL: URL?, contentType: ContentType?, userId: Int, date: Double, likes: [Int]) {
         self.id = id
         self.text = text
         self.contentURL = contentURL

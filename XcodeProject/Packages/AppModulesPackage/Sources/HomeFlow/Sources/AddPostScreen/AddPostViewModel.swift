@@ -103,29 +103,39 @@ final class AddPostViewModel: BaseViewModel<AddPostViewEvent,
             return
         }
         let handler = VNImageRequestHandler(ciImage: ciImage, orientation: .up, options: [:])
-        ImageCheckingQueue.sync {
+        ImageCheckingQueue.sync { [weak self] in
             do {
-                try handler.perform([ImageNSFWDetector.classificationRequest(compeltionHandler: { isSafe in
-                    if isSafe {
-                        self.setupUploadMediaTask(data: data, contentType: .image)
-                    } else {
-                        DispatchQueue.main.async {
-                            self.showContentError()
-                            self.viewState = .error(
-                                title: appDesignSystem.strings.addPostErrorTitle,
-                                subtitle: appDesignSystem.strings.nsfwImageWarningSubtitle
-                            )
+                try handler.perform([ImageNSFWDetector.classificationRequest(compeltionHandler: { result in
+                    switch result {
+                    case .success(let isSafe):
+                        if isSafe {
+                            self?.setupUploadMediaTask(data: data, contentType: .image)
+                        } else {
+                            self?.showNSFWImageDetectionAlert(isError: false)
                         }
+                    case .failure:
+                        self?.showNSFWImageDetectionAlert(isError: true)
                     }
                 })])
             } catch {
-                DispatchQueue.main.async {
-                    self.showContentError()
-                    self.viewState = .error(
-                        title: appDesignSystem.strings.addPostErrorTitle,
-                        subtitle: appDesignSystem.strings.nsfwImageErrorSubtitle
-                    )
-                }
+                self?.showNSFWImageDetectionAlert(isError: true)
+            }
+        }
+    }
+    
+    private func showNSFWImageDetectionAlert(isError: Bool) {
+        DispatchQueue.main.async {
+            self.showContentError()
+            if isError {
+                self.viewState = .error(
+                    title: appDesignSystem.strings.addPostErrorTitle,
+                    subtitle: appDesignSystem.strings.nsfwImageErrorSubtitle
+                )
+            } else {
+                self.viewState = .error(
+                    title: appDesignSystem.strings.addPostErrorTitle,
+                    subtitle: appDesignSystem.strings.nsfwImageWarningSubtitle
+                )
             }
         }
     }

@@ -30,10 +30,9 @@ final class FamilyInvitationRepository {
     }
     
     func addInvitation() async throws -> FamilyInvitationViewData {
-        guard let familyId = authService.account?.familyId else { throw AppError.unathorized }
-        let inviteCode = generateUniqueInviteCode()
         let dateFormatter = AppDateFormatter()
-        let date = dateFormatter.toString(Date())
+        guard let familyId = authService.account?.familyId, let date = dateFormatter.toServerFormat(Date()) else { throw AppError.unathorized }
+        let inviteCode = generateUniqueInviteCode()
         try await firebaseClient.addInvitations(invitePayload: .init(
             id: inviteCode,
             dateCreated: date,
@@ -53,9 +52,9 @@ final class FamilyInvitationRepository {
         return code
     }
     
-    private func makeDate(_ stringDate: String) -> String {
+    private func makeDate(_ doubleDate: Double) -> String {
         let dateFormatter = AppDateFormatter()
-        guard let date = dateFormatter.toDate(stringDate) else { return stringDate }
+        guard let date = dateFormatter.toDate(doubleDate) else { return dateFormatter.toString(doubleDate) }
         return dateFormatter.makeDateForUi(date: date)
     }
 }

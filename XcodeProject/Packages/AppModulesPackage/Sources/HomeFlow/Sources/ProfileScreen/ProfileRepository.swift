@@ -77,7 +77,7 @@ final class ProfileRepository {
     ) -> Profile? {
         guard let userId = authService.account?.id,
               let personStatus = makeStatus(
-                lastOnlineString: status.lastOnline,
+                lastOnlineDouble: status.lastOnline,
                 position: status.position,
                 homePosition: homePosition
               ) else { return nil }
@@ -94,9 +94,9 @@ final class ProfileRepository {
         return profile
     }
     
-    private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
+    private func makeStatus(lastOnlineDouble: Double, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
-        guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
+        guard let lastOnline = dateFormatter.toDate(lastOnlineDouble) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
             personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))

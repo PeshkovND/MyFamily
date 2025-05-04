@@ -26,9 +26,8 @@ final class AddPostRepository {
     }
     
     func addPost(text: String?, contentURL: URL?, contentType: ContentType?) async throws {
-        guard let userId = authService.account?.id else { return }
         let dateFormatter = AppDateFormatter()
-        let date = dateFormatter.toString(Date())
+        guard let userId = authService.account?.id, let date = dateFormatter.toServerFormat(Date()) else { return }
         let post = PostPayload(
             id: UUID(),
             text: text,

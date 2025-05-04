@@ -109,13 +109,14 @@ class Conversation:
             "content": user_message
         })
         response = self.client.chat.completions.create(
-            model="deepseek-v3",
+            model="gpt-4o-mini",
             messages=temp,
             stream=False,
             web_search=False
         )
 
         assistant_response = response.choices[0].message.content
+        print(assistant_response)
         return self.extract_content(assistant_response)
         
 conversation = Conversation()

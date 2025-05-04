@@ -273,7 +273,7 @@ public extension FirebaseClient {
         do {
             let collection = fs.collection(Collections.comments)
             let query = collection.whereField("postId", isEqualTo: id.uuidString).order(by: "date")
-            let snapshot = try await query.getDocuments()
+            let snapshot = try await query.getDocuments(source: .server)
             if snapshot.metadata.isFromCache {
                 return .failure(.fetchingError)
             }
@@ -294,7 +294,7 @@ public extension FirebaseClient {
     
     func getAllComments() async throws -> Result<[CommentPayload], FirebaseClientError> {
         do {
-            let snapshot = try await fs.collection(Collections.comments).getDocuments()
+            let snapshot = try await fs.collection(Collections.comments).getDocuments(source: .server)
             if snapshot.metadata.isFromCache {
                 return .failure(.fetchingError)
             }
@@ -414,7 +414,7 @@ public extension FirebaseClient {
         do {
             let usersSnapshot = try await fs.collection(Collections.users)
                 .whereField("familyId", isEqualTo: familyId)
-                .getDocuments()
+                .getDocuments(source: .server)
 
             if usersSnapshot.metadata.isFromCache {
                 return .failure(FirebaseClientError.fetchingError)
@@ -427,9 +427,9 @@ public extension FirebaseClient {
             }
 
             let postsSnapshot = try await fs.collection(Collections.posts)
-                .whereField("userId", in: userIds) // Используем оператор "in" для фильтрации по userId
+                .whereField("userId", in: userIds)
                 .order(by: "date", descending: true)
-                .getDocuments()
+                .getDocuments(source: .server)
 
             if postsSnapshot.metadata.isFromCache {
                 return .failure(FirebaseClientError.fetchingError)
@@ -456,7 +456,7 @@ public extension FirebaseClient {
         do {
             let snapshot = try await fs.collection(Collections.posts)
                 .order(by: "date", descending: true)
-                .getDocuments()
+                .getDocuments(source: .server)
             if snapshot.metadata.isFromCache {
                 return .failure(FirebaseClientError.fetchingError)
             }
@@ -491,7 +491,7 @@ public extension FirebaseClient {
         do {
             let collection = fs.collection(Collections.posts)
             let query = collection.whereField("userId", isEqualTo: userId).order(by: "date", descending: true)
-            let snapshot = try await query.getDocuments()
+            let snapshot = try await query.getDocuments(source: .server)
             if snapshot.metadata.isFromCache {
                 return .failure(.fetchingError)
             }

@@ -49,7 +49,7 @@ final class MapRepository {
             guard
                 user.id != userId,
                 let status = statuses.first(where: { $0.userId == user.id }),
-                let personStatus = makeStatus(lastOnlineString: status.lastOnline, position: status.position, homePosition: homePosition)
+                let personStatus = makeStatus(lastOnlineDouble: status.lastOnline, position: status.position, homePosition: homePosition)
             else { continue }
             let userData = MapViewData(
                 id: user.id,
@@ -64,9 +64,9 @@ final class MapRepository {
         return result
     }
     
-    private func makeStatus(lastOnlineString: String, position: Position, homePosition: Position) -> PersonStatus? {
+    private func makeStatus(lastOnlineDouble: Double, position: Position, homePosition: Position) -> PersonStatus? {
         let dateFormatter = AppDateFormatter()
-        guard let lastOnline = dateFormatter.toDate(lastOnlineString) else { return nil }
+        guard let lastOnline = dateFormatter.toDate(lastOnlineDouble) else { return nil }
         var personStatus: PersonStatus = .online
         if Date().timeIntervalSince(lastOnline) > 300 {
             personStatus = .offline(lastOnline: dateFormatter.makeDateForUi(date: lastOnline))

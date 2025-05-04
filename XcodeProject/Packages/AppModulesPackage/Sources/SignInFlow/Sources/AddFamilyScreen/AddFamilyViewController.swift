@@ -54,8 +54,8 @@ final class AddFamilyViewController: BaseViewController<AddFamilyViewModel,
             isLoadingShowing = true
         case .addressConfirmation(address: let address):
             isLoadingShowing = false
-            let alert = UIAlertController(title: "Подтвердите адрес", message: address, preferredStyle: .alert)
-            alert.addAction(.init(title: "Верно", style: .default, handler: { _ in
+            let alert = UIAlertController(title: "Confirm the address", message: address, preferredStyle: .alert)
+            alert.addAction(.init(title: "Correctly", style: .default, handler: { _ in
                 guard let name = self.nameInputField.text else { return }
                 self.viewModel.onViewEvent(
                     .addressConfirmed(name: name)

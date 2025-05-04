@@ -128,15 +128,14 @@ final class PostRepository {
     
     public func addComment(text: String, postId: UUID) async throws -> Comment? {
         do {
-            guard let user = authService.account else { return nil }
             let dateFormatter = AppDateFormatter()
-            let dateString = dateFormatter.toString(Date())
+            guard let user = authService.account, let date = dateFormatter.toServerFormat(Date()) else { return nil }
             let commentPayload = CommentPayload(
                 id: UUID(),
                 userId: user.id,
                 postId: postId,
                 text: text,
-                date: dateString
+                date: date
             )
             try await firebaseClient.addComment(commentPayload)
             

@@ -10,7 +10,7 @@ public final class VideoPlayerView: UIView {
     private var playerLooper: AVPlayerLooper?
     private var token: NSKeyValueObservation?
     private let diskConfig = DiskConfig(name: "DiskCache")
-    private let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 10)
+    private let memoryConfig = MemoryConfig(expiry: .never, countLimit: 10, totalCostLimit: 0)
     
     private lazy var storage: Cache.Storage<String, Data>? = {
         return try? Cache.Storage(
@@ -126,10 +126,8 @@ public final class VideoPlayerView: UIView {
             let playerItem: CachingPlayerItem
             switch result {
             case .failure:
-                // The track is not cached.
                 playerItem = CachingPlayerItem(url: videoUrl, customFileExtension: "mp4")
             case .success(let entry):
-                // The track is cached.
                 playerItem = CachingPlayerItem(data: entry.object, url: videoUrl, mimeType: "video/mp4", fileExtension: "mp4")
             }
             playerItem.delegate = self
@@ -180,7 +178,6 @@ extension VideoPlayerView: UIViewControllerTransitioningDelegate {
 
 extension VideoPlayerView: CachingPlayerItemDelegate {
     public func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data) {
-        // A track is downloaded. Saving it to the cache asynchronously.
         storage?.async.setObject(data, forKey: playerItem.url.absoluteString) { _ in }
     }
     

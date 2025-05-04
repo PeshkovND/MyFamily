@@ -8,13 +8,9 @@ public class TextToxicityChecker {
     struct CheckToxicityParams: Encodable {
         let text: String
     }
-    
-    struct CheckToxicityPayload: Payloadable {
-        let result: Bool
-    }
-    
+    struct CheckToxicityPayload: Payloadable { let result: Bool }
     private let httpClient: AlamofireHttpClient
-    private let endpoint = "http://127.0.0.1:5001/check_toxicity"
+    private let endpoint = "http://127.0.0.1:5001/check-text"
     private var setCancelable = Set<AnyCancellable>()
     
     public init(httpClient: AlamofireHttpClient) {

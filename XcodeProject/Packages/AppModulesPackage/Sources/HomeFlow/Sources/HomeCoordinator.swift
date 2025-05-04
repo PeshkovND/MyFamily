@@ -144,14 +144,13 @@ private extension HomeCoordinator {
     
     private func updateUserStatus() async throws {
         guard await UIApplication.shared.applicationState == .active else { return }
+        let dateFormatter = AppDateFormatter()
         let currentDate = Date()
         let calendar = Calendar.current
         var dateComponents = DateComponents()
         dateComponents.minute = 5
-        guard let newDate = calendar.date(byAdding: dateComponents, to: currentDate), let userId = self.authService.account?.id else { return }
-        let dateFormatter = AppDateFormatter()
-        let dateString = dateFormatter.toString(newDate)
-        var userStatus = UserStatus(userId: userId, lastOnline: dateString, position: Position(lat: 0, lng: 0))
+        guard let newDate = calendar.date(byAdding: dateComponents, to: currentDate), let userId = self.authService.account?.id, let date = dateFormatter.toServerFormat(newDate) else { return }
+        var userStatus = UserStatus(userId: userId, lastOnline: date, position: Position(lat: 0, lng: 0))
         if let location = locationManager.lastLocation {
             userStatus.position = Position(lat: location.latitude, lng: location.longitude)
         } else {
