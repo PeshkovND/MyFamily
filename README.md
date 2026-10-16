@@ -1,78 +1,40 @@
-# Table of Content
+# MyFamily
 
-- [App description](#App-description)
-- [Project Setup](#Project-Setup)
-- [Technical Roadmap](#Technical-Roadmap)
-- [iOS Team](#iOS-Team)
-- [Links](#Links)
+MyFamily — заготовка iOS-приложения на Swift и UIKit с модульной архитектурой, MVVM, Coordinator и Combine. В текущем коде есть приветственный экран, ввод телефона, сервисы авторизации, сетевой слой и дизайн-система. Главный экран, магазин, профиль, создание профиля и onboarding содержат заглушки; готовые семейные функции из названия репозитория не следуют.
 
-## App description
+Документация подготовлена по исходному коду репозитория PeshkovND/MyFamily, commit `548ee58` (`init app`), 16 октября 2026 года. Сборка iOS и доступность backend этой проверкой не подтверждены.
 
-TBD
+## Быстрый старт
 
-### App key features
+1. Установите Xcode с iOS SDK. В `Package.swift` указан Swift tools 5.7, минимальная платформа — iOS 15. В build phase есть ограничение версии Xcode: см. [запуск](project/docs/setup.md).
+2. Откройте `XcodeProject/App.xcodeproj`.
+3. Выберите схему `AppDevelopment` и доступный iOS Simulator. Swift Package Manager должен разрешить зависимости.
+4. Для устройства задайте собственные `DEVELOPMENT_TEAM` и `PRODUCT_BUNDLE_IDENTIFIER` в `XcodeProject/App/xcconfigs/`.
+5. Замените шаблонные `APP_API_STAGING` и `APP_API_PRODUCTION` на адреса своего backend перед проверкой сетевой авторизации.
 
-TBD
+## Структура
 
+- `XcodeProject/App/Source/Infrastructure/` — `AppDelegate`, корневой `AppCoordinator` и контейнер зависимостей `AppContainer`.
+- `XcodeProject/Packages/AppModulesPackage/` — основные модули и тесты Swift Package Manager.
+- `XcodeProject/Packages/UmbrellaPackage/` — пакет, объединяющий внутренние модули для App target.
+- `XcodeProject/App/xcconfigs/` — четыре конфигурации сборки и API-окружения.
+- `project/docs/` — актуальные руководства по архитектуре, запуску, данным, ограничениям и частичное OpenAPI-описание в `api/openapi.json`.
+- `Docs/Architecture.md` — исходное описание архитектурных слоёв шаблона.
+- `QuickStartGuide/` — исходное руководство по шаблону; примеры в нём требуют сверки с текущим кодом.
+- `Tools/` — SwiftLint 0.52.2 и исторические Xcode-шаблоны экранов.
 
-### About project
+## Документация
 
-Check out project websites - TBD
+- [Архитектура и точки входа](project/docs/project-architecture.md)
+- [Запуск, схемы, настройки и тесты](project/docs/setup.md)
+- [Клиентский API авторизации и профиля](project/docs/client-api.md)
+- [Частичное OpenAPI-описание клиента](project/docs/api/openapi.json)
+- [Модели данных и хранение](project/docs/data-models.md)
+- [Реализованные сценарии и ограничения](project/docs/implementation-status.md)
+- [Исходное описание слоёв](Docs/Architecture.md)
 
+Документация описывает текущий checkout. Наличие фабрики HTTP-запроса или модели данных само по себе не означает готовый экран, работающий backend или завершённый пользовательский сценарий.
 
-## Project Setup
+## Документация для ассистента
 
-### Used Environment
-
-- macOS {Version}
-- Xcode: {Version}
-- Swift: {Version}
-
-
-### Supported platforms
-
-Project uses iOS `15.0` as deployment target (minimal iOS version) which defines the list of [compatible devices](https://support.apple.com/en-en/guide/iphone/iphe3fa5df43/15.0/ios/15.0). So the app can be run on devices since `iPhone 6s`.
-
-The app is targeted to be run primarily on iPhones. iPad/iPod are supported in Compatibility mode which means that is the app is not univarsal and adaptive layuot is not supported for iPad/iPod. MacOs is not supported as well.
-
-Device orientatation is resticted to `Portrait` mode without handling of rotation.
-
-
-### Initial setup 
-
-Clone project to some folder. For example, open `Terminal.app` and run the command:
-````bash
-git clone git@github.com:{project url}
-````
-Project uses [Swift Package Manager (SPM)](https://swift.org/package-manager/) as a primary dependency manager. SPM installs its dependencies automatically when you open project.
-
-After that, open project using project file `XcodeProject/App.xcodeproj`.
-
-Used 3rd party libraries and frameworks:
-- [SPM dependency list](XcodeProject/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
-
-### [Outdated] Xcode templates
-*⚠️ Only works for App target, not SPM modules*
-
-To install xcode templates for screen run command from terminal:
-```bash
-sudo cp -r Tools/ScreenXcodeTemplate.xctemplate "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates/Project Templates/iOS/Application"
-```
-
-## Technical Roadmap
-
-- [ ] TBD
-
-
-## iOS Team
-
-- {First last name, email}
-
-## Links
-- [App Architecture](Docs/Architecture.md)
-- [API Docs](TBD)
-- [AppStore Connect](https://appstoreconnect.apple.com/)
-- [Apple Developer Console](https://developer.apple.com/account/#/membership)
-- [Slack](TBD)
-- [JIRA Board](TBD)
-- [CI/CD](TBD)
+Для RAG используйте корневой `README.md` и каталог `project/docs/`, включая `project/docs/api/openapi.json`. Исходный `Docs/Architecture.md` дополняет их историческим описанием слоёв. Состояние Git (текущая ветка, commit и изменения) нужно получать при каждом вопросе через MCP, а не брать из документации. Ветка и commit здесь намеренно не выдаются за текущее состояние checkout.
