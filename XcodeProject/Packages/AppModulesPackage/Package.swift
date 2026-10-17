@@ -219,7 +219,7 @@ enum InternalModules {
     static let appServicesTestsModule: AppModule = .makeTestModule(
         name: "AppServicesTests",
         resourcePath: "JsonFakes",
-        dependencies: [appServicesModule]
+        dependencies: [appServicesModule, appEntitiesModule]
     )
 
     // MARK: - DevTools

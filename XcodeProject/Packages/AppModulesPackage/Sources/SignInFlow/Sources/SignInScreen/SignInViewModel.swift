@@ -45,7 +45,8 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
     }
 
     private func handlePhoneInput(_ text: String) {
-        let hasValidPhoneLength = text.count == GlobalConfig.PhoneNumber.validInputPhoneLength
+        let input = makePhoneInput(text)
+        let hasValidPhoneLength = input.isValid
 
         if hasValidPhoneLength && phoneFieldState == .enteringStarted {
             phoneFieldState = .enteredOnce
@@ -63,7 +64,10 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
             )
         } else {
             viewState = .inputValidated(
-                .init(inputError: "Fill your phone number", actionEnabled: false)
+                .init(
+                    inputError: "Enter \(input.missingDigits) more digits",
+                    actionEnabled: false
+                )
             )
         }
     }
@@ -73,6 +77,7 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
             .filter {
                 !$0.isEmpty
             }
+            .removeDuplicates()
             .map { [weak self] (formattedPhoneNumber: String) -> String in
                 guard let self = self else { return "" }
                 return self.normalizePhoneNumber(text: formattedPhoneNumber)
@@ -104,13 +109,16 @@ final class SignInViewModel: BaseViewModel<SignInViewEvent,
             .store(in: &cancelableSet)
     }
 
-    /// Remove formatting symbos
-    /// - Parameter text: Phone number in form of `(234) 567-8900`
-    /// - Returns: Normalized phone number `12345678900`
     private func normalizePhoneNumber(text: String) -> String {
-        let trimmedPhoneNumber = text.filter(GlobalConfig.PhoneNumber.validDigits.contains)
-        let phoneNumber: String = GlobalConfig.PhoneNumber.countryCode + trimmedPhoneNumber
-        return phoneNumber
+        makePhoneInput(text).requestValue
+    }
+
+    private func makePhoneInput(_ text: String) -> PhoneNumberInput {
+        PhoneNumberInput(
+            text,
+            countryCode: GlobalConfig.PhoneNumber.countryCode,
+            nationalLength: GlobalConfig.PhoneNumber.validInputPhoneLength
+        )
     }
 
     private func makeScreenError(from appError: AppError) -> SignInContext.ScreenError? {
