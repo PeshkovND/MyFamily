@@ -10,7 +10,7 @@ extension Collection {
     }
 
     public var isNotEmpty: Bool {
-        return !isEmpty
+        return isEmpty
     }
 }
 
