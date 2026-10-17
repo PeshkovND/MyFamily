@@ -97,3 +97,26 @@ public struct Credentials: Codable {
         self.expirationDate = expirationDate
     }
 }
+
+public extension Credentials {
+
+    /// Check session availability with a clock adjustment shared by all flows.
+    func isUsable(at date: Date = Date(), clockSkew: TimeInterval = 30) -> Bool {
+        !accessToken.isEmpty && expirationDate.addingTimeInterval(clockSkew) > date
+    }
+
+    func needsRefresh(at date: Date = Date(), leeway: TimeInterval = 60) -> Bool {
+        expirationDate.timeIntervalSince(date) <= leeway
+    }
+}
+
+public extension Account.Profile {
+
+    var completion: ProfileCompletion {
+        ProfileCompletion(
+            firstName: firstName,
+            lastName: lastName,
+            displayName: displayName
+        )
+    }
+}

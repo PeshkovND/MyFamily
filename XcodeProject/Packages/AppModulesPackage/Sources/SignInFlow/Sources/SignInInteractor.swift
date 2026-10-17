@@ -19,12 +19,29 @@ final class SignInInteractor {
     }
 
     func requestAuth(phoneNumber: String) -> AnyPublisher<Result<Void, AppError>, Never> {
-        storePhoneNumber(phoneNumber)
-        return authService.requestAuth(phoneNumber: phoneNumber)
+        let input = PhoneNumberInput(
+            phoneNumber,
+            countryCode: GlobalConfig.PhoneNumber.countryCode,
+            nationalLength: GlobalConfig.PhoneNumber.validInputPhoneLength
+        )
+        guard input.isValid else {
+            return Just<Result<Void, AppError>>(.failure(.unexpected))
+                .eraseToAnyPublisher()
+        }
+        storePhoneNumber(input.requestValue)
+        return authService.requestAuth(phoneNumber: input.requestValue)
     }
 
     func confirm(smsCode: String) -> AnyPublisher<Result<AuthState, AppError>, Never> {
-        authService.confirm(phoneNumber: phoneNumber, smsCode: smsCode)
+        let input = SmsCodeInput(
+            smsCode,
+            requiredLength: GlobalConfig.SmsCode.validInputSmsLength
+        )
+        guard input.isValid else {
+            return Just<Result<AuthState, AppError>>(.failure(.unexpected))
+                .eraseToAnyPublisher()
+        }
+        return authService.confirm(phoneNumber: phoneNumber, smsCode: input.requestValue)
     }
 
     private func storePhoneNumber(_ phoneNumber: String) {

@@ -13,8 +13,18 @@ public final class ValidateInputViaRegExpTextFieldDelegate: NSObject, UITextFiel
     }
 
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard string.isNotEmpty else { return true }
+        let currentText = textField.text ?? ""
+        guard let replacementRange = Range(range, in: currentText) else {
+            return false
+        }
 
-        return string.matchesRegExp(pattern: pattern)
+        let proposedText = currentText.replacingCharacters(
+            in: replacementRange,
+            with: string
+        )
+
+        guard !proposedText.isEmpty else { return false }
+
+        return proposedText.matchesRegExp(pattern: pattern)
     }
 }

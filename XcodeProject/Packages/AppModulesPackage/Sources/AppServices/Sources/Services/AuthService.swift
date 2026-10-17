@@ -52,17 +52,11 @@ public final class AppAuthService: AuthService {
     private static var logger: Logger { LoggerFactory.default }
 
     public var hasAuthorizedUser: Bool {
-        guard let credentials = credentials else { return false }
-        return credentials.expirationDate > Date()
+        credentials?.isUsable(clockSkew: 60) ?? false
     }
 
     public var hasFilledProfile: Bool {
-        let profile = account?.profile
-        let hasFirstName = profile?.firstName.isNotEmpty ?? false
-        let hasLastName = profile?.lastName.isNotEmpty ?? false
-        let hasDisplayName = profile?.displayName.isNotEmpty ?? false
-
-        return hasFirstName && hasLastName && hasDisplayName
+        account?.profile.completion.isComplete ?? false
     }
 
     public var credentials: Credentials? { provideCredentials() }
