@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # RAG AI Code Review v1.0.2, pinned to its verified commit; no npm install.
-      - uses: PeshkovND/AI-Advent-Challenge@dc359e71221316df806fc4e82cc542ebd35c5e53
+      # RAG AI Code Review v1.1.0, pinned commit; findings appear on diff lines.
+      - uses: PeshkovND/AI-Advent-Challenge@977c91233e221f529cb0382909d5e756befeb19c
         with:
           api-key: ${{ secrets.DEEPSEEK_API_KEY }}
